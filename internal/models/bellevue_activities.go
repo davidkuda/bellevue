@@ -1,0 +1,452 @@
+package models
+
+import (
+	"database/sql"
+	"fmt"
+	"time"
+)
+
+type BellevueActivityModel struct {
+	DB *sql.DB
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+// - - - Template Models - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+
+// used to render tables with activities
+type BellevueActivityOverviews []BellevueActivityOverview
+
+func (m *BellevueActivityModel) NewBellevueActivityOverviews(userID int) (BellevueActivityOverviews, error) {
+
+	BAs, err := m.GetAllByUser(userID)
+	if err != nil {
+		return nil, fmt.Errorf("failed GetAllByUser(%d): %v", userID, err)
+	}
+
+	if len(BAs) == 0 {
+		return BellevueActivityOverviews{}, nil
+	}
+
+	BAOs := make(BellevueActivityOverviews, 0)
+	var BAO BellevueActivityOverview // buffer
+	var monthYear, trackMonthYear string
+	var BA BellevueActivity
+
+	// commit first
+	BA = BAs[0]
+	monthYear = BA.Date.Format("January 2006")
+	trackMonthYear = monthYear
+	BAO.BellevueActivities = append(BAO.BellevueActivities, BA)
+
+	for i := 1; i < len(BAs); i++ {
+		BA = BAs[i]
+
+		monthYear = BA.Date.Format("January 2006")
+
+		// same month: add BA to buffer:
+		if monthYear == trackMonthYear {
+			BAO.BellevueActivities = append(BAO.BellevueActivities, BA)
+		}
+
+		// new month: commit buffer, reset buffer, add BA to buffer:
+		if monthYear != trackMonthYear {
+			// commit
+			BAO.CalculateTotalPrice()
+			BAO.MonthYear = trackMonthYear
+			BAOs = append(BAOs, BAO)
+
+			// reset
+			BAO = BellevueActivityOverview{}
+			trackMonthYear = monthYear
+
+			// add
+			BAO.BellevueActivities = append(BAO.BellevueActivities, BA)
+		}
+	}
+	// commit last:
+	BAO.CalculateTotalPrice()
+	BAO.MonthYear = trackMonthYear
+	BAOs = append(BAOs, BAO)
+
+	return BAOs, nil
+}
+
+type BellevueActivityOverview struct {
+	BellevueActivities []BellevueActivity
+	TotalPrice         int
+	MonthYear          string
+}
+
+func (b *BellevueActivityOverview) CalculateTotalPrice() {
+	var sum int
+	for _, a := range b.BellevueActivities {
+		sum += a.TotalPrice
+	}
+	b.TotalPrice = sum
+}
+
+type Item struct {
+	Activity string
+	Count    int
+}
+
+func NewItem(s string, n int) Item {
+	return Item{s, n}
+}
+
+type BellevueOfferings []Offer
+
+// TODO: I don't like these structs ... needs refactoring
+// TODO: REFACTOR: Maybe combine with Item? Will see when implementing edit and open the form.
+type Offer struct {
+	Label string
+	Price int
+	ID    string
+	Count int
+}
+
+func (b *BellevueActivity) NewBellevueOfferings() BellevueOfferings {
+	return BellevueOfferings{
+		Offer{
+			Label: "Breakfast (8.00 CHF):",
+			Price: 800,
+			ID:    "breakfasts",
+			Count: b.Breakfasts,
+		},
+		Offer{
+			Label: "Lunch (11.00 CHF):",
+			Price: 1100,
+			ID:    "lunches",
+			Count: b.Lunches,
+		},
+		Offer{
+			Label: "Dinner (11.00 CHF):",
+			Price: 1100,
+			ID:    "dinners",
+			Count: b.Dinners,
+		},
+		Offer{
+			Label: "Coffee (1.00 CHF):",
+			Price: 100,
+			ID:    "coffees",
+			Count: b.Coffees,
+		},
+		Offer{
+			Label: "Sauna (7.50 CHF):",
+			Price: 750,
+			ID:    "saunas",
+			Count: b.Saunas,
+		},
+		Offer{
+			Label: "Lectures (12.00 CHF):",
+			Price: 1200,
+			ID:    "lectures",
+			Count: b.Lectures,
+		},
+	}
+}
+
+func NewBellevueActivity() *BellevueActivity {
+	return &BellevueActivity{
+		Date: time.Now(),
+	}
+}
+
+func (b *BellevueActivity) PopulateItems() {
+	b.Items = make([]Item, 0)
+	b.addItem(b.Breakfasts, "Breakfast", "Breakfasts", "8.00 ")
+	b.addItem(b.Lunches, "Lunch", "Lunches", "11.00")
+	b.addItem(b.Dinners, "Dinner", "Dinners", "11.00")
+	b.addItem(b.Coffees, "Coffee", "Coffees", "1.00")
+	b.addItem(b.Saunas, "Sauna", "Saunas", "7.50")
+	b.addItem(b.Lectures, "Lecture", "Lectures", "12.00")
+}
+
+func (b *BellevueActivity) addItem(count int, singular, plural, price string) {
+	if count <= 0 {
+		return
+	} else if count == 1 {
+		b.Items = append(b.Items, Item{fmt.Sprintf("%s à %s CHF", singular, price), count})
+	} else {
+		b.Items = append(b.Items, Item{fmt.Sprintf("%s à %s CHF", plural, price), count})
+	}
+}
+
+func (a *BellevueActivity) CalculatePrice() {
+	// TODO: Define prices elsewhere, WebForm->DB? YAML?
+	//       But keep it simple for now x)
+	prices := map[string]int{
+		"breakfast": 800,
+		"lunch":     1100,
+		"dinner":    1100,
+		"coffee":    100,
+		"sauna":     750,
+		"lecture":   1200,
+	}
+
+	a.TotalPrice = (a.Breakfasts*prices["breakfast"] +
+		a.Lunches*prices["lunch"] +
+		a.Dinners*prices["dinner"] +
+		a.Coffees*prices["coffee"] +
+		a.Saunas*prices["sauna"] +
+		a.Lectures*prices["lecture"])
+
+	a.TotalPrice += a.SnacksCHF
+}
+
+// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+// - - - Database Models - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - //
+type BellevueActivities []BellevueActivity
+
+// This struct keeps track of things you need to pay for.
+type BellevueActivity struct {
+	ID         int // auto-generated by postgres
+	UserID     int
+	Date       time.Time
+	Breakfasts int
+	Lunches    int
+	Dinners    int
+	Coffees    int
+	Saunas     int
+	SnacksCHF  int
+	Lectures   int
+	Comment    string
+	TotalPrice int    // in Rappen => CHF => float64(TotalCost) / 100.0
+	Items      []Item // this is a representation that is used in a template to render the data in the table "bellevue-activities"
+}
+
+func (m *BellevueActivityModel) GetByMonth() {}
+
+func (m *BellevueActivityModel) Insert(a *BellevueActivity) error {
+	stmt := `
+	INSERT INTO website.bellevue_activities (
+		user_id,
+		activity_date,
+		breakfast_count,
+		lunch_count,
+		dinner_count,
+		coffee_count,
+		sauna_count,
+		lecture_count,
+		snacks_chf,
+		comment,
+		total_price
+	) VALUES (
+		$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+	);
+	`
+
+	a.CalculatePrice()
+
+	_, err := m.DB.Exec(
+		stmt,
+		a.UserID,
+		a.Date,
+		a.Breakfasts,
+		a.Lunches,
+		a.Dinners,
+		a.Coffees,
+		a.Saunas,
+		a.Lectures,
+		a.SnacksCHF,
+		a.Comment,
+		a.TotalPrice,
+	)
+	if err != nil {
+		return fmt.Errorf("failed executing insert sql: %v", err)
+	}
+
+	return nil
+}
+
+func (m *BellevueActivityModel) Update(a *BellevueActivity) error {
+	stmt := `
+	UPDATE website.bellevue_activities
+	SET
+		activity_date = $1,
+		breakfast_count = $2,
+		lunch_count = $3,
+		dinner_count = $4,
+		coffee_count = $5,
+		sauna_count = $6,
+		lecture_count = $7,
+		snacks_chf = $8,
+		comment = $9,
+		total_price = $10
+	WHERE id = $11;
+	`
+
+	a.CalculatePrice()
+
+	_, err := m.DB.Exec(
+		stmt,
+		a.Date,
+		a.Breakfasts,
+		a.Lunches,
+		a.Dinners,
+		a.Coffees,
+		a.Saunas,
+		a.Lectures,
+		a.SnacksCHF,
+		a.Comment,
+		a.TotalPrice,
+		a.ID,
+	)
+	if err != nil {
+		return fmt.Errorf("failed executing UPDATE sql: %v", err)
+	}
+
+	return nil
+}
+
+func (m *BellevueActivityModel) Delete(activityID int) error {
+	stmt := `
+	DELETE from website.bellevue_activities
+	WHERE id = $1;
+	`
+
+	_, err := m.DB.Exec(stmt, activityID)
+	if err != nil {
+		return fmt.Errorf("failed executing DELETE sql: %v", err)
+	}
+
+	return nil
+}
+
+func (m *BellevueActivityModel) GetAllByUser(userID int) (BellevueActivities, error) {
+	stmt := `
+	SELECT
+		id,
+		activity_date,
+		breakfast_count,
+		lunch_count,
+		dinner_count,
+		coffee_count,
+		sauna_count,
+		lecture_count,
+		snacks_chf,
+		total_price,
+		comment
+	FROM website.bellevue_activities
+	WHERE user_id = $1
+	ORDER BY activity_date DESC
+	`
+
+	rows, err := m.DB.Query(stmt, userID)
+	if err != nil {
+		return nil, fmt.Errorf("DB.Query(stmt): %v", err)
+	}
+
+	defer rows.Close()
+
+	var bas BellevueActivities
+
+	for rows.Next() {
+		var ba BellevueActivity
+		err = rows.Scan(
+			&ba.ID,
+			&ba.Date,
+			&ba.Breakfasts,
+			&ba.Lunches,
+			&ba.Dinners,
+			&ba.Coffees,
+			&ba.Saunas,
+			&ba.Lectures,
+			&ba.SnacksCHF,
+			&ba.TotalPrice,
+			&ba.Comment,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("for rows.Next(): %v", err)
+		}
+		ba.PopulateItems()
+		bas = append(bas, ba)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows.Err(): %v", err)
+	}
+
+	return bas, nil
+}
+
+func (m *BellevueActivityModel) ActivityOwnedByUserID(activityID, userID int) (bool, error) {
+	stmt := `
+	SELECT user_id
+	FROM website.bellevue_activities
+	WHERE id = $1
+	`
+
+	row := m.DB.QueryRow(stmt, activityID)
+
+	var idFromDB int
+
+	err := row.Scan(&idFromDB)
+	if err != nil {
+		return false, fmt.Errorf("failed fetching row; activityID=%d, userID=%d: %v", activityID, userID, err)
+	}
+
+	return idFromDB == userID, nil
+}
+
+func (m *BellevueActivityModel) MaxID() (int, error) {
+	stmt := `
+	SELECT count(id)
+	FROM website.bellevue_activities
+	`
+
+	row := m.DB.QueryRow(stmt)
+
+	var N int
+
+	err := row.Scan(&N)
+	if err != nil {
+		return 0, err
+	}
+
+	return N, nil
+}
+
+func (m *BellevueActivityModel) GetByID(activityID int) (*BellevueActivity, error) {
+	stmt := `
+	SELECT
+		id,
+		user_id,
+		activity_date,
+		breakfast_count,
+		lunch_count,
+		dinner_count,
+		coffee_count,
+		sauna_count,
+		lecture_count,
+		snacks_chf,
+		total_price,
+		comment
+	FROM website.bellevue_activities
+	WHERE id = $1
+	`
+
+	row := m.DB.QueryRow(stmt, activityID)
+
+	var act BellevueActivity
+
+	err := row.Scan(
+		&act.ID,
+		&act.UserID,
+		&act.Date,
+		&act.Breakfasts,
+		&act.Lunches,
+		&act.Dinners,
+		&act.Coffees,
+		&act.Saunas,
+		&act.Lectures,
+		&act.SnacksCHF,
+		&act.TotalPrice,
+		&act.Comment,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed fetching row; activityID=%d: %v", activityID, err)
+	}
+
+	return &act, nil
+}

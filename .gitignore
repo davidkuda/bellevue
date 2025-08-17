@@ -1,0 +1,17 @@
+tmp/
+pico.pumpkin.css
+pico.pumpkin.min.css
+data/postgres/
+todo.md
+cmd/commitanalysis/
+cmd/web/handlers_progress.go
+temp.md
+ui/static/css/experiment.css
+.env.sh
+
+package.json
+package-lock.json
+node_modules/
+.prettierignore
+.prettierrc
+data/

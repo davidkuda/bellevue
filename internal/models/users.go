@@ -1,0 +1,98 @@
+package models
+
+import (
+	"database/sql"
+	"errors"
+	"fmt"
+	"time"
+
+	"golang.org/x/crypto/bcrypt"
+)
+
+type User struct {
+	ID             int
+	Email          string
+	FirstName      string
+	LastName       string
+	HashedPassword []byte
+	Created        time.Time
+}
+
+type UserModel struct {
+	DB *sql.DB
+}
+
+// Creates a new user in the database
+func (m *UserModel) Insert(email, password string) error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 15)
+	if err != nil {
+		return err
+	}
+
+	stmt := `INSERT INTO auth.users (email, hashed_password) VALUES($1, $2);`
+
+	result, err := m.DB.Exec(stmt, email, string(hashedPassword))
+	if err != nil {
+		return err
+	}
+	result.RowsAffected()
+
+	return nil
+}
+
+func (m *UserModel) Authenticate(email, password string) error {
+	var hashedPassword []byte
+
+	stmt := "SELECT hashed_password FROM auth.users WHERE email = $1;"
+
+	err := m.DB.QueryRow(stmt, email).Scan(&hashedPassword)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrInvalidCredentials
+		} else {
+			return fmt.Errorf("DB.QueryRow(): %v", err)
+		}
+	}
+
+	err = bcrypt.CompareHashAndPassword(hashedPassword, []byte(password))
+	if err != nil {
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			return ErrInvalidCredentials
+		} else {
+			return fmt.Errorf("failed to compare password: %v", err)
+		}
+	}
+
+	return nil
+}
+
+func (m *UserModel) Exists(email string) (bool, error) {
+	return false, nil
+}
+
+func (m *UserModel) GetUserIDByEmail(email string) (int, error) {
+	stmt := "SELECT id FROM auth.users WHERE email = $1;"
+
+	var userID int
+
+	err := m.DB.QueryRow(stmt, email).Scan(&userID)
+	if err != nil {
+		return 0, fmt.Errorf("DB.QueryRow(): %v", err)
+	}
+
+	return userID, nil
+}
+
+func (m *UserModel) GetUserByEmail(email string) (User, error) {
+	stmt := "SELECT id, first_name, last_name FROM auth.users WHERE email = $1;"
+
+	var u User
+
+	err := m.DB.QueryRow(stmt, email).Scan(&u.ID, &u.FirstName, &u.LastName)
+	if err != nil {
+		return u, fmt.Errorf("DB.QueryRow(): failed getting user by email %s: %v", email, err)
+	}
+	u.Email = email
+
+	return u, nil
+}
