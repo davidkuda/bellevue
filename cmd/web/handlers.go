@@ -17,6 +17,18 @@ var (
 	FieldError = errors.New("FieldError")
 )
 
+// GET /
+func (app *application) home(w http.ResponseWriter, r *http.Request) {
+	t := app.newTemplateData(r)
+	page, err := app.models.Pages.Get("home")
+	if err != nil {
+		app.serverError(w, r, fmt.Errorf("app.models.pages.Get(\"home\"): %v", err))
+		return
+	}
+	t.HTML = page.HTMLContent
+	app.render(w, r, 200, "simplePage.tmpl.html", &t)
+}
+
 // GET /admin/new-bellevue-activity
 func (app *application) adminNewBellevueActivity(w http.ResponseWriter, r *http.Request) {
 	t := app.newTemplateData(r)

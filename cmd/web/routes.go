@@ -15,18 +15,9 @@ func (app *application) routes() http.Handler {
 	// standard := alice.New(logRequest, commonHeaders)
 	standard := alice.New(commonHeaders, app.identify)
 	usersOnly := alice.New(app.requireAuthentication)
-	adminsOnly := alice.New(app.requireAuthentication, app.requireAdmin)
+	// adminsOnly := alice.New(app.requireAuthentication, app.requireAdmin)
 
 	mux.HandleFunc("GET /", app.home)
-
-	// simple pages:
-	mux.HandleFunc("GET /now", app.now)
-	mux.HandleFunc("GET /about", app.about)
-	mux.HandleFunc("GET /bookshelf", app.bookshelf)
-	// protected:
-	mux.Handle("GET /admin/new-page", adminsOnly.ThenFunc(app.adminNewPage))
-	mux.Handle("GET /admin/pages/{page}", adminsOnly.ThenFunc(app.adminPagesPage))
-	mux.Handle("POST /pages", adminsOnly.ThenFunc(app.pagesPost))
 
 	// Bellevue Activities (all protected):
 	mux.Handle("GET /admin/new-bellevue-activity", usersOnly.ThenFunc(app.adminNewBellevueActivity))
