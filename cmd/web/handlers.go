@@ -18,28 +18,16 @@ var (
 )
 
 // GET /
-func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	t := app.newTemplateData(r)
-	page, err := app.models.Pages.Get("home")
-	if err != nil {
-		app.serverError(w, r, fmt.Errorf("app.models.pages.Get(\"home\"): %v", err))
-		return
+func (app *application) getHome(w http.ResponseWriter, r *http.Request) {
+	if app.isAuthenticated(r) {
+		http.Redirect(w, r, "/activities", http.StatusSeeOther)
+	} else {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 	}
-	t.HTML = page.HTMLContent
-	app.render(w, r, 200, "simplePage.tmpl.html", &t)
 }
 
-// GET /admin/new-bellevue-activity
-func (app *application) adminNewBellevueActivity(w http.ResponseWriter, r *http.Request) {
-	t := app.newTemplateData(r)
-	t.Title = "New Bellevue Activity"
-	t.BellevueOfferings = t.BellevueActivity.NewBellevueOfferings()
-	t.Form = bellevueActivityForm{}
-	app.render(w, r, http.StatusOK, "admin.new_bellevue_activity.tmpl.html", &t)
-}
-
-// GET /bellevue-activities
-func (app *application) bellevueActivities(w http.ResponseWriter, r *http.Request) {
+// GET /activities
+func (app *application) getActivities(w http.ResponseWriter, r *http.Request) {
 	t := app.newTemplateData(r)
 
 	BAOs, err := app.models.BellevueActivities.NewBellevueActivityOverviews(t.UserID)
@@ -56,15 +44,21 @@ func (app *application) bellevueActivities(w http.ResponseWriter, r *http.Reques
 	}
 	t.BellevueActivityOverview.BellevueActivities = bas
 	t.BellevueActivityOverview.CalculateTotalPrice()
-	app.render(w, r, http.StatusOK, "bellevue_activities.tmpl.html", &t)
+	app.render(w, r, http.StatusOK, "activities.tmpl.html", &t)
 }
 
-// HTMX: GET /bellevue-activities/{ID}/edit
-func (app *application) bellevueActivityIDEdit(w http.ResponseWriter, r *http.Request) {
-	// NOTE: this is different then a previous edit implementation. it's done for experimenting and learning.
-	// the novelty is using the ID in the URL and extracting it from there.
-	// an alternative would be to send the userID via hidden input.
+// GET /activities/new
+func (app *application) getActivitiesNew(w http.ResponseWriter, r *http.Request) {
+	t := app.newTemplateData(r)
+	t.Title = "New Bellevue Activity"
+	t.BellevueOfferings = t.BellevueActivity.NewBellevueOfferings()
+	t.Form = bellevueActivityForm{}
+	app.render(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
 
+}
+
+// HTMX: GET /activities/{ID}/edit
+func (app *application) getActivitiesIDEdit(w http.ResponseWriter, r *http.Request) {
 	// get activity ID:
 	parts := strings.Split(r.URL.Path, "/")
 
@@ -114,14 +108,14 @@ func (app *application) bellevueActivityIDEdit(w http.ResponseWriter, r *http.Re
 	t.Form = bellevueActivityForm{}
 
 	if isHTMX {
-		app.renderHTMXPartial(w, r, http.StatusOK, "admin.new_bellevue_activity.tmpl.html", &t)
+		app.renderHTMXPartial(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
 	} else {
-		app.render(w, r, http.StatusOK, "admin.new_bellevue_activity.tmpl.html", &t)
+		app.render(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
 	}
 }
 
-// PUT /bellevue-activity/:id
-func (app *application) bellevueActivityPut(w http.ResponseWriter, r *http.Request) {
+// PUT /activity/:id
+func (app *application) putActivitiesID(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	// get ID from URL:
@@ -154,7 +148,7 @@ func (app *application) bellevueActivityPut(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		if err == FieldError {
 			t := app.newTemplateDataBellevueActivity(r, form)
-			app.render(w, r, http.StatusUnprocessableEntity, "admin.new_bellevue_activity.tmpl.html", &t)
+			app.render(w, r, http.StatusUnprocessableEntity, "activities.new.tmpl.html", &t)
 			return
 		} else {
 			log.Println(fmt.Errorf("failed parsing form bellevue activity: %v", err))
@@ -162,7 +156,7 @@ func (app *application) bellevueActivityPut(w http.ResponseWriter, r *http.Reque
 			return
 		}
 	}
-	
+
 	form.ID = id
 
 	userID, ok := r.Context().Value("userID").(int)
@@ -209,10 +203,10 @@ func (app *application) bellevueActivityPut(w http.ResponseWriter, r *http.Reque
 	}
 	t.BellevueActivityOverview.BellevueActivities = bas
 	t.BellevueActivityOverview.CalculateTotalPrice()
-	app.renderHTMXPartial(w, r, http.StatusOK, "bellevue_activities.tmpl.html", &t)
+	app.renderHTMXPartial(w, r, http.StatusOK, "activities.tmpl.html", &t)
 }
 
-// POST /admin/new-bellevue-activity
+// POST /activity
 func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {

@@ -1,7 +1,6 @@
 {{ define "title" }}Bellevue Activities{{ end }} {{ define "main" }}
-<h2 class="text-center">Bellevue Activities</h2>
-<p class="text-center">
-  <a href="/admin/new-bellevue-activity">Add new activities</a>
+<p class="margin-top text-center">
+  <a href="/activities/new">Add a new activity</a>
 </p>
 {{ range .BellevueActivityOverviews }}
 <h3 class="center stack-exception-xl">{{.MonthYear}}</h3>
@@ -32,7 +31,7 @@
         >
         <div class="buttons stack-exception-small">
           <button
-            hx-get="/bellevue-activities/{{.ID}}/edit"
+            hx-get="/activities/{{.ID}}/edit"
             hx-target="main"
             hx-push-url="true"
             type="button"
@@ -42,7 +41,7 @@
           </button>
           <span> </span>
           <button
-            hx-delete="/bellevue-activities/{{.ID}}"
+            hx-delete="/activities/{{.ID}}"
             hx-target="closest tr"
             type="button"
             class="delete"

@@ -1,7 +1,8 @@
-{{ define "title" }}Admin: Login{{ end }} {{ define "main" }}
+{{ define "title" }}Bellevue Team Login{{ end }}
+{{ define "main" }}
 <form
   id="login-form"
-  action="/admin/login"
+  action="/login"
   method="post"
   hx-boost="true"
   hx-target="find span.error"
@@ -31,7 +32,7 @@
     </label>
     <span class="error"></span>
   </fieldset>
-  <button type="submit" id="login-button" class="stack-exception-large">
+  <button type="submit" id="login-button" class="stack-exception">
     Login
   </button>
 </form>

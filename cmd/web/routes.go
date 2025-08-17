@@ -17,23 +17,21 @@ func (app *application) routes() http.Handler {
 	usersOnly := alice.New(app.requireAuthentication)
 	// adminsOnly := alice.New(app.requireAuthentication, app.requireAdmin)
 
-	mux.HandleFunc("GET /", app.home)
+	mux.HandleFunc("GET /", app.getHome)
 
-	// Bellevue Activities (all protected):
-	mux.Handle("GET /admin/new-bellevue-activity", usersOnly.ThenFunc(app.adminNewBellevueActivity))
-	mux.Handle("GET /bellevue-activities", usersOnly.ThenFunc(app.bellevueActivities))
-	mux.Handle("POST /bellevue-activities", usersOnly.ThenFunc(app.bellevueActivityPost))
-	mux.Handle("PUT /bellevue-activities/{id}", usersOnly.ThenFunc(app.bellevueActivityPut))
-	mux.Handle("DELETE /bellevue-activities/{id}", usersOnly.ThenFunc(app.bellevueActivityDelete))
-	// HTMX partials
-	mux.Handle("GET /bellevue-activities/{id}/edit", usersOnly.ThenFunc(app.bellevueActivityIDEdit))
+	// activities: all require authentication:
+	mux.Handle("GET /activities", usersOnly.ThenFunc(app.getActivities))
+	mux.Handle("GET /activities/new", usersOnly.ThenFunc(app.getActivitiesNew))
+	mux.Handle("POST /activities", usersOnly.ThenFunc(app.bellevueActivityPost))
+	mux.Handle("GET /activities/{id}/edit", usersOnly.ThenFunc(app.getActivitiesIDEdit))
+	mux.Handle("PUT /activities/{id}", usersOnly.ThenFunc(app.putActivitiesID))
+	mux.Handle("DELETE /activities/{id}", usersOnly.ThenFunc(app.bellevueActivityDelete))
 
 	// admin:
-	mux.HandleFunc("GET /admin/login", app.adminLogin)
-	mux.HandleFunc("POST /admin/login", app.adminLoginPost)
+	mux.HandleFunc("GET /login", app.getLogin)
+	mux.HandleFunc("POST /login", app.postLogin)
 	// protected:
-	mux.Handle("GET /admin", usersOnly.ThenFunc(app.admin))
-	mux.Handle("GET /admin/logout", usersOnly.ThenFunc(app.adminLogoutPost))
+	mux.Handle("GET /logout", usersOnly.ThenFunc(app.getLogout))
 
 	return standard.Then(mux)
 }

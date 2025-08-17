@@ -9,22 +9,19 @@ import (
 	"github.com/pascaldekloe/jwt"
 )
 
-func (app *application) admin(w http.ResponseWriter, r *http.Request) {
-	t := app.newTemplateData(r)
-	app.render(w, r, 200, "admin.tmpl.html", &t)
-}
-
-func (app *application) adminLogin(w http.ResponseWriter, r *http.Request) {
+// GET /login
+func (app *application) getLogin(w http.ResponseWriter, r *http.Request) {
 	if app.isAuthenticated(r) {
-		http.Redirect(w, r, "/admin", http.StatusSeeOther)
+		http.Redirect(w, r, "/activities", http.StatusSeeOther)
 		return
 	}
 
 	t := app.newTemplateData(r)
-	app.render(w, r, 200, "admin.login.tmpl.html", &t)
+	app.render(w, r, 200, "login.tmpl.html", &t)
 }
 
-func (app *application) adminLoginPost(w http.ResponseWriter, r *http.Request) {
+// POST /login
+func (app *application) postLogin(w http.ResponseWriter, r *http.Request) {
 	type userLoginForm struct {
 		email    string
 		password string
@@ -78,7 +75,8 @@ func (app *application) adminLoginPost(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (app *application) adminLogoutPost(w http.ResponseWriter, r *http.Request) {
+// GET /logout
+func (app *application) getLogout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "id",
 		Value:    "",
@@ -88,7 +86,7 @@ func (app *application) adminLogoutPost(w http.ResponseWriter, r *http.Request) 
 		HttpOnly: true,
 		Path:     "/",
 	})
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 
 func (app *application) isAuthenticated(r *http.Request) bool {
