@@ -63,7 +63,7 @@ func (app *application) postLogin(w http.ResponseWriter, r *http.Request) {
 		Name:     "id",
 		Value:    string(jwtBytes),
 		Domain:   app.JWT.CookieDomain,
-		Expires:  time.Now().Add(24 * time.Hour),
+		Expires:  time.Now().Add(10 * 24 * time.Hour),
 		Secure:   true,
 		HttpOnly: true,
 		Path:     "/",
