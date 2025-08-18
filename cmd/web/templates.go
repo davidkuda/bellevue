@@ -266,6 +266,9 @@ func newTemplatePartialsCache() (map[string]*template.Template, error) {
 		cache[name] = t
 	}
 
+	// for _, partial := range partials {
+	// }
+
 	return cache, nil
 }
 

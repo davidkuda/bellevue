@@ -1,0 +1,21 @@
+{{ define "activities--overview-by-month" }}
+<table
+  class="stack-exception-large"
+  id="data-tables-overview"
+  hx-get="/activities/overview-by-month"
+  hx-trigger="refresh-table from:body"
+  hx-target="this"
+  hx-swap="outerHTML"
+>
+  <tr>
+    <th>Month</th>
+    <th>Price</th>
+  </tr>
+{{ range .BellevueActivityOverviews }}
+  <tr>
+    <td>{{.MonthYear}}</td>
+    <td>{{.TotalPrice | fmtCHF}} CHF</td>
+  </tr>
+{{ end }}
+</table>
+{{ end }}

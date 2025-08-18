@@ -1,0 +1,65 @@
+{{ define "activities--by-month" }}
+<!-- <div class="activity-tables-by-month stack"> -->
+<h3 class="center stack-exception-xl">{{.MonthYear}}</h3>
+<div class="table-container">
+  <table>
+    <tr>
+      <th>Date & Price</th>
+      <th>Activities</th>
+    </tr>
+    {{ range .BellevueActivities }}
+    <tr id="activity-{{.ID}}" class="fade-out">
+      <td class="date-price no-break stack-xs">
+        <span class="no-break bold block">{{ .Date | fmtDateNiceRead }}</span>
+        <span class="block">{{ .TotalPrice | fmtCHF }} CHF</span>
+      </td>
+      <td class="stack-xs min-width-max-content">
+        {{ range .Items }}
+        <span class="bellevue-activity no-wrap"
+          >{{ .Count }} {{ .Activity }}</span
+        >
+        {{ end }} {{ if gt .SnacksCHF 0 }}
+        <span class="bellevue-activity"
+          >{{ .SnacksCHF | fmtCHF }} CHF Snacks and Drinks</span
+        >
+        {{ end }} {{ if ne .Comment "" }} {{ end }}
+        <span class="bellevue-activity stack-exception-medium"
+          ><small class="comment">{{ .Comment }}</small></span
+        >
+        <div class="buttons stack-exception-small">
+          <button
+            hx-get="/activities/{{.ID}}/edit"
+            hx-target="main"
+            hx-push-url="true"
+            type="button"
+            class="edit"
+            hx-swap="innerHTML show:top"
+          >
+            edit
+          </button>
+          <span> </span>
+          <button
+            hx-delete="/activities/{{.ID}}"
+            hx-target="closest tr"
+            hx-confirm="are you sure that you want to delete this activity?"
+            hx-swap="delete swap:400ms"
+            type="button"
+            class="delete"
+          >
+            delete
+          </button>
+        </div>
+      </td>
+    </tr>
+    {{ end }}
+    <tr>
+      <td></td>
+      <td class="stack-xs">
+        <span class="bold block">Total Price {{ .MonthYear }}:</span>
+        <span class="bold block">{{ .TotalPrice | fmtCHF }} CHF</span>
+      </td>
+    </tr>
+  </table>
+</div>
+<!-- </div> -->
+{{ end }}

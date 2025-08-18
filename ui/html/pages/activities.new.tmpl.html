@@ -6,6 +6,7 @@
 <form
   hx-put="/activities/{{ .BellevueActivity.ID }}"
   hx-target="main"
+  hx-swap="innerHTML show:main:top"
   hx-push-url="/activities"
   class="stack-exception-large"
 >

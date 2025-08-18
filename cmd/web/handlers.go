@@ -305,7 +305,39 @@ func (app *application) bellevueActivityDelete(w http.ResponseWriter, r *http.Re
 		app.serverError(w, r, fmt.Errorf("failed BellevueActivities.Delete(actiityID=%d): %v", activityID, err))
 		return
 	}
+
+	// w.Header().Add("HX-Trigger-After-Settle", `{"refresh-table": {"reason":"item-deleted"}}"`)
+	w.Header().Add("HX-Trigger-After-Settle", "refresh-table")
 }
+
+func (app *application) someHTMXPartial(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("<p>I am a partial.</p>"))
+}
+
+// HTMX Partial: GET /activities/overview-by-months
+func (app *application) getActivitiesOverviewByMonths(w http.ResponseWriter, r *http.Request) {
+	t := app.newTemplateData(r)
+	BAOs, err := app.models.BellevueActivities.NewBellevueActivityOverviews(t.User.ID)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	t.BellevueActivityOverviews = BAOs
+	app.renderHTMXPartial(w, r, http.StatusOK, "htmx.partial.activities.overview-by-month.tmpl.html", &t)
+}
+
+// HTMX Partial: GET /activities/by-month
+func (app *application) getActivitiesByMonths(w http.ResponseWriter, r *http.Request) {
+	t := app.newTemplateData(r)
+	BAOs, err := app.models.BellevueActivities.NewBellevueActivityOverviews(t.User.ID)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	t.BellevueActivityOverviews = BAOs
+	app.renderHTMXPartial(w, r, http.StatusOK, "htmx.partial.activities.by-month.tmpl.html", &t)
+}
+
 
 func (app *application) newTemplateDataBellevueActivity(r *http.Request, form bellevueActivityForm) templateData {
 	t := app.newTemplateData(r)
