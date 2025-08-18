@@ -12,8 +12,8 @@ func (app *application) routes() http.Handler {
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
-	// standard := alice.New(logRequest, commonHeaders)
-	standard := alice.New(commonHeaders, app.identify)
+	standard := alice.New(logRequest, commonHeaders, app.identify)
+	// standard := alice.New(commonHeaders, app.identify)
 	usersOnly := alice.New(app.requireAuthentication)
 	// adminsOnly := alice.New(app.requireAuthentication, app.requireAdmin)
 

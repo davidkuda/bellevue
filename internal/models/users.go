@@ -84,7 +84,11 @@ func (m *UserModel) GetUserIDByEmail(email string) (int, error) {
 }
 
 func (m *UserModel) GetUserByEmail(email string) (User, error) {
-	stmt := "SELECT id, first_name, last_name FROM auth.users WHERE email = $1;"
+	stmt := `
+	SELECT id, first_name, last_name
+	FROM auth.users
+	WHERE email = $1;
+	`
 
 	var u User
 

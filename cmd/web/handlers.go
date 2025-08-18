@@ -30,7 +30,7 @@ func (app *application) getHome(w http.ResponseWriter, r *http.Request) {
 func (app *application) getActivities(w http.ResponseWriter, r *http.Request) {
 	t := app.newTemplateData(r)
 
-	BAOs, err := app.models.BellevueActivities.NewBellevueActivityOverviews(t.UserID)
+	BAOs, err := app.models.BellevueActivities.NewBellevueActivityOverviews(t.User.ID)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
@@ -38,7 +38,7 @@ func (app *application) getActivities(w http.ResponseWriter, r *http.Request) {
 
 	t.BellevueActivityOverviews = BAOs
 
-	bas, err := app.models.BellevueActivities.GetAllByUser(t.UserID)
+	bas, err := app.models.BellevueActivities.GetAllByUser(t.User.ID)
 	if err != nil {
 		log.Println(fmt.Errorf("failed reading bellevue activities: %v", err))
 	}
@@ -195,7 +195,7 @@ func (app *application) putActivitiesID(w http.ResponseWriter, r *http.Request) 
 	// TODO: this may need a helper, verbose and used multiple times
 	// or even an abstraction in the future with HTMX partial rendering.
 	t := app.newTemplateData(r)
-	bas, err := app.models.BellevueActivities.GetAllByUser(t.UserID)
+	bas, err := app.models.BellevueActivities.GetAllByUser(t.User.ID)
 	if err != nil {
 		err = fmt.Errorf("PUT /bellevue-activity/%d: failed reading bellevue activities: %v", id, err)
 		app.serverError(w, r, err)

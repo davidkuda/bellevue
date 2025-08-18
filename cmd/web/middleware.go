@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/davidkuda/bellevue/internal/models"
 )
 
 func logRequest(next http.Handler) http.Handler {
@@ -14,8 +16,9 @@ func logRequest(next http.Handler) http.Handler {
 			proto  = r.Proto
 			method = r.Method
 			uri    = r.URL.RequestURI()
-			uagent = r.Header.Get("User-Agent")
 			platf  = r.Header.Get("Sec-Ch-Ua-Platform")
+			// verbose Header:
+			// uagent = r.Header.Get("User-Agent")
 		)
 
 		// caddy will set X-Forwarded-For with original src IP when reverse proxying.
@@ -25,7 +28,10 @@ func logRequest(next http.Handler) http.Handler {
 			ip = xff
 		}
 
-		log.Printf("msg=ReceivedRequest ip=%v proto=%v method=%v uri=%v platf=%v user-agent=%v", ip, proto, method, uri, platf, uagent)
+		log.Printf("msg=ReceivedRequest ip=%v proto=%v method=%v uri=%v platf=%v", ip, proto, method, uri, platf)
+
+		// verbose Header:
+		// log.Printf("msg=ReceivedRequest ip=%v proto=%v method=%v uri=%v platf=%v user-agent=%v", ip, proto, method, uri, platf, uagent)
 
 		next.ServeHTTP(w, r)
 	})
@@ -35,6 +41,7 @@ func (app *application) identify(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Cache-Control", "no-store")
 
+		var user models.User
 		var userEmail string
 		var userID int
 
@@ -47,17 +54,20 @@ func (app *application) identify(next http.Handler) http.Handler {
 			return
 		}
 
-		userID, err = app.models.Users.GetUserIDByEmail(userEmail)
+		user, err = app.models.Users.GetUserByEmail(userEmail)
 		if err != nil {
-			err = fmt.Errorf("could not get email from user with email %s: %v\n", userEmail, err)
+			err = fmt.Errorf("could not get user with email %s: %v\n", userEmail, err)
 			app.serverError(w, r, err)
 			return
 		}
+
+		userID = user.ID
 
 		ctx := r.Context()
 		ctx = context.WithValue(ctx, "isAuthenticated", true)
 		ctx = context.WithValue(ctx, "userEmail", userEmail)
 		ctx = context.WithValue(ctx, "userID", userID)
+		ctx = context.WithValue(ctx, "user", user)
 
 		// TODO: implement nice permission management...
 		if userID == 1 {

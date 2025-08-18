@@ -37,10 +37,11 @@
     <header>
       <hgroup>
         <h1><a href="/">Bellevue Team Activities</a></h1>
-      {{ if .LoggedIn }}
-      <p>Hoooi {{ .UserEmail }} 👋🇨🇭🗻</p>
-      {{ end }}
-        <span id="themeToggle">dark mode</span>
+        <div class="nav">
+          <span id="themeToggle">dark mode</span>
+          <p>Hoooi {{ .User.FirstName }} 👋🇨🇭🗻</p>
+          <p><a href="/logout">logout</a><p>
+        <div>
       </hgroup>
     </header>
     {{ if .Sidebars }}

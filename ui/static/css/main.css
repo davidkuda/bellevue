@@ -122,6 +122,11 @@ header>hgroup>h1 {}
 
 header>hgroup>p {}
 
+header>hgroup>div.nav {
+	display: flex;
+	justify-content: space-evenly;
+}
+
 header>hgroup>h1>a {
 	text-decoration: none;
 }

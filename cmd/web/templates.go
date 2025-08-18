@@ -15,8 +15,7 @@ import (
 
 type templateData struct {
 	LoggedIn                  bool
-	UserID                    int
-	UserEmail                 string
+	User                      models.User
 	IsAdmin                   bool
 	Title                     string
 	Path                      string
@@ -60,23 +59,14 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 		isAuthenticated = false
 	}
 
-	var userID int
-	var userEmail string
+	var user models.User
 	var isAdmin bool
 
 	if isAuthenticated {
-		userID, ok = r.Context().Value("userID").(int)
+		user, ok = r.Context().Value("user").(models.User)
 		if !ok {
-			// TODO: what to do with this check?
 			log.Println("newTemplateData: could not get userID from request.Context")
 		}
-
-		userEmail, ok = r.Context().Value("userEmail").(string)
-		if !ok {
-			// TODO: what to do with this check?
-			log.Println("newTemplateData: could not get userEmail from request.Context")
-		}
-
 		isAdmin, ok = r.Context().Value("isAdmin").(bool)
 		if !ok {
 			isAdmin = false
@@ -95,8 +85,7 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 	// problem is that the templates will error on render.
 	return templateData{
 		LoggedIn:         isAuthenticated,
-		UserID:           userID,
-		UserEmail:        userEmail,
+		User:             user,
 		IsAdmin:          isAdmin,
 		Title:            title,
 		RootPath:         rootPath,
