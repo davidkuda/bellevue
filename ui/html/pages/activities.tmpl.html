@@ -2,6 +2,18 @@
 <p class="margin-top text-center">
   <a href="/activities/new">Add a new activity</a>
 </p>
+<table class="stack-exception-large">
+  <tr>
+    <th>Month</th>
+    <th>Price</th>
+  </tr>
+{{ range .BellevueActivityOverviews }}
+  <tr>
+    <td>{{.MonthYear}}</td>
+    <td>{{.TotalPrice | fmtCHF}} CHF</td>
+  </tr>
+{{ end }}
+</table>
 {{ range .BellevueActivityOverviews }}
 <h3 class="center stack-exception-xl">{{.MonthYear}}</h3>
 <div class="table-container">
