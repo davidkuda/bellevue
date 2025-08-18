@@ -40,7 +40,9 @@
         <div class="nav">
           <span id="themeToggle">dark mode</span>
           <p>Hoooi {{ .User.FirstName }} 👋🇨🇭🗻</p>
+          {{ if .LoggedIn }}
           <p><a href="/logout">logout</a><p>
+          {{ end }}
         <div>
       </hgroup>
     </header>
