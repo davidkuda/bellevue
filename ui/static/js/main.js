@@ -22,13 +22,6 @@ themeBtn.addEventListener("click", async () => {
 	await localStorage.setItem("theme", next);
 });
 
-document.body.addEventListener("htmx:afterSwap", (e) => {
-	const main = document.querySelector("main");
-	if (e.detail.target === main) {
-		main.scrollIntoView();
-	}
-});
-
 // ------------------------------------------------------------
 // functions
 // ------------------------------------------------------------
