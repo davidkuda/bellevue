@@ -192,14 +192,19 @@ func (app *application) putActivitiesID(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// TODO: this may need a helper, verbose and used multiple times
-	// or even an abstraction in the future with HTMX partial rendering.
 	t := app.newTemplateData(r)
-	bas, err := app.models.BellevueActivities.GetAllByUser(t.User.ID)
+
+	BAOs, err := app.models.BellevueActivities.NewBellevueActivityOverviews(t.User.ID)
 	if err != nil {
-		err = fmt.Errorf("PUT /bellevue-activity/%d: failed reading bellevue activities: %v", id, err)
 		app.serverError(w, r, err)
 		return
+	}
+
+	t.BellevueActivityOverviews = BAOs
+
+	bas, err := app.models.BellevueActivities.GetAllByUser(t.User.ID)
+	if err != nil {
+		log.Println(fmt.Errorf("failed reading bellevue activities: %v", err))
 	}
 	t.BellevueActivityOverview.BellevueActivities = bas
 	t.BellevueActivityOverview.CalculateTotalPrice()
