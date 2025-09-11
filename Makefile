@@ -1,3 +1,17 @@
+bundle/js:
+	esbuild \
+	--bundle \
+	--minify \
+	./ui/static/js/bundle.js \
+	--outfile=./ui/static/dist/app.js
+
+bundle/css:
+	esbuild \
+	--bundle \
+	--minify \
+	./ui/static/css/bundle.css \
+	--outfile=./ui/static/dist/styles.css
+
 fmt/ui:
 	npx prettier ./ui/html/pages --write # --use-tabs
 	npx prettier ./ui/html/partials --write # --use-tabs

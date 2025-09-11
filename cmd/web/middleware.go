@@ -116,7 +116,7 @@ func commonHeaders(next http.Handler) http.Handler {
 		highlightJS := "'sha256-KuW8nrMYej09eTtZkBNDwTy8Yn05dABB5v2dLSEPgTY='"
 
 		// style-src:
-		htmx := "'sha256-bsV5JivYxvGywDAZ22EZJKBFip65Ng9xoJVLbBg7bdo='"
+		htmx := "'sha256-faU7yAF8NxuMTNEwVmBz+VcYeIoBQ2EMHW3WaVxCvnk='"
 
 		w.Header().Set(
 			"Content-Security-Policy",

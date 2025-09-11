@@ -9,7 +9,7 @@ import (
 func (app *application) routes() http.Handler {
 	mux := http.NewServeMux()
 
-	fileServer := http.FileServer(http.Dir("./ui/static/"))
+	fileServer := http.FileServer(http.Dir("./ui/static/dist/"))
 	mux.Handle("GET /static/", http.StripPrefix("/static", fileServer))
 
 	// standard := alice.New(logRequest, commonHeaders, app.identify)

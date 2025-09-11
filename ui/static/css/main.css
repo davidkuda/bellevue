@@ -54,11 +54,10 @@ html {
 }
 
 body {
-	font-family: "Open Sans", sans-serif;
+	font-family: "Inter", sans-serif;
 	font-optical-sizing: auto;
 	color: var(--text);
 	line-height: 1.5;
-
 }
 
 h2 {
@@ -77,13 +76,13 @@ code {
 	font-family: "JetBrains Mono", monospace;
 }
 
-p>code {
+p > code {
 	background-color: var(--highlight-med);
 	padding: 0.4em;
 	border-radius: 0.5em;
 }
 
-pre>code {
+pre > code {
 	background-color: var(--surface);
 	border-radius: 0.5em;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -108,35 +107,37 @@ span#themeToggle:hover {
 	cursor: pointer;
 }
 
-header>hgroup {
+header > hgroup {
 	text-align: center;
 	margin: 1rem;
 }
 
-header>hgroup>h1,
+header > hgroup > h1,
 p {
 	margin: 0;
 }
 
-header>hgroup>h1 {}
+header > hgroup > h1 {
+}
 
-header>hgroup>p {}
+header > hgroup > p {
+}
 
-header>hgroup>div.nav {
+header > hgroup > div.nav {
 	display: flex;
 	justify-content: space-evenly;
 }
 
-header>hgroup>h1>a {
+header > hgroup > h1 > a {
 	text-decoration: none;
 }
 
-header>hgroup>h1>a:hover {
+header > hgroup > h1 > a:hover {
 	text-decoration: underline;
 	text-decoration-thickness: 5%;
 }
 
-header>nav * {
+header > nav * {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
@@ -146,16 +147,16 @@ header ul {
 	padding-inline-start: 0;
 }
 
-header>nav>ul>li {
+header > nav > ul > li {
 	list-style: none;
 	padding: 0.2em 0.4em;
 }
 
-header>nav>ul>li>a {
+header > nav > ul > li > a {
 	text-decoration: underline;
 }
 
-header>nav>ul>li>a.active {
+header > nav > ul > li > a.active {
 	text-decoration: none;
 	font-weight: 600;
 }
@@ -207,19 +208,19 @@ div.main-layout {
 	text-align: center;
 }
 
-.stack *+* {
+.stack * + * {
 	margin-block-start: var(--space, 1.5rem);
 }
 
-.stack-xs>*+* {
+.stack-xs > * + * {
 	margin-block-start: var(--space, 0.25rem);
 }
 
-.stack-small>*+* {
+.stack-small > * + * {
 	margin-block-start: var(--space, 0.5rem);
 }
 
-.stack-large>*+* {
+.stack-large > * + * {
 	margin-block-start: var(--space, 3rem);
 }
 
@@ -243,19 +244,21 @@ div.main-layout {
 	--space: 4.5rem;
 }
 
-main ul>li+li {
+main ul > li + li {
 	/* margin-block-start: 0.5rem; */
 	--space: 0.75rem;
 }
 
-div.left {}
+div.left {
+}
 
 main {
 	padding: 0.5em;
 	overflow-x: hidden;
 }
 
-div.right {}
+div.right {
+}
 
 @media (max-width: 60ch) {
 	div.main-layout {
@@ -267,7 +270,8 @@ div.right {}
 	text-align: center;
 }
 
-h2 {}
+h2 {
+}
 
 a {
 	color: inherit;
@@ -278,7 +282,8 @@ a:hover {
 	color: var(--rose);
 }
 
-.active {}
+.active {
+}
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 /* MAIN.BellevueActivities - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -372,11 +377,11 @@ form {
 	margin-top: 1rem;
 }
 
-form>h2 {
+form > h2 {
 	margin-top: 0em;
 }
 
-form>fieldset {
+form > fieldset {
 	border: 0;
 	padding: 0;
 	margin: 0;
@@ -491,7 +496,7 @@ button#login-button[aria-busy="true"]::after {
 
 /* New Bellevue Acitvity */
 /* reset stack */
-form label fieldset>*+* {
+form label fieldset > * + * {
 	--space: 0;
 }
 
