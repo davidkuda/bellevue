@@ -1,0 +1,221 @@
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+/* MAIN.forms  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+
+form {
+	background-color: var(--iris-moon);
+	/* border: 1px solid var(--text); */
+	border: none;
+	border-radius: 0.4em;
+	background-color: var(--surface);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	padding: 1rem;
+	margin-top: 1rem;
+}
+
+form > h2 {
+	margin-top: 0em;
+}
+
+form > fieldset {
+	border: 0;
+	padding: 0;
+	margin: 0;
+}
+
+form * {
+	box-sizing: border-box;
+	display: block;
+	/* margin-top: 1.2em; */
+	/* margin-bottom: 1.2em; */
+	overflow: hidden;
+}
+
+input:not([type="radio"], [type="checkbox"]),
+textarea,
+select {
+	box-sizing: border-box;
+	font-size: 1rem;
+	font-family: inherit;
+	color: inherit;
+	/* border: none; */
+	/* border-bottom: solid 1px var(--rose); */
+	/* border-image: linear-gradient(to right, var(--pine), var(--accent)) 1; */
+	border: solid 1px var(--highlight-med);
+	border-radius: 0.2rem;
+	padding: 0.4rem;
+	width: 100%;
+	background-color: var(--overlay);
+	transition:
+		border 0.2s ease,
+		box-shadow 0.2s ease;
+}
+
+textarea {
+	resize: vertical;
+}
+
+input:not([type="radio"], [type="checkbox"]):focus,
+textarea:focus,
+select:focus {
+	outline: none;
+	border: 2px solid var(--rose);
+}
+
+input[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+	border: 2px solid var(--love);
+}
+
+small.failed-validation {
+	color: var(--love);
+}
+
+input[readonly],
+textarea[readonly] {
+	user-select: none;
+	-webkit-user-select: none;
+	/* For Safari */
+	-moz-user-select: none;
+	/* For Firefox */
+	-ms-user-select: none;
+	/* For IE/Edge */
+}
+
+form button {
+	font-size: 1em;
+	font-weight: bold;
+	background-color: var(--rose);
+	box-sizing: border-box;
+	color: var(--button-text-color);
+	padding: 0.8rem;
+	width: 100%;
+	border-radius: 0.2rem;
+	border: none;
+}
+
+/* form button:hover, */
+/* form button:focus { */
+/* 	cursor: pointer; */
+/* 	background-color: var(--love); */
+/* 	border: none; */
+/* } */
+
+/* Loading Spinner */
+/* Style the button when aria-busy="true" */
+button#login-button[aria-busy="true"] {
+	position: relative;
+	pointer-events: none;
+	opacity: 0.7;
+}
+
+/* Add spinner when aria-busy is true */
+button#login-button[aria-busy="true"]::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 16px;
+	height: 16px;
+	margin: -8px 0 0 -8px;
+	border: 2px solid #fff;
+	border-top: 2px solid transparent;
+	border-radius: 50%;
+	animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* New Bellevue Acitvity */
+/* reset stack */
+form label fieldset > * + * {
+	--space: 0;
+}
+
+fieldset {
+	border: none;
+}
+
+fieldset.number-picker {
+	display: flex;
+	max-width: 324px;
+	border-radius: 0.5rem;
+	overflow: hidden;
+}
+
+.number-picker input {
+	width: 4rem;
+	text-align: center;
+	border-radius: 0;
+	border: 1px solid var(--overlay);
+	background-color: var(--surface);
+}
+
+fieldset.number-picker button {
+	width: 3rem;
+	background-color: var(--overlay);
+	cursor: pointer;
+	border: 1px solid var(--overlay);
+}
+
+/* Rounded left corners */
+.number-picker button.minus {
+	border-radius: 0.5rem 0 0 0.5rem;
+	color: var(--text);
+	touch-action: manipulation;
+}
+
+/* Rounded right corners */
+.number-picker button.plus {
+	border-radius: 0 0.5rem 0.5rem 0;
+	color: var(--text);
+	touch-action: manipulation;
+}
+
+/* remove browser input up arrow and down arrow */
+/* Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+	-moz-appearance: textfield;
+}
+
+button.edit {
+	font-family: inherit;
+	font-size: inherit;
+	background-color: inherit;
+	/* background-color: var(--iris); */
+	/* border-radius: 0.5em; */
+	border: none;
+	color: var(--iris);
+	padding: 0.3rem 0.5rem;
+	cursor: pointer;
+}
+
+button.edit:hover {
+	color: var(--text);
+	transition: color 0.2s ease-in-out;
+}
+
+button.delete {
+	font-family: inherit;
+	font-size: inherit;
+	background-color: inherit;
+	border: none;
+	color: var(--muted);
+	padding: 0.3rem 0.5rem;
+	cursor: pointer;
+}
+
+button.delete:hover {
+	color: var(--love);
+	transition: color 0.2s ease-in-out;
+}

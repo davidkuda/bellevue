@@ -1,0 +1,45 @@
+/* rose pine palette: https://rosepinetheme.com/palette/ */
+
+/* light: Rose Pine Dawn */
+:root {
+	--text: #575279;
+	--muted: #9893a5;
+	--subtle: #797593;
+	--base: #faf4ed;
+	--base-main: #191724;
+	--surface: #fffaf3;
+	--overlay: #f2e9e1;
+	--overlay-main: #26233a;
+	--highlight-low: #f4ede8;
+	--highlight-med: #dfdad9;
+	--highlight-high: #cecacd;
+	--rose: #d7827e;
+	--iris: #907aa9;
+	--pine: #286983;
+	--love: #b4637a;
+	--foam: #9ccfd8;
+	--gold: #f6c177;
+	--button-text-color: #f2e9e1;
+}
+
+/* dark: Rose Pine Moon */
+[data-theme="dark"] {
+	--text: #e0def4;
+	--muted: #6e6a86;
+	--subtle: #908caa;
+	--base: #232136;
+	--base-main: #191724;
+	--surface: #2a273f;
+	--overlay: #393552;
+	--overlay-main: #26233a;
+	--highlight-med: #2a283e;
+	--highlight-med: #44415a;
+	--highlight-high: #56526e;
+	--rose: #ea9a97;
+	--iris: #c4a7e7;
+	--pine: #3e8fb0;
+	--love: #eb6f92;
+	--foam: #9ccfd8;
+	--gold: #f6c177;
+}
+
