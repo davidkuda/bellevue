@@ -10,8 +10,10 @@
   <tr>
     <th>Month</th>
     <th>Price</th>
+    <th>Status</th>
+    <th>Actions</th>
   </tr>
-{{ range .BellevueActivityOverviews }}
+{{ range .BellevueInvoices }}
   <tr>
     <td>{{.MonthYear}}</td>
     <td>{{.TotalPrice | fmtCHF}} CHF</td>

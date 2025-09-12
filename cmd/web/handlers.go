@@ -30,6 +30,13 @@ func (app *application) getHome(w http.ResponseWriter, r *http.Request) {
 func (app *application) getActivities(w http.ResponseWriter, r *http.Request) {
 	t := app.newTemplateData(r)
 
+	invoices, err := app.models.Bellevue.GetAllInvoicesOfUser(t.User.ID)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+	t.BellevueInvoices = invoices
+
 	BAOs, err := app.models.BellevueActivities.NewBellevueActivityOverviews(t.User.ID)
 	if err != nil {
 		app.serverError(w, r, err)

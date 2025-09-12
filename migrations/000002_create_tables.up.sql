@@ -84,7 +84,6 @@ CREATE TABLE bellevue.invoices (
 	id                 SERIAL primary key,
 	user_id            INT not null references auth.users(id),
 	period             DATE not null,
-	price_sauna        INT not null default 0,
 	total_price_rappen INT not null default 0,
 	total_eating       INT not null default 0,
 	total_coffee       INT not null default 0,
@@ -159,6 +158,8 @@ FROM
 
 ----------------------------------------------------------------------------------
 -- Update Permissions: -----------------------------------------------------------
+
+GRANT USAGE ON SCHEMA bellevue TO kuda_ai;
 
 GRANT SELECT, INSERT, UPDATE, DELETE
 ON ALL TABLES IN SCHEMA bellevue

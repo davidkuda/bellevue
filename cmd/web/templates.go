@@ -23,6 +23,7 @@ type templateData struct {
 	HTML                      template.HTML
 	Pages                     models.Pages
 	Page                      *models.Page
+	BellevueInvoices          []models.Invoice
 	BellevueActivityOverviews models.BellevueActivityOverviews
 	BellevueActivityOverview  models.BellevueActivityOverview
 	BellevueActivity          *models.BellevueActivity
