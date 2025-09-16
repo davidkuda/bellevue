@@ -1,4 +1,5 @@
 {{ define "activities--overview-by-month" }}
+<div class="table-container">
 <table
   class="stack-exception-large"
   id="data-tables-overview"
@@ -17,7 +18,13 @@
   <tr>
     <td>{{.MonthYear}}</td>
     <td>{{.TotalPrice | fmtCHF}} CHF</td>
+    <td>{{ .State }}</td>
+    <td class="actions-cell">
+    {{ template "overflow-menu" . }}
+    </td>
   </tr>
 {{ end }}
 </table>
+</div>
 {{ end }}
+
