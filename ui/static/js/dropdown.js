@@ -5,9 +5,6 @@ function overflowMenu(tree = document) {
 		const button = menuRoot.querySelector("[aria-haspopup]"),
 			menu = menuRoot.querySelector("[role=menu]"),
 			items = [...menu.querySelectorAll("[role=menuitem]")];
-		console.log(menuRoot)
-		console.log(menu)
-		console.log(items)
 		const isOpen = () => !menu.hidden;
 		items.forEach((item) => item.setAttribute("tabindex", "-1"));
 		toggleMenu(isOpen());
