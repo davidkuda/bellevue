@@ -1,4 +1,4 @@
 import "./dropdown.js";
-import "./main.js";
+import "./theme-toggle.js";
 import "./login-button-spinner.js";
 import "./new-bellevue-activity.js";
