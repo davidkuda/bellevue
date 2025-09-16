@@ -1,39 +1,29 @@
-console.log("Hello from the go server");
+window.addEventListener("htmx:load", (e) => themeToggle(e.target));
 
-// ------------------------------------------------------------
-// DOM references
-// ------------------------------------------------------------
-const themeBtn = document.getElementById("themeToggle");
+function themeToggle(tree = document) {
+	const themeBtn = document.getElementById("themeToggle");
 
-// ------------------------------------------------------------
-// event listeners
-// ------------------------------------------------------------
-window.addEventListener("DOMContentLoaded", () => {
-	document.querySelectorAll("textarea").forEach((textarea) => {
-		textarea.style.height = "auto";
-		textarea.style.height = textarea.scrollHeight + "px";
+	themeBtn.addEventListener("click", async () => {
+		const current = document.documentElement.getAttribute("data-theme") || "light";
+
+		// toggle:
+		if (current === "light") {
+			document.documentElement.setAttribute("data-theme", "dark");
+			await localStorage.setItem("theme", "dark");
+			themeBtn.textContent = "light mode";
+		} else {
+			document.documentElement.setAttribute("data-theme", "light");
+			await localStorage.setItem("theme", "light");
+			themeBtn.textContent = "dark mode";
+		}
 	});
-});
-
-themeBtn.addEventListener("click", async () => {
-	const cur = document.documentElement.getAttribute("data-theme") || "dark";
-	const next = cur === "dark" ? "light" : "dark";
-	applyTheme(next);
-	await localStorage.setItem("theme", next);
-});
-
-// ------------------------------------------------------------
-// functions
-// ------------------------------------------------------------
-function applyTheme(mode) {
-	document.documentElement.setAttribute("data-theme", mode);
-	themeBtn.textContent = mode === "dark" ? "light mode" : "dark mode";
 }
 
-// ------------------------------------------------------------
-// init
-// ------------------------------------------------------------
+
 (async () => {
-	const theme = await localStorage.getItem("theme");
-	applyTheme(theme);
+	const current = await localStorage.getItem("theme");
+	console.log(current)
+	if (current === "dark") {
+		document.getElementById("themeToggle").textContent = "light mode";
+	}
 })();
