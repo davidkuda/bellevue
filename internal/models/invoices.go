@@ -31,7 +31,6 @@ func (m *BellevueModels) GetAllInvoicesOfUser(userID int) ([]Invoice, error) {
 	var user string
 	err := m.DB.QueryRow("SELECT current_user").Scan(&user)
 	if err != nil {}
-	fmt.Println("Connected as:", user)
 
 	stmt := `
 	SELECT
