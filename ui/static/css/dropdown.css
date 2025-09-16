@@ -9,7 +9,6 @@ details[data-overflow-menu] {
 	padding: 0.1em;
 	position: relative;
 	display: inline-block;
-	z-index: 1;
 }
 
 details[data-overflow-menu] > summary {
