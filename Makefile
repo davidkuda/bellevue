@@ -5,12 +5,29 @@ bundle/js:
 	./ui/static/js/bundle.js \
 	--outfile=./ui/static/dist/app.js
 
+bundle/js/watch:
+	esbuild \
+	--bundle \
+	--minify \
+	./ui/static/js/bundle.js \
+	--outfile=./ui/static/dist/app.js \
+	--watch
+
+
 bundle/css:
 	esbuild \
 	--bundle \
 	--minify \
 	./ui/static/css/bundle.css \
 	--outfile=./ui/static/dist/styles.css
+
+bundle/css/watch:
+	esbuild \
+	--bundle \
+	--minify \
+	./ui/static/css/bundle.css \
+	--outfile=./ui/static/dist/styles.css \
+	--watch
 
 fmt/ui:
 	npx prettier ./ui/html/pages --write # --use-tabs
