@@ -60,7 +60,13 @@ func (app *application) getActivitiesNew(w http.ResponseWriter, r *http.Request)
 	t.Title = "New Bellevue Activity"
 	t.BellevueOfferings = t.BellevueActivity.NewBellevueOfferings()
 	t.Form = bellevueActivityForm{}
-	app.render(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
+
+	isHTMX := r.Header.Get("HX-Request") == "true"
+	if isHTMX {
+		app.renderHTMXPartial(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
+	} else {
+		app.render(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
+	}
 
 }
 
