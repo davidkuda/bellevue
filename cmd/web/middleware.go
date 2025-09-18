@@ -112,7 +112,7 @@ func commonHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		// JS: script-src:
-		setTheme := "'sha256-d0p7Z2OKW9F6H7+KJP42Xcw2Tb90XTuKIILK5NffXgQ='"
+		setTheme := "'sha256-iPh555NGYFuqXa3x4Etpt6REdQ/TiOrBh3UPr3/vH5s='"
 		highlightJS := "'sha256-KuW8nrMYej09eTtZkBNDwTy8Yn05dABB5v2dLSEPgTY='"
 
 		// style-src:
