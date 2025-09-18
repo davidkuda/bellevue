@@ -160,7 +160,15 @@ a:hover {
 	color: var(--rose);
 }
 
-.active {
+button {
+	all: unset;
+	background-color: var(--rose);
+	color: white;
+	padding: 0.4em 0.8em;
+	border-radius: 0.4em;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	cursor: pointer;
+	text-align: center;
 }
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
