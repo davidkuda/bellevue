@@ -3,7 +3,6 @@
   <p class="margin-top margin-bottom text-center">
     <a href="/activities">Go back to activities overview</a>
   </p>
-  <h2>{{ if .Edit }}Edit{{ else }}New{{ end }} Bellevue Activity</h2>
   {{ if .Edit }}
     <form
       hx-put="/activities/{{ .BellevueActivity.ID }}"
@@ -11,14 +10,15 @@
       hx-swap="innerHTML show:main:top"
       hx-push-url="/activities"
       class="stack-exception-large"
-    ></form>
+    >
   {{ else }}
     <form
       action="/activities"
       method="post"
       class="stack-exception-large"
-    ></form>
+    >
   {{ end }}
+  <h2>{{ if .Edit }}Edit{{ else }}New{{ end }} Bellevue Activity</h2>
   {{ with .Form.FieldErrors.negatives }}
     <label class="error">{{ . }}</label>
   {{ end }}
@@ -58,4 +58,5 @@
   <button type="submit" class="stack-exception-large">
     {{ if .Edit }}Edit{{ else }}Add{{ end }}
   </button>
+  </form>
 {{ end }}

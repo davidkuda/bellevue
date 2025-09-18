@@ -160,7 +160,7 @@ a:hover {
 	color: var(--rose);
 }
 
-button {
+button.individual {
 	all: unset;
 	background-color: var(--rose);
 	color: white;
