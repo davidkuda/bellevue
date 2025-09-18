@@ -9,9 +9,12 @@
   hx-swap="afterbegin"
 >
 </div>
-<p class="margin-top text-center">
-  <a href="/activities/new">Add a new activity</a>
-</p>
+<button
+  hx-get="/activities/new"
+  hx-push-url="true"
+  hx-target="main"
+  hx-swap="innerHTML show:top"
+>Add a new activity</button>
 {{ template "activities--overview-by-month" . }}
 {{ range .BellevueActivityOverviews }}
 {{ template "activities--by-month" . }}
@@ -24,6 +27,6 @@
   hx-push-url="true"
   hx-target="main"
   hx-swap="innerHTML show:top"
->Add a new activity</a>
+>Add a new activity</button>
 {{ end }}
 {{ end }}

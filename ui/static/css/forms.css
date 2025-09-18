@@ -188,16 +188,20 @@ input[type="number"] {
 	-moz-appearance: textfield;
 }
 
-button.edit {
+table button {
+	all: unset;
 	font-family: inherit;
 	font-size: inherit;
-	background-color: inherit;
-	/* background-color: var(--iris); */
-	/* border-radius: 0.5em; */
-	border: none;
-	color: var(--iris);
-	padding: 0.3rem 0.5rem;
 	cursor: pointer;
+	background-color: inherit;
+	padding: 0.1rem 0.8rem;
+	/* border-radius: 0.5em; */
+	/* border: 1px solid var(--text); */
+	/* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+}
+
+form button.edit {
+	color: var(--iris);
 }
 
 button.edit:hover {
@@ -206,13 +210,7 @@ button.edit:hover {
 }
 
 button.delete {
-	font-family: inherit;
-	font-size: inherit;
-	background-color: inherit;
-	border: none;
 	color: var(--muted);
-	padding: 0.3rem 0.5rem;
-	cursor: pointer;
 }
 
 button.delete:hover {
