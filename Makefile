@@ -35,6 +35,11 @@ fmt/ui:
 	biome format ./ui/static/css/ --write
 	biome format ./ui/static/js/ --write
 
+fmt/ui/templates:
+	./node_modules/prettier/bin/prettier.cjs \
+	./ui/html/ \
+	--write
+
 PG_DSN_ADMIN = postgres://davidkuda:@${DB_ADDRESS}/${DB_NAME}?sslmode=disable
 PG_DSN_APP = postgres://${DB_USER}:${DB_PASSWORD}@${DB_ADDRESS}/${DB_NAME}?sslmode=disable
 
