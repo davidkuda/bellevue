@@ -9,11 +9,7 @@ temp.md
 ui/static/css/experiment.css
 .env.sh
 
-package.json
-package-lock.json
 node_modules/
-.prettierignore
-.prettierrc
 data/
 snippets.md
 
