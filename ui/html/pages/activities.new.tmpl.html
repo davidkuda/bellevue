@@ -1,40 +1,40 @@
-{{ define "title" }}Admin: New Bellevue Activity{{ end }}
-{{ define "main" }}
+{{- define "title" -}}Admin: New Bellevue Activity{{ end }}
+{{- define "main" -}}
   <p class="margin-top margin-bottom text-center">
     <a href="/activities">Go back to activities overview</a>
   </p>
-  {{ if .Edit }}
+  {{- if .Edit -}}
     <form
-      hx-put="/activities/{{ .BellevueActivity.ID }}"
+      hx-put="/activities/{{- .BellevueActivity.ID -}}"
       hx-target="main"
       hx-swap="innerHTML show:main:top"
       hx-push-url="/activities"
       class="stack-exception-large"
     >
-  {{ else }}
+  {{- else -}}
     <form
       action="/activities"
       method="post"
       class="stack-exception-large"
     >
-  {{ end }}
-  <h2>{{ if .Edit }}Edit{{ else }}New{{ end }} Bellevue Activity</h2>
-  {{ with .Form.FieldErrors.negatives }}
-    <label class="error">{{ . }}</label>
-  {{ end }}
-  {{ with .Form.FieldErrors.zeroes }}
-    <label class="error">{{ . }}</label>
-  {{ end }}
+  {{- end -}}
+  <h2>{{- if .Edit -}}Edit{{ else }}New{{ end }} Bellevue Activity</h2>
+  {{- with .Form.FieldErrors.negatives -}}
+    <label class="error">{{- . -}}</label>
+  {{- end -}}
+  {{- with .Form.FieldErrors.zeroes -}}
+    <label class="error">{{- . -}}</label>
+  {{- end -}}
   <label
     >Date:
     <input
       name="bellevue-activity-date"
       type="date"
-      value="{{ .BellevueActivity.Date | formatDateFormInput }}"
+      value="{{- .BellevueActivity.Date | formatDateFormInput -}}"
   /></label>
-  {{ range .BellevueOfferings }}
-    {{ template "bellevue-activity" . }}
-  {{ end }}
+  {{- range .BellevueOfferings -}}
+    {{- template "bellevue-activity" . -}}
+  {{- end -}}
   <label
     >Snacks & Drinks (in CHF):
     <input
@@ -42,11 +42,11 @@
       type="number"
       min="0"
       step="0.01"
-      value="{{ if .Edit }}
-        {{ .BellevueActivity.SnacksCHF | fmtCHF }}
-      {{ else }}
+      value="{{- if .Edit -}}
+        {{- .BellevueActivity.SnacksCHF | fmtCHF -}}
+      {{- else -}}
         0
-      {{ end }}"
+      {{- end -}}"
   /></label>
   <label
     >Comment (max 1 Paragraph):
@@ -56,7 +56,7 @@
     >
   </label>
   <button type="submit" class="stack-exception-large">
-    {{ if .Edit }}Edit{{ else }}Add{{ end }}
+    {{- if .Edit -}}Edit{{ else }}Add{{ end }}
   </button>
   </form>
-{{ end }}
+{{- end -}}
