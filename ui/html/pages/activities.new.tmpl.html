@@ -1,5 +1,6 @@
 {{- define "title" -}}Admin: New Bellevue Activity{{ end }}
 {{- define "main" -}}
+<main class="stack-large">
   <p class="margin-top margin-bottom text-center">
     <a href="/activities">Go back to activities overview</a>
   </p>
@@ -9,13 +10,13 @@
       hx-target="main"
       hx-swap="innerHTML show:main:top"
       hx-push-url="/activities"
-      class="stack-exception-large"
+      class="stack"
     >
   {{- else -}}
     <form
       action="/activities"
       method="post"
-      class="stack-exception-large"
+      class="stack"
     >
   {{- end -}}
   <h2>{{- if .Edit -}}Edit{{ else }}New{{ end }} Bellevue Activity</h2>
@@ -59,4 +60,5 @@
     {{- if .Edit -}}Edit{{ else }}Add{{ end }}
   </button>
   </form>
+</main>
 {{- end -}}
