@@ -102,6 +102,10 @@ div.main-layout {
 	margin-block-start: var(--space, 3rem);
 }
 
+.stack-xl > * + * {
+	margin-block-start: var(--space, 4.5rem);
+}
+
 .stack-exception-small {
 	--space: 0.5rem;
 }
@@ -171,6 +175,7 @@ button.individual {
 	text-align: center;
 	display: block;
 	margin: 0 auto;
+	margin-top: 1.5em;
 }
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */

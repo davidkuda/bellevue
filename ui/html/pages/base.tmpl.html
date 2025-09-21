@@ -31,15 +31,7 @@
           </div>
         </hgroup>
       </header>
-      {{ if .Sidebars }}
-        <div class="container main-layout">
-          <div class="left"></div>
-          <main class="stack">{{ template "main" . }}</main>
-          <div class="right"></div>
-        </div>
-      {{ else }}
-        <main class="container">{{ template "main" . }}</main>
-      {{ end }}
+      {{ template "main" . }}
       <footer class="container">
         <small> Made with ❤️ in Amden in 2025 </small>
       </footer>
