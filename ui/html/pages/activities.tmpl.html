@@ -1,41 +1,41 @@
 {{ define "title" }}Bellevue Activities{{ end }}
 {{ define "main" }}
-<main class="stack-xl">
-  {{ if .BellevueActivityOverviews }}
-    <div
-      id="data-tables"
-      hx-get="/htmx"
-      hx-trigger="refresh-table from:body"
-      hx-target="this"
-      hx-swap="afterbegin"
-    ></div>
-    <button
-      class="individual"
-      hx-get="/activities/new"
-      hx-push-url="true"
-      hx-target="main"
-      hx-swap="innerHTML show:top"
-    >
-      Add a new activity
-    </button>
-    {{ template "activities--overview-by-month" . }}
-    {{ range .BellevueActivityOverviews }}
-      {{ template "activities--by-month" . }}
+  <main class="center stack-xl">
+    {{ if .BellevueActivityOverviews }}
+      <div
+        id="data-tables"
+        hx-get="/htmx"
+        hx-trigger="refresh-table from:body"
+        hx-target="this"
+        hx-swap="afterbegin"
+      ></div>
+      <button
+        class="individual"
+        hx-get="/activities/new"
+        hx-push-url="true"
+        hx-target="main"
+        hx-swap="innerHTML show:html:top"
+      >
+        Add a new activity
+      </button>
+      {{ template "activities--overview-by-month" . }}
+      {{ range .BellevueActivityOverviews }}
+        {{ template "activities--by-month" . }}
+      {{ end }}
+    {{ else }}
+      <h2>Welcome To Team Bellevue Activities!</h2>
+      <p>
+        Here, you can record activities that you need to pay for. At the
+        beginning of each month, you will receive an invoice by email.
+      </p>
+      <button
+        hx-get="/activities/new"
+        hx-push-url="true"
+        hx-target="main"
+        hx-swap="innerHTML show:html:top"
+      >
+        Add a new activity
+      </button>
     {{ end }}
-  {{ else }}
-    <h2>Welcome To Team Bellevue Activities!</h2>
-    <p>
-      Here, you can record activities that you need to pay for. At the beginning
-      of each month, you will receive an invoice by email.
-    </p>
-    <button
-      hx-get="/activities/new"
-      hx-push-url="true"
-      hx-target="main"
-      hx-swap="innerHTML show:top"
-    >
-      Add a new activity
-    </button>
-  {{ end }}
-</main>
+  </main>
 {{ end }}

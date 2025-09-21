@@ -1,41 +1,41 @@
 {{ define "title" }}Bellevue Team Login{{ end }}
 {{ define "main" }}
-<main class="stack">
-  <form
-    id="login-form"
-    action="/login"
-    method="post"
-    hx-boost="true"
-    hx-target="find span.error"
-  >
-    <h2>Sign In</h2>
-    <fieldset>
-      <label
-        >email:
-        <input
-          type="email"
-          name="email"
-          autocomplete="email"
-          required
-          aria-label="Email"
-          autofocus
-        />
-      </label>
-      <label
-        >password:
-        <input
-          type="password"
-          name="password"
-          aria-label="Password"
-          autocomplete="current-password"
-          required
-        />
-      </label>
-      <span class="error"></span>
-    </fieldset>
-    <button type="submit" id="login-button" class="stack-exception">
-      Login
-    </button>
-  </form>
-</main>
+  <main class="center stack">
+    <form
+      id="login-form"
+      action="/login"
+      method="post"
+      hx-boost="true"
+      hx-target="find span.error"
+    >
+      <h2>Sign In</h2>
+      <fieldset>
+        <label
+          >email:
+          <input
+            type="email"
+            name="email"
+            autocomplete="email"
+            required
+            aria-label="Email"
+            autofocus
+          />
+        </label>
+        <label
+          >password:
+          <input
+            type="password"
+            name="password"
+            aria-label="Password"
+            autocomplete="current-password"
+            required
+          />
+        </label>
+        <span class="error"></span>
+      </fieldset>
+      <button type="submit" id="login-button" class="stack-exception">
+        Login
+      </button>
+    </form>
+  </main>
 {{ end }}

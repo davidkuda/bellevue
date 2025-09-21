@@ -42,12 +42,9 @@ pre > code {
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 /* MAIN */
 
-div.main-layout {
-	display: grid;
-	grid-template-columns: 1fr minmax(auto, 82ch) 1fr;
-	justify-content: center;
-	gap: 0.5em;
-	align-items: start;
+.center {
+	width: 82ch;
+	margin: 0 auto;
 }
 
 .block {
@@ -82,7 +79,7 @@ div.main-layout {
 	min-width: 202px;
 }
 
-.center {
+.text-center {
 	text-align: center;
 }
 
@@ -143,7 +140,7 @@ div.right {
 }
 
 @media (max-width: 60ch) {
-	div.main-layout {
+	.center {
 		grid-template-columns: 1fr;
 	}
 }
