@@ -1,7 +1,22 @@
+/* ----------------------------------------------------------------------- */
 header {
+	text-align: center;
+	margin: 1.5rem;
+}
+
+header hgroup > h1 > a {
+	text-decoration: none;
+}
+
+header hgroup > h1 > a:hover {
+	text-decoration: underline;
+	text-decoration-thickness: 5%;
+}
+
+header > hgroup > div.nav {
 	display: flex;
-	align-items: center;
-	flex-direction: column;
+	justify-content: center;
+	gap: 0.6rem;
 }
 
 span#themeToggle {
@@ -14,50 +29,7 @@ span#themeToggle:hover {
 	cursor: pointer;
 }
 
-header > hgroup {
-	text-align: center;
-	margin: 1rem;
-}
-
-header > hgroup > h1,
-p {
-	margin: 0;
-}
-
-header > hgroup > div.nav {
-	display: flex;
-	justify-content: space-evenly;
-}
-
-header > hgroup > h1 > a {
-	text-decoration: none;
-}
-
-header > hgroup > h1 > a:hover {
-	text-decoration: underline;
-	text-decoration-thickness: 5%;
-}
-
-header > nav * {
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
-}
-
-header ul {
-	padding-inline-start: 0;
-}
-
-header > nav > ul > li {
-	list-style: none;
-	padding: 0.2em 0.4em;
-}
-
-header > nav > ul > li > a {
-	text-decoration: underline;
-}
-
-header > nav > ul > li > a.active {
+header nav a.active {
 	text-decoration: none;
 	font-weight: 600;
 }
