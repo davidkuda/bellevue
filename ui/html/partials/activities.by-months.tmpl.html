@@ -1,5 +1,5 @@
 {{ define "activities--by-month" }}
-  <h3 class="center stack-exception-xl">{{ .MonthYear }}</h3>
+  <h3 class="text-center stack-exception-xl">{{ .MonthYear }}</h3>
   <div class="table-container">
     <table>
       <tr>
@@ -9,26 +9,26 @@
       {{ range .BellevueActivities }}
         <tr id="activity-{{ .ID }}" class="fade-out">
           <td class="date-price no-break stack-xs">
-            <span class="no-break bold block"
-              >{{ .Date | fmtDateNiceRead }}</span
-            >
+            <span class="no-break bold block">
+              {{ .Date | fmtDateNiceRead }}
+            </span>
             <span class="block">{{ .TotalPrice | fmtCHF }} CHF</span>
           </td>
           <td class="stack-xs min-width-max-content">
             {{ range .Items }}
-              <span class="bellevue-activity no-wrap"
-                >{{ .Count }} {{ .Activity }}</span
-              >
+              <span class="bellevue-activity no-wrap">
+                {{ .Count }} {{ .Activity }}
+              </span>
             {{ end }}
             {{ if gt .SnacksCHF 0 }}
-              <span class="bellevue-activity"
-                >{{ .SnacksCHF | fmtCHF }} CHF Snacks and Drinks</span
-              >
+              <span class="bellevue-activity">
+                {{ .SnacksCHF | fmtCHF }} CHF Snacks and Drinks
+              </span>
             {{ end }}
             {{ if ne .Comment "" }}{{ end }}
-            <span class="bellevue-activity stack-exception-medium"
-              ><small class="comment">{{ .Comment }}</small></span
-            >
+            <span class="bellevue-activity stack-exception-medium">
+              <small class="comment">{{ .Comment }}</small>
+            </span>
             <div class="buttons stack-exception-small">
               <button
                 hx-get="/activities/{{ .ID }}/edit"
@@ -36,11 +36,11 @@
                 hx-push-url="true"
                 type="button"
                 class="edit"
-                hx-swap="innerHTML show:top"
+                hx-swap="innerHTML show:html:top"
               >
                 edit
               </button>
-              <span> </span>
+              <span></span>
               <button
                 hx-delete="/activities/{{ .ID }}"
                 hx-target="closest tr"

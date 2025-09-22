@@ -17,8 +17,8 @@
       {{ range .BellevueInvoices }}
         <tr>
           <td>{{ .MonthYear }}</td>
-          <td>{{ .TotalPrice | fmtCHF }} CHF</td>
-          <td>{{ .State }}</td>
+          <td class="price">{{ .TotalPrice | fmtCHF }} CHF</td>
+          <td><span class="state state--{{ .State }}">{{ .State }}</span></td>
           <td class="actions-cell">
             {{ template "overflow-menu" . }}
           </td>

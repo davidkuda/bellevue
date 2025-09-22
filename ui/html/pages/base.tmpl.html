@@ -21,10 +21,15 @@
     <body hx-boost="true">
       <header>
         <hgroup>
-          <h1><a href="/">Bellevue Team Activities</a></h1>
+          <h1>
+            <a href="/" hx-swap="show:html:top">Bellevue Team Activities</a>
+          </h1>
           <div class="nav">
             <span id="themeToggle">dark mode</span>
             <p>Hoooi {{ .User.FirstName }} 👋🇨🇭🗻</p>
+            {{ if .IsAdmin }}
+              <p><a href="/settings" hx-target="main">settings</a></p>
+            {{ end }}
             {{ if .LoggedIn }}
               <p><a href="/logout">logout</a></p>
             {{ end }}
@@ -33,7 +38,7 @@
       </header>
       {{ template "main" . }}
       <footer class="container">
-        <small> Made with ❤️ in Amden in 2025 </small>
+        <small>Made with ❤️ in Amden in 2025</small>
       </footer>
     </body>
   </html>
