@@ -24,11 +24,23 @@
       </li>
       {{ if eq .State "open" }}
         <li>
-          <a role="menuitem" href="/invoices/id?set-status=paid">Set Paid</a>
+          <a
+            role="menuitem"
+            hx-patch="/invoices/{{ .ID }}?set-state=paid"
+            hx-target="previous span.state"
+            hx-swap="none"
+          >
+            Set Paid
+          </a>
         </li>
       {{ else }}
         <li>
-          <a role="menuitem" href="/invoices/id?set-status=unpaid">
+          <a
+            role="menuitem"
+            hx-patch="/invoices/{{ .ID }}?set-state=unpaid"
+            hx-target="previous span.state"
+            hx-swap="none"
+          >
             Set Unpaid
           </a>
         </li>

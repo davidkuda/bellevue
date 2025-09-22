@@ -51,3 +51,34 @@ function overflowMenu(tree = document) {
 		});
 	});
 }
+
+window.addEventListener("htmx:load", (e) => toggleInvoiceState(e.target));
+
+function toggleInvoiceState(tree = document) {
+	const table = tree.querySelector("[data-toggle-invoice-state]");
+	table.addEventListener("htmx:afterRequest", (e) => {
+		if (e.detail.successful) {
+			const tag = e.detail.target;
+			const a = e.target;
+
+			const requestPath = e.detail.pathInfo.requestPath;
+			const url = new URL(requestPath, location.origin);
+			const state = url.searchParams.get("set-state");
+			// TODO: maybe control flow on state instead of classList?
+
+			if (tag.classList.contains("state--open")) {
+				tag.classList.replace("state--open", "state--paid");
+				tag.innerText = "paid";
+				a.innerText = "Set Open";
+				url.searchParams.set("set-state", "open");
+				a.setAttribute("hx-patch", url.pathname + url.search);
+			} else {
+				tag.classList.replace("state--paid", "state--open");
+				tag.innerText = "open";
+				a.innerText = "Set Paid";
+				url.searchParams.set("set-state", "paid");
+				a.setAttribute("hx-patch", url.pathname + url.search);
+			}
+		}
+	});
+}
