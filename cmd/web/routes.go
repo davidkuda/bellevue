@@ -32,11 +32,15 @@ func (app *application) routes() http.Handler {
 	mux.Handle("GET /activities/overview-by-month", usersOnly.ThenFunc(app.getActivitiesOverviewByMonths))
 	mux.Handle("GET /activities/by-month", usersOnly.ThenFunc(app.getActivitiesOverviewByMonths))
 
+	mux.Handle("PATCH /invoices/{id}", usersOnly.ThenFunc(app.patchInvoicesIDState))
+
 	// admin:
 	mux.HandleFunc("GET /login", app.getLogin)
 	mux.HandleFunc("POST /login", app.postLogin)
 	// protected:
 	mux.Handle("GET /logout", usersOnly.ThenFunc(app.getLogout))
+
+	mux.Handle("GET /settings", adminsOnly.ThenFunc(app.getSettings))
 
 	return standard.Then(mux)
 }
