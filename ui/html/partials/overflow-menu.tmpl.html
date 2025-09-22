@@ -22,13 +22,17 @@
       <li>
         <a role="menuitem" href="/invoices/id/print" hx-target="body">Print</a>
       </li>
-      <!-- TODO: show "set unpaid" only if current status is paid -->
-      <li>
-        <a role="menuitem" href="/invoices/id?set-status=paid">Set Paid</a>
-      </li>
-      <li>
-        <a role="menuitem" href="/invoices/id?set-status=unpaid">Set Unpaid</a>
-      </li>
+      {{ if eq .State "open" }}
+        <li>
+          <a role="menuitem" href="/invoices/id?set-status=paid">Set Paid</a>
+        </li>
+      {{ else }}
+        <li>
+          <a role="menuitem" href="/invoices/id?set-status=unpaid">
+            Set Unpaid
+          </a>
+        </li>
+      {{ end }}
     </ul>
   </details>
 {{ end }}
