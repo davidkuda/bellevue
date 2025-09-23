@@ -1,35 +1,34 @@
 -- prerequisite: createdb kuda_ai
 
-create schema website;
-create schema auth;
+create schema bellevue;
 
--- - - - - - - - - - - - - - - - - - - - - - - - - - -
--- Roles: Groups:
+--------------------------------------------------------------------
+-- Roles: Groups: Developer ----------------------------------------
+-- A developer can CREATE ON SCHEMA, an app can only USAGE. --------
 
--- developer:
+create role developer with nologin;
 
-CREATE ROLE developer WITH nologin;
+grant create on schema bellevue to developer;
 
--- how developer is different to app: CREATE vs USAGE:
-GRANT CREATE ON SCHEMA website, auth TO developer;
-
-GRANT SELECT, INSERT, UPDATE, DELETE 
-ON ALL TABLES IN SCHEMA website, auth
+grant select, insert, update, delete 
+on all tables in schema bellevue
 TO developer;
 
--- app:
 
-CREATE ROLE app WITH nologin;
+--------------------------------------------------------------------
+-- Roles: Groups: App ----------------------------------------------
 
--- how developer is different to app: CREATE vs USAGE:
-GRANT USAGE ON SCHEMA auth, website TO app;
+create role app with nologin;
 
-GRANT SELECT, INSERT, UPDATE, DELETE 
-ON ALL TABLES IN SCHEMA website, auth
-TO app;
+grant usage on schema bellevue to app;
+
+grant select, insert, update, delete 
+on all tables in schema bellevue
+to app;
 
 
--- Roles: Users:
+--------------------------------------------------------------------
+-- Roles: Users: (with login) --------------------------------------
 
 CREATE ROLE dev WITH login PASSWORD 'pa55word' INHERIT;
 GRANT developer TO dev;
@@ -39,5 +38,4 @@ GRANT app TO kuda_ai;
 
 
 ALTER DATABASE kuda_ai OWNER TO dev;
-ALTER SCHEMA auth OWNER TO dev;
-ALTER SCHEMA website OWNER TO dev;
+ALTER SCHEMA bellevue OWNER TO dev;
