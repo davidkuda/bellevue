@@ -71,14 +71,14 @@ db/restore:
 	psql -X kuda_ai --single-transaction < ./data/postgres/dumpfile--data-only
 
 db/migrate/newsql:
-	migrate create \
+	@migrate create \
 	-seq \
 	-ext=.sql \
 	-dir=./migrations \
 	${name}
 
-db/migrate/up:
-	migrate \
+db/migrate/up-all:
+	@migrate \
 	-path=./migrations \
 	-database=${PG_DSN_ADMIN} \
 	up
@@ -90,21 +90,22 @@ db/migrate/version:
 	version
 
 db/migrate/force:
-	migrate \
+	@migrate \
 	-path=./migrations/ \
 	-database=${PG_DSN_ADMIN} \
 	force ${version}
 
 # migrate down one step
 db/migrate/down-1:
-	migrate \
+	@migrate \
 	-path=./migrations/ \
 	-database=${PG_DSN_ADMIN} \
 	down 1
 
 # migrate up one step
 db/migrate/up-1:
-	migrate \
+	@migrate \
+	-verbose \
 	-path=./migrations/ \
 	-database=${PG_DSN_ADMIN} \
 	up 1
