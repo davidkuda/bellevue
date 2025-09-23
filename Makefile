@@ -85,8 +85,29 @@ db/migrate/up:
 
 db/migrate/version:
 	migrate \
-	-URL=${PG_DSN_ADMIN} \
+	-path=./migrations/ \
+	-database=${PG_DSN_ADMIN} \
 	version
+
+db/migrate/force:
+	migrate \
+	-path=./migrations/ \
+	-database=${PG_DSN_ADMIN} \
+	force ${version}
+
+# migrate down one step
+db/migrate/down-1:
+	migrate \
+	-path=./migrations/ \
+	-database=${PG_DSN_ADMIN} \
+	down 1
+
+# migrate up one step
+db/migrate/up-1:
+	migrate \
+	-path=./migrations/ \
+	-database=${PG_DSN_ADMIN} \
+	up 1
 
 user ?= dev
 psql/dev:
