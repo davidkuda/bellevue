@@ -15,7 +15,7 @@ func (app *application) routes() http.Handler {
 	// standard := alice.New(logRequest, commonHeaders, app.identify)
 	standard := alice.New(commonHeaders, app.identify)
 	usersOnly := alice.New(app.requireAuthentication)
-	// adminsOnly := alice.New(app.requireAuthentication, app.requireAdmin)
+	adminsOnly := alice.New(app.requireAuthentication, app.requireAdmin)
 
 	mux.HandleFunc("GET /", app.getHome)
 	mux.HandleFunc("GET /htmx", app.someHTMXPartial)
