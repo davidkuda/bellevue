@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type BellevueModels struct {
+type InvoiceModel struct {
 	DB *sql.DB
 }
 
@@ -25,13 +25,9 @@ type Invoice struct {
 	State         string // open or paid
 }
 
-func (m *BellevueModels) ToggleState(ID int) {}
+func (m *InvoiceModel) ToggleState(ID int) {}
 
-func (m *BellevueModels) GetAllInvoicesOfUser(userID int) ([]Invoice, error) {
-	var user string
-	err := m.DB.QueryRow("SELECT current_user").Scan(&user)
-	if err != nil {}
-
+func (m *InvoiceModel) GetAllInvoicesOfUser(userID int) ([]Invoice, error) {
 	stmt := `
 	SELECT
 		id,
@@ -85,4 +81,48 @@ func (m *BellevueModels) GetAllInvoicesOfUser(userID int) ([]Invoice, error) {
 	}
 
 	return invoices, nil
+}
+
+func (m *InvoiceModel) GetInvoiceOfLastMonth(user User) (Invoice, error) {
+	stmt := `
+	SELECT
+		id,
+		period,
+		period_yyyymm,
+		total_price_rappen,
+		total_eating,
+		total_coffee,
+		total_lecture,
+		total_sauna,
+		total_kiosk,
+		state
+	FROM bellevue.invoices
+	WHERE
+		user_id = $1
+		AND period = date_trunc(
+			'month',
+			current_date - interval '1 month'
+		)::date;
+	`
+
+	row := m.DB.QueryRow(stmt, user.ID)
+
+	var invoice Invoice
+	err := row.Scan(
+		&invoice.ID,
+		&invoice.Period,
+		&invoice.PeriodInt,
+		&invoice.TotalPrice,
+		&invoice.TotalEating,
+		&invoice.TotalCoffees,
+		&invoice.TotalLectures,
+		&invoice.TotalSaunas,
+		&invoice.TotalKiosk,
+		&invoice.State,
+	)
+	if err != nil {
+		return Invoice{}, fmt.Errorf("failed fetching most recent invoice for user with ID %i: %e", user.ID, err)
+	}
+
+	return invoice, nil
 }

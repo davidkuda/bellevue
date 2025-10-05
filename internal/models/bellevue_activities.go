@@ -218,6 +218,10 @@ type BellevueActivity struct {
 func (m *BellevueActivityModel) GetByMonth() {}
 
 func (m *BellevueActivityModel) Insert(a *BellevueActivity) error {
+	// if new month:
+	// create a new invoice
+	// else:
+	// use ID of existing invoice
 	stmt := `
 	INSERT INTO website.bellevue_activities (
 		user_id,
@@ -369,6 +373,70 @@ func (m *BellevueActivityModel) GetAllByUser(userID int) (BellevueActivities, er
 
 	return bas, nil
 }
+
+func (m *BellevueActivityModel) GetActivitiesOfPreviousMonth(userID int) (BellevueActivities, error) {
+	stmt := `
+	SELECT
+		id,
+		activity_date,
+		breakfast_count,
+		lunch_count,
+		dinner_count,
+		coffee_count,
+		sauna_count,
+		lecture_count,
+		snacks_chf,
+		total_price,
+		comment
+	FROM bellevue.bellevue_origins
+	WHERE
+		user_id = $1
+		AND date_trunc('month', activity_date)::date
+			= date_trunc(
+					'month',
+					current_date - interval '1 month'
+			)::date
+	ORDER BY activity_date ASC;
+	`
+
+	rows, err := m.DB.Query(stmt, userID)
+	if err != nil {
+		return nil, fmt.Errorf("DB.Query(stmt): %v", err)
+	}
+
+	defer rows.Close()
+
+	var bas BellevueActivities
+
+	for rows.Next() {
+		var ba BellevueActivity
+		err = rows.Scan(
+			&ba.ID,
+			&ba.Date,
+			&ba.Breakfasts,
+			&ba.Lunches,
+			&ba.Dinners,
+			&ba.Coffees,
+			&ba.Saunas,
+			&ba.Lectures,
+			&ba.SnacksCHF,
+			&ba.TotalPrice,
+			&ba.Comment,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("for rows.Next(): %v", err)
+		}
+		ba.CalculatePrice()
+		bas = append(bas, ba)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows.Err(): %v", err)
+	}
+
+	return bas, nil
+}
+
 
 func (m *BellevueActivityModel) ActivityOwnedByUserID(activityID, userID int) (bool, error) {
 	stmt := `

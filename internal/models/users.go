@@ -83,6 +83,42 @@ func (m *UserModel) GetUserIDByEmail(email string) (int, error) {
 	return userID, nil
 }
 
+func (m *UserModel) GetAll() ([]User, error) {
+	stmt := `
+	SELECT id, first_name, last_name, email
+	FROM auth.users;
+	`
+
+	rows, err := m.DB.Query(stmt)
+	if err != nil {
+		return nil, fmt.Errorf("DB.Query(stmt): %v", err)
+	}
+
+	defer rows.Close()
+
+	var users []User
+
+	for rows.Next() {
+		var user User
+		err = rows.Scan(
+			&user.ID,
+			&user.FirstName,
+			&user.LastName,
+			&user.Email,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("for rows.Next(): %v", err)
+		}
+		users = append(users, user)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows.Err(): %v", err)
+	}
+
+	return users, nil
+}
+
 func (m *UserModel) GetUserByEmail(email string) (User, error) {
 	stmt := `
 	SELECT id, first_name, last_name

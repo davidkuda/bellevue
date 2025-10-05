@@ -43,7 +43,7 @@ func (app *application) getSettings(w http.ResponseWriter, r *http.Request) {
 func (app *application) getActivities(w http.ResponseWriter, r *http.Request) {
 	t := app.newTemplateData(r)
 
-	invoices, err := app.models.Bellevue.GetAllInvoicesOfUser(t.User.ID)
+	invoices, err := app.models.Invoices.GetAllInvoicesOfUser(t.User.ID)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
