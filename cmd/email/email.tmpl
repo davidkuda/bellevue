@@ -13,9 +13,9 @@ Hoi {{.User.FirstName}}
 
 Im letzten Monat hast Du im Bellevue im Wert von {{ .Invoice.TotalPrice | fmtCHF }} CHF konsumiert.
 
-Bitte überweise {{ .Invoice.TotalPrice | fmtCHF }} an das folgende Konto (Verwendungszweck bitte unbedingt auch angeben):
+Bitte überweise {{ .Invoice.TotalPrice | fmtCHF }} an das folgende Konto (Zahlungszweck bitte unbedingt auch angeben):
 
-Zahlungszweck: a / b / c
+Zahlungszweck: {{ .Zahlungszweck }}
 
 {{ .Recipient.IBAN }}
 {{ .Recipient.Name }}
@@ -67,25 +67,22 @@ Content-Transfer-Encoding: 8bit
   Hoi {{.User.FirstName}}
 </p>
 <p>
-  Im letzten Monat hast Du im Bellevue im Wert von {{.Invoice.TotalPrice | fmtCHF}} CHF konsumiert.
+  Im letzten Monat hast Du im Bellevue im Wert von {{.Invoice.TotalPrice | fmtCHF}} CHF konsumiert. Bitte überweise {{.Invoice.TotalPrice | fmtCHF}} an das folgende Konto (Zahlungszweck nicht vergessen):
+<p>
+<p>
+   <strong>Zahlungszweck: </strong>{{ .Zahlungszweck }}
 </p>
 <p>
-  Bitte überweise {{.Invoice.TotalPrice | fmtCHF}} an das folgende Konto (Verwendungszweck bitte angeben):
-<p>
-<p>
-   <strong>Verwendungszweck: </strong>a / b / c 
-</p>
-<p>
-  {{ .Recipient.IBAN }}<br>
-  {{ .Recipient.Name }}<br>
-  {{ .Recipient.Street }}<br>
-  {{ .Recipient.PLZOrt }}
+<strong>{{ .Recipient.IBAN }}</strong><br>
+{{ .Recipient.Name }}<br>
+{{ .Recipient.Street }}<br>
+{{ .Recipient.PLZOrt }}
 </p>
 <p>
   Hier ist eine Auflistung Deiner Konsumationen:
 </p>
-<p>
 {{ range .Activities }}
+<p>
 <strong>{{ .Date | fmtDate }}: {{ .TotalPrice | fmtCHF }} CHF</strong><br>
 {{- if gt .Breakfasts 0 }}
 {{ .Breakfasts }} Zmorge à 8.00 CHF<br>
@@ -108,7 +105,7 @@ Content-Transfer-Encoding: 8bit
 {{- if gt .SnacksCHF 0 }}
 {{ .SnacksCHF | fmtCHF }} CHF Kiosk (Getränke, Chips, etc)<br>
 {{- end }}
-{{- if ne .Comment "" }}
+{{ if ne .Comment "" }}
 {{.Comment}}
 {{ end }}
 {{- end }}

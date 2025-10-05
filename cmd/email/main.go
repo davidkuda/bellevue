@@ -31,7 +31,8 @@ type TemplateData struct {
 	SenderName  string
 	SenderEmail string
 
-	Recipient BankAccount
+	Recipient     BankAccount
+	Zahlungszweck string
 
 	User       models.User
 	Invoice    models.Invoice
@@ -84,16 +85,17 @@ func main() {
 		}
 
 		data := TemplateData{
-			Subject:     "Deine Rechnung für den letzten Monat",
-			To:          user.Email,
-			From:        cfg.SMTP.User,
-			Date:        time.Now().Format(time.RFC1123Z),
-			SenderName:  cfg.SenderName,
-			SenderEmail: cfg.SenderEmail,
-			Recipient:   cfg.Recipient,
-			User:        user,
-			Invoice:     invoice,
-			Activities:  activities,
+			Subject:       "Deine Rechnung für den letzten Monat im Bellevue",
+			To:            user.Email,
+			From:          cfg.SMTP.User,
+			Date:          time.Now().Format(time.RFC1123Z),
+			SenderName:    cfg.SenderName,
+			SenderEmail:   cfg.SenderEmail,
+			Recipient:     cfg.Recipient,
+			Zahlungszweck: zahlungszweck(invoice, user),
+			User:          user,
+			Invoice:       invoice,
+			Activities:    activities,
 		}
 
 		var buf bytes.Buffer
@@ -109,15 +111,38 @@ func main() {
 			body: buf.Bytes(),
 		}
 
-		// if err := sendViaImplicitTLS(cfg, em); err != nil {
-		// 	log.Fatal(err)
-		// }
+		if err := sendViaImplicitTLS(cfg, em); err != nil {
+			log.Fatal(err)
+		}
 
-		fmt.Println(&em.from)
-		fmt.Println(string(em.body))
+		// fmt.Println(&em.from)
+		// fmt.Println(string(em.body))
 
 		log.Printf("Sent invoice with total sum of %v CHF to %s via implicit TLS SMTP.\n", formatCurrency(data.Invoice.TotalPrice), user.Email)
 	}
+}
+
+func zahlungszweck(invoice models.Invoice, user models.User) string {
+	var positions string
+	if invoice.TotalEating > 0 {
+		positions += fmt.Sprintf("Essen %s, ", formatCurrency(invoice.TotalEating))
+	}
+	if invoice.TotalLectures > 0 {
+		positions += fmt.Sprintf("Vorträge %s, ", formatCurrency(invoice.TotalLectures))
+	}
+	if invoice.TotalCoffees > 0 {
+		positions += fmt.Sprintf("Kaffee %s, ", formatCurrency(invoice.TotalCoffees))
+	}
+	if invoice.TotalSaunas > 0 {
+		positions += fmt.Sprintf("Sauna %s, ", formatCurrency(invoice.TotalSaunas))
+	}
+	if invoice.TotalKiosk > 0 {
+		positions += fmt.Sprintf("Kiosk %s, ", formatCurrency(invoice.TotalKiosk))
+	}
+
+	positions = positions[:len(positions)-2]
+
+	return fmt.Sprintf("%s: %s: %s", user.FirstName, invoice.Period.Format("2006-01"), positions)
 }
 
 func sendViaImplicitTLS(cfg config, em email) error {
