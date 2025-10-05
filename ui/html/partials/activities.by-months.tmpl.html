@@ -17,7 +17,8 @@
           <td class="stack-xs min-width-max-content">
             {{ range .Items }}
               <span class="bellevue-activity no-wrap">
-                {{ .Count }} {{ .Activity }}
+                {{ .Count }}
+                {{ .Activity }}
               </span>
             {{ end }}
             {{ if gt .SnacksCHF 0 }}

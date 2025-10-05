@@ -1,0 +1,34 @@
+{{ define "title" }}Bellevue Team Settings{{ end }}
+{{ define "main" }}
+  <main class="with-sidebar">
+    <section class="sidebar">
+      <ul>
+        <li class="active">
+          <a>Products</a>
+        </li>
+        <li>
+          <a>Prices</a>
+        </li>
+        <li>
+          <a>Price Categories</a>
+        </li>
+        <li>
+          <a>MWST</a>
+        </li>
+        <li>
+          <a>Financial Accounts</a>
+        </li>
+      </ul>
+    </section>
+    <section class="not-sidebar">
+      <h2>Products</h2>
+      <form class="stack">
+        <label>
+          name
+          <input name="price-category-name" />
+        </label>
+        <button>create</button>
+      </form>
+    </section>
+  </main>
+{{ end }}

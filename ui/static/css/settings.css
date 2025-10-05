@@ -1,0 +1,52 @@
+.with-sidebar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.sidebar {
+  /* ↓ The width when the sidebar _is_ a sidebar */
+  flex-basis: 20rem;
+  flex-grow: 1;
+	background-color: var(--highlight-low);
+}
+
+.not-sidebar {
+  /* ↓ Grow from nothing */
+  flex-basis: 0;
+  flex-grow: 999;
+  /* ↓ Wrap when the elements are of equal width */
+  min-inline-size: 50%;
+	background-color: var(--highlight-low);
+}
+
+section {
+	border-radius: 0.4em;
+}
+
+section.sidebar ul {
+	all: unset;
+}
+
+section.sidebar li {
+	cursor: pointer;
+	padding: 0.4em 0.8em;
+	list-style: none;
+	border-radius: 0.4em;
+}
+
+section.sidebar li:hover {
+	background-color: var(--highlight-med);
+}
+
+section.sidebar li.active {
+	background-color: var(--highlight-high);
+}
+
+
+section.sidebar a {
+	text-decoration: none;
+	display: block;
+	width: 100%;
+	height: 100%;
+}

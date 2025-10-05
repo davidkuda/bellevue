@@ -1,0 +1,15 @@
+span.state {
+	border-radius: 1rem;
+	padding: 0.3rem 0.6rem;
+	font-size: small;
+	color: var(--base);
+}
+
+span.state--open {
+	background-color: var(--gold);
+}
+
+span.state--paid {
+	background-color: var(--pine);
+	color: white;
+}

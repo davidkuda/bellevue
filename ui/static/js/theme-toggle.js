@@ -4,7 +4,8 @@ function themeToggle(tree = document) {
 	const themeBtn = document.getElementById("themeToggle");
 
 	themeBtn.addEventListener("click", async () => {
-		const current = document.documentElement.getAttribute("data-theme") || "light";
+		const current =
+			document.documentElement.getAttribute("data-theme") || "light";
 
 		// toggle:
 		if (current === "light") {
@@ -19,10 +20,8 @@ function themeToggle(tree = document) {
 	});
 }
 
-
 (async () => {
 	const current = await localStorage.getItem("theme");
-	console.log(current)
 	if (current === "dark") {
 		document.getElementById("themeToggle").textContent = "light mode";
 	}

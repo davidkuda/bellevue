@@ -6,7 +6,8 @@ span.bellevue-activity {
 }
 
 div.table-container {
-	overflow-x: scroll;
+	/* overflow-x: scroll; */
+	max-width: 100dvw;
 	-webkit-overflow-scrolling: touch;
 	/* Smooth scrolling on iOS */
 }
@@ -42,10 +43,6 @@ table {
 @media (max-width: 640px) {
 	td.date-price {
 		width: 15ch;
-	}
-
-	table {
-		width: max-content;
 	}
 }
 
