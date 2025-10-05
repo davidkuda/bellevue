@@ -2,10 +2,7 @@ BEGIN;
 
 SET ROLE dev;
 
-
 create schema if not exists bellevue;
-
-SET ROLE dev;
 
 ----------------------------------------------------------------------------------
 -- Bellevue Origins: (original design) -------------------------------------------
@@ -79,7 +76,6 @@ CREATE TYPE invoice_state AS ENUM (
   'paid'
 );
 
-DROP TABLE if exists bellevue.invoices;
 CREATE TABLE bellevue.invoices (
 	id                 SERIAL primary key,
 	user_id            INT not null references auth.users(id),
@@ -159,7 +155,7 @@ FROM
 ----------------------------------------------------------------------------------
 -- Update Permissions: -----------------------------------------------------------
 
-GRANT USAGE ON SCHEMA bellevue TO kuda_ai;
+GRANT USAGE ON SCHEMA bellevue TO app;
 
 GRANT SELECT, INSERT, UPDATE, DELETE
 ON ALL TABLES IN SCHEMA bellevue
