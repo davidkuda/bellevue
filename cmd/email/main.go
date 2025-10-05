@@ -72,7 +72,8 @@ func main() {
 
 		invoice, err := m.Invoices.GetInvoiceOfLastMonth(user)
 		if err != nil {
-			log.Fatalf("failed getting invoices of user %d: %v\n", user.ID, err)
+			log.Printf("failed getting invoices of user %d: %v\n", user.ID, err)
+			continue
 		}
 
 		activities, err := m.BellevueActivities.GetActivitiesOfPreviousMonth(user.ID)
