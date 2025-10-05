@@ -68,9 +68,6 @@ func main() {
 	}
 
 	for _, user := range users {
-		if user.Email != "davidkuda3@gmail.com" {
-			continue
-		}
 		fmt.Println("sending invoice to", user.Email)
 
 		invoice, err := m.Invoices.GetInvoiceOfLastMonth(user)
