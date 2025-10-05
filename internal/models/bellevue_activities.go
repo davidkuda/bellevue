@@ -223,7 +223,7 @@ func (m *BellevueActivityModel) Insert(a *BellevueActivity) error {
 	// else:
 	// use ID of existing invoice
 	stmt := `
-	INSERT INTO website.bellevue_activities (
+	INSERT INTO bellevue_origins (
 		user_id,
 		activity_date,
 		breakfast_count,
@@ -265,7 +265,7 @@ func (m *BellevueActivityModel) Insert(a *BellevueActivity) error {
 
 func (m *BellevueActivityModel) Update(a *BellevueActivity) error {
 	stmt := `
-	UPDATE website.bellevue_activities
+	UPDATE bellevue_origins
 	SET
 		activity_date = $1,
 		breakfast_count = $2,
@@ -305,7 +305,7 @@ func (m *BellevueActivityModel) Update(a *BellevueActivity) error {
 
 func (m *BellevueActivityModel) Delete(activityID int) error {
 	stmt := `
-	DELETE from website.bellevue_activities
+	DELETE from bellevue.origins
 	WHERE id = $1;
 	`
 
@@ -331,7 +331,7 @@ func (m *BellevueActivityModel) GetAllByUser(userID int) (BellevueActivities, er
 		snacks_chf,
 		total_price,
 		comment
-	FROM website.bellevue_activities
+	FROM bellevue_origins
 	WHERE user_id = $1
 	ORDER BY activity_date DESC
 	`
@@ -388,7 +388,7 @@ func (m *BellevueActivityModel) GetActivitiesOfPreviousMonth(userID int) (Bellev
 		snacks_chf,
 		total_price,
 		comment
-	FROM bellevue.bellevue_origins
+	FROM bellevue_origins
 	WHERE
 		user_id = $1
 		AND date_trunc('month', activity_date)::date
@@ -441,7 +441,7 @@ func (m *BellevueActivityModel) GetActivitiesOfPreviousMonth(userID int) (Bellev
 func (m *BellevueActivityModel) ActivityOwnedByUserID(activityID, userID int) (bool, error) {
 	stmt := `
 	SELECT user_id
-	FROM website.bellevue_activities
+	FROM bellevue_origins
 	WHERE id = $1
 	`
 
@@ -460,7 +460,7 @@ func (m *BellevueActivityModel) ActivityOwnedByUserID(activityID, userID int) (b
 func (m *BellevueActivityModel) MaxID() (int, error) {
 	stmt := `
 	SELECT count(id)
-	FROM website.bellevue_activities
+	FROM bellevue_origins
 	`
 
 	row := m.DB.QueryRow(stmt)
@@ -490,7 +490,7 @@ func (m *BellevueActivityModel) GetByID(activityID int) (*BellevueActivity, erro
 		snacks_chf,
 		total_price,
 		comment
-	FROM website.bellevue_activities
+	FROM bellevue_origins
 	WHERE id = $1
 	`
 
