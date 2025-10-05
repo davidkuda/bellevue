@@ -11,6 +11,8 @@ Content-Transfer-Encoding: 8bit
 
 Hoi {{.User.FirstName}}
 
+Hier ist Deine allererste Rechnung aus https://team.kuda.ai :) (Bald wird die Website auf https://team.amden-retreat.ch verfügbar sein.)
+
 Im letzten Monat hast Du im Bellevue im Wert von {{ .Invoice.TotalPrice | fmtCHF }} CHF konsumiert.
 
 Bitte überweise {{ .Invoice.TotalPrice | fmtCHF }} an das folgende Konto (Zahlungszweck bitte unbedingt auch angeben):
@@ -65,6 +67,9 @@ Content-Transfer-Encoding: 8bit
 <body>
 <p>
   Hoi {{.User.FirstName}}
+</p>
+<p>
+  Hier ist Deine allererste Rechnung aus <a href="https://team.kuda.ai">team.kuda.ai</a> :) (Bald wird die Website auf https://team.amden-retreat.ch verfügbar sein.)
 </p>
 <p>
   Im letzten Monat hast Du im Bellevue im Wert von {{.Invoice.TotalPrice | fmtCHF}} CHF konsumiert. Bitte überweise {{.Invoice.TotalPrice | fmtCHF}} an das folgende Konto (Zahlungszweck nicht vergessen):
