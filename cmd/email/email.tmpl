@@ -1,5 +1,5 @@
 From: {{ .SenderName }} <{{ .SenderEmail }}>
-To: {{.Name}} <{{.To}}>
+To: {{.User.FirstName}} {{.User.LastName}} <{{.User.Email}}>
 Subject: {{.Subject}}
 Date: {{.Date}}
 MIME-Version: 1.0
@@ -9,7 +9,7 @@ Content-Type: multipart/alternative; boundary="BOUNDARY"
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 
-Hoi {{.Name}}
+Hoi {{.User.FirstName}}
 
 Im letzten Monat hast Du im Bellevue im Wert von {{ .Invoice.TotalPrice | fmtCHF }} CHF konsumiert.
 
@@ -24,6 +24,34 @@ Zahlungszweck: a / b / c
 
 Hier ist eine Auflistung Deiner Konsumationen:
 
+{{ range .Activities }}
+{{ .Date | fmtDate }}: {{ .TotalPrice | fmtCHF }} CHF
+{{ if gt .Breakfasts 0 }}
+{{ .Breakfasts }} Zmorge à 8.00 CHF
+{{- end }}
+{{- if gt .Lunches 0 }}
+{{ .Lunches }} Zmittag à 11.00 CHF
+{{- end }}
+{{- if gt .Dinners 0 }}
+{{ .Lunches }} Znacht à 11.00 CHF
+{{- end }}
+{{- if gt .Coffees 0 }}
+{{ .Coffees }} Kaffi à 1.00 CHF
+{{- end }}
+{{- if gt .Saunas 0 }}
+{{ .Saunas }} Sauna à 7.50 CHF
+{{- end }}
+{{- if gt .Lectures 0 }}
+{{ .Lectures }} Lectures à 12.00 CHF
+{{- end }}
+{{- if gt .SnacksCHF 0 }}
+{{ .SnacksCHF | fmtCHF }} Kiosk
+{{- end }}
+{{if ne .Comment "" }}
+{{.Comment}}
+
+{{ end }}
+{{- end }}
 
 --BOUNDARY
 Content-Type: text/html; charset="UTF-8"
@@ -36,7 +64,7 @@ Content-Transfer-Encoding: 8bit
 </head>
 <body>
 <p>
-  Hoi {{.Name}}
+  Hoi {{.User.FirstName}}
 </p>
 <p>
   Im letzten Monat hast Du im Bellevue im Wert von {{.Invoice.TotalPrice | fmtCHF}} CHF konsumiert.
@@ -55,6 +83,39 @@ Content-Transfer-Encoding: 8bit
 </p>
 <p>
   Hier ist eine Auflistung Deiner Konsumationen:
+</p>
+<p>
+{{ range .Activities }}
+<strong>{{ .Date | fmtDate }}: {{ .TotalPrice | fmtCHF }} CHF</strong><br>
+{{- if gt .Breakfasts 0 }}
+{{ .Breakfasts }} Zmorge à 8.00 CHF<br>
+{{- end }}
+{{- if gt .Lunches 0 }}
+{{ .Lunches }} Zmittag à 11.00 CHF<br>
+{{- end }}
+{{- if gt .Dinners 0 }}
+{{ .Lunches }} Znacht à 11.00 CHF<br>
+{{- end }}
+{{- if gt .Coffees 0 }}
+{{ .Coffees }} Kaffi à 1.00 CHF<br>
+{{- end }}
+{{- if gt .Saunas 0 }}
+{{ .Saunas }} Sauna à 7.50 CHF<br>
+{{- end }}
+{{- if gt .Lectures 0 }}
+{{ .Lectures }} Lectures à 12.00 CHF<br>
+{{- end }}
+{{- if gt .SnacksCHF 0 }}
+{{ .SnacksCHF | fmtCHF }} CHF Kiosk (Getränke, Chips, etc)<br>
+{{- end }}
+{{- if ne .Comment "" }}
+{{.Comment}}
+{{ end }}
+{{- end }}
+</p>
+<p>
+Lieben Gruss<br>
+David
 </p>
 </body>
 </html>

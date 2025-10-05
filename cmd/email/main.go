@@ -28,11 +28,14 @@ type TemplateData struct {
 	From        string
 	Name        string
 	Date        string
-	Invoice     models.Invoice
 	SenderName  string
 	SenderEmail string
 
 	Recipient BankAccount
+
+	User       models.User
+	Invoice    models.Invoice
+	Activities models.BellevueActivities
 }
 
 func main() {
@@ -48,7 +51,8 @@ func main() {
 	m := models.New(db)
 
 	funcs := template.FuncMap{
-		"fmtCHF": formatCurrency,
+		"fmtCHF":  formatCurrency,
+		"fmtDate": formatDate,
 	}
 
 	// Parse template file
@@ -63,24 +67,33 @@ func main() {
 	}
 
 	for _, user := range users {
-		log.Println(user.Email)
 		if user.Email != "davidkuda3@gmail.com" {
 			continue
 		}
+		fmt.Println("sending invoice to", user.Email)
 
 		invoice, err := m.Invoices.GetInvoiceOfLastMonth(user)
 		if err != nil {
 			log.Fatalf("failed getting invoices of user %d: %v\n", user.ID, err)
 		}
 
+		activities, err := m.BellevueActivities.GetActivitiesOfPreviousMonth(user.ID)
+		if err != nil {
+			// TODO: Don't fatal, but exit the loop, try next candidate
+			log.Fatalf("failed getting activites of last month: %v", err)
+		}
+
 		data := TemplateData{
-			Subject:     "Hello From Go!",
+			Subject:     "Deine Rechnung für den letzten Monat",
+			To:          user.Email,
 			From:        cfg.SMTP.User,
-			Name:        "David",
 			Date:        time.Now().Format(time.RFC1123Z),
-			Invoice:     invoice,
 			SenderName:  cfg.SenderName,
 			SenderEmail: cfg.SenderEmail,
+			Recipient:   cfg.Recipient,
+			User:        user,
+			Invoice:     invoice,
+			Activities:  activities,
 		}
 
 		var buf bytes.Buffer
@@ -91,24 +104,20 @@ func main() {
 		em := email{
 			from:    cfg.SMTP.User,
 			to:      []string{os.Getenv("EMAIL_TO")},
-			subject: "Hello From Go!",
-			body:    buf.Bytes(),
+			subject: data.Subject,
+			// body:    normalizeCRLF(buf.Bytes()),
+			body: buf.Bytes(),
 		}
 
-		log.Println("Unnormalized:")
-		log.Println(em.body)
-		r := normalizeCRLF(em.body)
-		log.Println("Normalized:")
-		// here, you should see a bunch of 13 10:
-		log.Println([]byte(r))
+		// if err := sendViaImplicitTLS(cfg, em); err != nil {
+		// 	log.Fatal(err)
+		// }
 
-		if err := sendViaImplicitTLS(cfg, em); err != nil {
-			log.Fatal(err)
-		}
+		fmt.Println(&em.from)
+		fmt.Println(string(em.body))
 
 		log.Printf("Sent invoice with total sum of %v CHF to %s via implicit TLS SMTP.\n", formatCurrency(data.Invoice.TotalPrice), user.Email)
 	}
-
 }
 
 func sendViaImplicitTLS(cfg config, em email) error {
@@ -202,4 +211,8 @@ func normalizeCRLF(in []byte) []byte {
 // formatCurrency converts an integer (in Rappen) to a currency string like "22.50 CHF".
 func formatCurrency(value int) string {
 	return fmt.Sprintf("%.2f", float64(value)/100)
+}
+
+func formatDate(t time.Time) string {
+	return t.Format("Mon 2.01.2006")
 }
