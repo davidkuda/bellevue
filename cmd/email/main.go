@@ -9,18 +9,11 @@ import (
 	"net/smtp"
 	"os"
 	"text/template"
+	"time"
+
+	"github.com/davidkuda/bellevue/internal/envcfg"
+	"github.com/davidkuda/bellevue/internal/models"
 )
-
-type config struct {
-	SMTP SMTPConfig
-}
-
-type SMTPConfig struct {
-	Host string
-	Port string
-	User string
-	Pass string
-}
 
 type email struct {
 	from    string
@@ -30,98 +23,92 @@ type email struct {
 }
 
 type TemplateData struct {
-	Subject string
-	To      string
-	From    string
-	Name    string
+	Subject     string
+	To          string
+	From        string
+	Name        string
+	Date        string
+	Invoice     models.Invoice
+	SenderName  string
+	SenderEmail string
+
+	Recipient BankAccount
 }
 
 func main() {
 
 	cfg := loadConfigFromEnv()
 
+	db, err := envcfg.DB()
+	if err != nil {
+		log.Fatalf("could not open DB: %v\n", err)
+	}
+	defer db.Close()
+
+	m := models.New(db)
+
+	funcs := template.FuncMap{
+		"fmtCHF": formatCurrency,
+	}
+
 	// Parse template file
-	tmpl, err := template.ParseFiles("email.tmpl")
+	tmpl, err := template.New("email.tmpl").Funcs(funcs).ParseFiles("email.tmpl")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	data := TemplateData{
-		Subject: "Hello From Go!",
-		From:    cfg.SMTP.User,
-		Name:    "David",
+	users, err := m.Users.GetAll()
+	if err != nil {
+		log.Fatalf("failed fetching users from DB: %v", err)
 	}
 
-	var body bytes.Buffer
-	if err := tmpl.Execute(&body, data); err != nil {
-		log.Fatal(err)
+	for _, user := range users {
+		log.Println(user.Email)
+		if user.Email != "davidkuda3@gmail.com" {
+			continue
+		}
+
+		invoice, err := m.Invoices.GetInvoiceOfLastMonth(user)
+		if err != nil {
+			log.Fatalf("failed getting invoices of user %d: %v\n", user.ID, err)
+		}
+
+		data := TemplateData{
+			Subject:     "Hello From Go!",
+			From:        cfg.SMTP.User,
+			Name:        "David",
+			Date:        time.Now().Format(time.RFC1123Z),
+			Invoice:     invoice,
+			SenderName:  cfg.SenderName,
+			SenderEmail: cfg.SenderEmail,
+		}
+
+		var buf bytes.Buffer
+		if err := tmpl.Execute(&buf, data); err != nil {
+			log.Fatal(err)
+		}
+
+		em := email{
+			from:    cfg.SMTP.User,
+			to:      []string{os.Getenv("EMAIL_TO")},
+			subject: "Hello From Go!",
+			body:    buf.Bytes(),
+		}
+
+		log.Println("Unnormalized:")
+		log.Println(em.body)
+		r := normalizeCRLF(em.body)
+		log.Println("Normalized:")
+		// here, you should see a bunch of 13 10:
+		log.Println([]byte(r))
+
+		if err := sendViaImplicitTLS(cfg, em); err != nil {
+			log.Fatal(err)
+		}
+
+		log.Printf("Sent invoice with total sum of %v CHF to %s via implicit TLS SMTP.\n", formatCurrency(data.Invoice.TotalPrice), user.Email)
 	}
 
-	em := email{
-		from:    cfg.SMTP.User,
-		to:      []string{os.Getenv("EMAIL_TO")},
-		subject: "Hello From Go!",
-		body:    body.Bytes(),
-	}
-
-	// DEC HEX
-	//  10   A  LF => NL line feed, new line
-	//  13   D  CR => Carriage Return
-	//  32  20  space
-	//  92  5C  \
-	// 110  6E  n
-	// 114  72  r
-	log.Println("Unnormalized:")
-	log.Println(em.body)
-	r := normalizeCRLF(em.body)
-	log.Println("Normalized:")
-	// here, you should see a bunch of 13 10:
-	log.Println([]byte(r))
-
-	// if err := sendViaImplicitTLS(cfg, em); err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	log.Println("Sent OK (implicit TLS).")
-}
-
-func loadConfigFromEnv() config {
-	c := config{
-		SMTP: SMTPConfig{
-			Host: os.Getenv("SMTP_HOST"),
-			Port: os.Getenv("SMTP_PORT"),
-			User: os.Getenv("SMTP_USER"),
-			Pass: os.Getenv("SMTP_PASS"),
-		},
-	}
-
-	var fail bool
-
-	if c.SMTP.Host == "" {
-		fail = true
-		log.Print("Could not read env var SMTP_HOST")
-	}
-
-	if c.SMTP.Port == "" {
-		fail = true
-		log.Print("Could not read env var SMTP_PORT")
-	}
-
-	if c.SMTP.User == "" {
-		fail = true
-		log.Print("Could not read env var SMTP_USER")
-	}
-
-	if c.SMTP.Pass == "" {
-		fail = true
-		log.Print("Could not read env var SMTP_PASS")
-	}
-
-	if fail {
-		os.Exit(1)
-	}
-
-	return c
 }
 
 func sendViaImplicitTLS(cfg config, em email) error {
@@ -178,6 +165,16 @@ func sendViaImplicitTLS(cfg config, em email) error {
 // emails according to RFC5322 require \r\n line endings, not just \n.
 // therefore, we need to normalize the line endings, which means to
 // make sure that they end in \r\n. nice little leetcodish challenge :)
+//
+// DEC HEX
+//
+//	10   A  LF => NL line feed, new line
+//	13   D  CR => Carriage Return
+//	32  20  space
+//	92  5C  \
+//
+// 110  6E  n
+// 114  72  r
 func normalizeCRLF(in []byte) []byte {
 	var newLinesCount int
 	for i := range in {
@@ -200,4 +197,9 @@ func normalizeCRLF(in []byte) []byte {
 		k++
 	}
 	return out
+}
+
+// formatCurrency converts an integer (in Rappen) to a currency string like "22.50 CHF".
+func formatCurrency(value int) string {
+	return fmt.Sprintf("%.2f", float64(value)/100)
 }
