@@ -7,7 +7,6 @@ import (
 	"log"
 	"net"
 	"net/smtp"
-	"os"
 	"text/template"
 	"time"
 
@@ -103,7 +102,7 @@ func main() {
 
 		em := email{
 			from:    cfg.SMTP.User,
-			to:      []string{os.Getenv("EMAIL_TO")},
+			to:      []string{user.Email},
 			subject: data.Subject,
 			// body:    normalizeCRLF(buf.Bytes()),
 			body: buf.Bytes(),

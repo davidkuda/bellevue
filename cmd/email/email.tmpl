@@ -35,7 +35,7 @@ Hier ist eine Auflistung Deiner Konsumationen:
 {{ .Lunches }} Zmittag à 11.00 CHF
 {{- end }}
 {{- if gt .Dinners 0 }}
-{{ .Lunches }} Znacht à 11.00 CHF
+{{ .Dinners }} Znacht à 11.00 CHF
 {{- end }}
 {{- if gt .Coffees 0 }}
 {{ .Coffees }} Kaffi à 1.00 CHF
@@ -96,7 +96,7 @@ Content-Transfer-Encoding: 8bit
 {{ .Lunches }} Zmittag à 11.00 CHF<br>
 {{- end }}
 {{- if gt .Dinners 0 }}
-{{ .Lunches }} Znacht à 11.00 CHF<br>
+{{ .Dinners }} Znacht à 11.00 CHF<br>
 {{- end }}
 {{- if gt .Coffees 0 }}
 {{ .Coffees }} Kaffi à 1.00 CHF<br>
