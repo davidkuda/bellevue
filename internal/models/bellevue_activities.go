@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"time"
@@ -32,6 +33,15 @@ type BellevueActivity struct {
 func (m *BellevueActivityModel) GetByMonth() {}
 
 func (m *BellevueActivityModel) Insert(a *BellevueActivity) error {
+
+	var err error
+
+	ctx := context.TODO()
+	tx, err := m.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("failed starting transaction: %e", err)
+	}
+
 	// if new month:
 	// create a new invoice
 	// else:
@@ -56,7 +66,7 @@ func (m *BellevueActivityModel) Insert(a *BellevueActivity) error {
 
 	a.CalculatePrice()
 
-	_, err := m.DB.Exec(
+	_, err = tx.Exec(
 		stmt,
 		a.UserID,
 		a.Date,
@@ -71,9 +81,131 @@ func (m *BellevueActivityModel) Insert(a *BellevueActivity) error {
 		a.TotalPrice,
 	)
 	if err != nil {
+		tx.Rollback()
 		return fmt.Errorf("failed executing insert sql: %v", err)
 	}
 
+	selectInvoiceStmt := `
+	select
+		id,
+		total_price_rappen,
+		total_eating,
+		total_coffee,
+		total_lecture,
+		total_sauna,
+		total_kiosk,
+		state
+	from invoices
+	where
+		user_id = $1
+		and period = date_trunc('month', current_date)::date
+	`
+	row := tx.QueryRow(selectInvoiceStmt, a.UserID)
+	var invoice Invoice
+	err = row.Scan(
+		&invoice.ID,
+		&invoice.TotalPrice,
+		&invoice.TotalEating,
+		&invoice.TotalCoffees,
+		&invoice.TotalLectures,
+		&invoice.TotalSaunas,
+		&invoice.TotalKiosk,
+		&invoice.State,
+	)
+	var isNewInvoice bool
+	if err != nil {
+		if err == sql.ErrNoRows {
+			isNewInvoice = true
+		} else {
+			tx.Rollback()
+			return fmt.Errorf("failed reading invoice: %v", err)
+		}
+	}
+
+	var totalEating, totalCoffee, totalLecture, totalSauna, totalKiosk int
+
+	totalEating =
+		invoice.TotalEating +
+			a.Breakfasts*800 +
+			a.Lunches*1100 +
+			a.Dinners*1100
+
+	totalCoffee = invoice.TotalCoffees + a.Coffees*100
+
+	totalLecture = invoice.TotalLectures + a.Lectures*1200
+
+	totalSauna = invoice.TotalSaunas + a.Saunas*750
+
+	totalKiosk = invoice.TotalKiosk + a.SnacksCHF
+
+	if isNewInvoice {
+		insertInvoice := `
+		INSERT INTO invoices (
+			user_id,
+			period,
+			total_price_rappen,
+			total_eating,
+			total_coffee,
+			total_lecture,
+			total_sauna,
+			total_kiosk
+		) VALUES (
+			$1, $2, $3, $4, $5, $6, $7, $8
+		);
+		`
+
+		firstOfMonth := time.Date(
+			time.Now().Year(),
+			time.Now().Month(),
+			1, 0, 0, 0, 0,
+			time.Now().Location(),
+		)
+
+		_, err = tx.Exec(
+			insertInvoice,
+			a.UserID,
+			firstOfMonth,
+			invoice.TotalPrice+a.TotalPrice,
+			totalEating,
+			totalCoffee,
+			totalLecture,
+			totalSauna,
+			totalKiosk,
+		)
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("failed inserting new invoice: %v", err)
+		}
+	} else {
+		updateInvoice := `
+		UPDATE invoices
+		SET
+			total_price_rappen = $1,
+			total_eating = $2,
+			total_coffee = $3,
+			total_lecture = $4,
+			total_sauna = $5,
+			total_kiosk = $6
+		WHERE id = $7;
+		`
+
+		_, err = tx.Exec(
+			updateInvoice,
+			invoice.TotalPrice+a.TotalPrice,
+			totalEating,
+			totalCoffee,
+			totalLecture,
+			totalSauna,
+			totalKiosk,
+			invoice.ID,
+		)
+		if err != nil {
+			tx.Rollback()
+			return fmt.Errorf("failed inserting new invoice: %v", err)
+		}
+	}
+
+	tx.Commit()
 	return nil
 }
 
@@ -250,7 +382,6 @@ func (m *BellevueActivityModel) GetActivitiesOfPreviousMonth(userID int) (Bellev
 
 	return bas, nil
 }
-
 
 func (m *BellevueActivityModel) ActivityOwnedByUserID(activityID, userID int) (bool, error) {
 	stmt := `
