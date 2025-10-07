@@ -17,3 +17,4 @@ ui/static/dist/*
 !ui/static/dist/htmx.2.0.7.min.js
 !ui/static/dist/favicon.ico
 
+.envrc
