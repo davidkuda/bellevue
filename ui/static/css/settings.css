@@ -1,23 +1,61 @@
+/* Base: mobile-first */
+main.with-sidebar {
+	/* small padding on narrow screens */
+	margin: 0 1rem;
+}
+
+/* ≥ 640px (tablets, small desktops) */
+@media (min-width: 640px) {
+	main.with-sidebar {
+		margin: 0 2rem;
+	}
+}
+
+/* ≥ 960px (standard desktop) */
+@media (min-width: 960px) {
+	main.with-sidebar {
+		width: 90%;
+		margin: 0 auto;
+		/* centered content */
+		max-width: 900px;
+	}
+}
+
+/* ≥ 1280px (wide desktop) */
+@media (min-width: 1280px) {
+	main.with-sidebar {
+		max-width: 1100px;
+	}
+}
+
+/* ≥ 1600px (very wide) */
+@media (min-width: 1600px) {
+	main.with-sidebar {
+		max-width: 1400px;
+	}
+}
+
 .with-sidebar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
 }
 
 .sidebar {
-  /* ↓ The width when the sidebar _is_ a sidebar */
-  flex-basis: 20rem;
-  flex-grow: 1;
+	/* ↓ The width when the sidebar _is_ a sidebar */
+	flex-basis: 20rem;
+	flex-grow: 1;
 	background-color: var(--highlight-low);
 }
 
 .not-sidebar {
-  /* ↓ Grow from nothing */
-  flex-basis: 0;
-  flex-grow: 999;
-  /* ↓ Wrap when the elements are of equal width */
-  min-inline-size: 50%;
+	/* ↓ Grow from nothing */
+	flex-basis: 0;
+	flex-grow: 999;
+	/* ↓ Wrap when the elements are of equal width */
+	min-inline-size: 50%;
 	background-color: var(--highlight-low);
+	padding: 0.5em 1em;
 }
 
 section {
