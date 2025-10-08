@@ -31,6 +31,11 @@ insert into taxes (
 	'B38',
 	'Sondersatz für Beherbergung',
 	'Der Sondersatz auf Beherbergungsleistungen von 3,8 % findet Anwendung auf dem Gewähren von Unterkunft einschliesslich der allfälligen Abgabe eines Frühstücks, selbst wenn dieses separat in Rechnung gestellt wird.'
+), (
+	0,
+	'0',
+	'Nicht Mehrwertssteuerpflichtig',
+	'z.B. Spenden'
 );
 
 
@@ -43,8 +48,28 @@ insert into financial_accounts (
 	tax_id
 ) values (
 	3000,
-	'Lebensmittelertrag',
+	'Restauration/Verpflegung',
 	'Essen',
+	(select id from bellevue.taxes where code = 'B81')
+), (
+	3001,
+	'Restauration/Kaffee',
+	'Kaffee',
+	(select id from bellevue.taxes where code = 'B81')
+), (
+	3201,
+	'Restauration/Kiosk',
+	'Bier, Chips, Schockolade',
+	(select id from bellevue.taxes where code = 'B81')
+), (
+	3400,
+	'Veranstaltungen',
+	'Vorträge',
+	(select id from bellevue.taxes where code = 'B81')
+), (
+	3004,
+	'Sauna',
+	'Sauna',
 	(select id from bellevue.taxes where code = 'B81')
 );
 
@@ -60,7 +85,21 @@ insert into products (
 ), (
 	'Dinner',
 	(select id from financial_accounts where code = 3000)
-);
+), (
+	'Dinner',
+	(select id from financial_accounts where code = 3000)
+), (
+	'Dinner',
+	(select id from financial_accounts where code = 3000)
+), (
+	'Dinner',
+	(select id from financial_accounts where code = 3000)
+), (
+	'Dinner',
+	(select id from financial_accounts where code = 3000)
+), (
+
+;
 
 insert into prices (
 	product_id,
