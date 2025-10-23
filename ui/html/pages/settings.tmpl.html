@@ -24,14 +24,7 @@
       </ul>
     </section>
     <section class="not-sidebar">
-      <h2>Products</h2>
-      <form class="stack">
-        <label>
-          name
-          <input name="price-category-name" />
-        </label>
-        <button>create</button>
-      </form>
+      {{ template "settings" . }}
     </section>
   </main>
 {{ end }}

@@ -1,8 +1,85 @@
+/* New Bellevue Acitvity */
+/* reset stack */
+form label fieldset > * + * {
+	--space: 0;
+}
+
+fieldset {
+	border: none;
+}
+
+/* ---------------------------------------------------- */
+/* --- number picker ---------------------------------- */
+
+fieldset.number-picker {
+	display: flex;
+	max-width: 324px;
+	border-radius: 0.5rem;
+	overflow: hidden;
+}
+
+.number-picker input {
+	width: 4rem;
+	text-align: center;
+	border-radius: 0;
+	border: 1px solid var(--overlay);
+	background-color: var(--surface);
+}
+
+fieldset.number-picker button {
+	width: 3rem;
+	background-color: var(--overlay);
+	cursor: pointer;
+	border: 1px solid var(--overlay);
+}
+
+/* Rounded left corners */
+.number-picker button.minus {
+	border-radius: 0.5rem 0 0 0.5rem;
+	color: var(--text);
+	touch-action: manipulation;
+}
+
+/* Rounded right corners */
+.number-picker button.plus {
+	border-radius: 0 0.5rem 0.5rem 0;
+	color: var(--text);
+	touch-action: manipulation;
+}
+
+/* remove browser input up arrow and down arrow */
+/* Chrome, Safari, Edge, Opera */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+/* ---------------------------------------------------- */
+/* --- price category selector ------------------------ */
+
+label.fixed-price-activity {
+	font-weight: bold;
+	margin-top: 1em;
+	padding-top: 1em;
+	margin-bottom: 1em;
+	border-top: 1px solid var(--highlight-med);
+}
 fieldset.fixed-price-activity {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
 	gap: 0.5rem;
+	margin: 0;
+}
+
+fieldset.fixed-price-activity * + * {
+	margin-block-start: 0;
+}
+
+fieldset.fixed-price-activity > * {
+	height: max-content;
+	margin-block-start: 0;
 }
 
 fieldset.price-categories {
@@ -41,7 +118,12 @@ fieldset.price-categories .price-category__label {
 	cursor: pointer;
 }
 
+.price-category__label-name {
+	font-size: small;
+	font-weight: 200;
+}
+
 input[type="radio"]:checked + .price-category__label {
-	background-color: var(--overlay);
+	/* background-color: var(--overlay); */
 	border: 1px solid var(--rose);
 }
