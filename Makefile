@@ -29,9 +29,9 @@ bundle/css/watch:
 	--outfile=./ui/static/dist/styles.css \
 	--watch
 
-fmt/ui:
-	npx prettier ./ui/html/pages --write # --use-tabs
-	npx prettier ./ui/html/partials --write # --use-tabs
+fmt/ui: fmt/ui/static fmt/ui/templates
+
+fmt/ui/static:
 	biome format ./ui/static/css/ --write
 	biome format ./ui/static/js/ --write
 
