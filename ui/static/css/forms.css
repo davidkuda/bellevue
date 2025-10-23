@@ -2,8 +2,6 @@
 /* MAIN.forms  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 form {
-	background-color: var(--iris-moon);
-	/* border: 1px solid var(--text); */
 	border: none;
 	border-radius: 0.4em;
 	background-color: var(--surface);

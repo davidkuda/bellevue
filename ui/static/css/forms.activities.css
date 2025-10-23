@@ -1,0 +1,47 @@
+fieldset.fixed-price-activity {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+fieldset.price-categories {
+	display: inline-block;
+	width: max-content;
+	padding: 0;
+}
+
+fieldset.price-categories > ul {
+	display: flex;
+	flex-direction: row;
+	gap: 0.5rem;
+	padding: 0;
+}
+
+fieldset.price-categories > ul * {
+	margin: 0;
+	padding: 0;
+	text-indent: 0;
+	list-style-type: 0;
+	margin-block-start: 0;
+}
+
+fieldset.price-categories input[type="radio"] {
+	appearance: none;
+}
+
+fieldset.price-categories .price-category__label {
+	background-color: var(--highlight-low);
+	padding: 0.5em;
+	border: 1px solid var(--highlight-med);
+	border-radius: 0.5em;
+}
+
+.price-category__label:hover {
+	cursor: pointer;
+}
+
+input[type="radio"]:checked + .price-category__label {
+	background-color: var(--overlay);
+	border: 1px solid var(--rose);
+}

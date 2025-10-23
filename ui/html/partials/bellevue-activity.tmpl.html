@@ -1,16 +1,50 @@
 {{ define "bellevue-activity" }}
-  <label for="{{ .ID }}">
-    {{ .Label }}
-    <fieldset class="number-picker">
-      <button type="button" class="minus">−</button>
-      <input
-        name="bellevue-activity-{{ .ID }}"
-        id="{{ .ID }}"
-        type="number"
-        value="{{ .Count }}"
-        min="0"
-      />
-      <button type="button" class="plus">+</button>
+  <fieldset class="fixed-price-activity">
+    <label for="{{ .ID }}">
+      {{ .Label }}
+      <fieldset class="number-picker">
+        <button type="button" class="minus">−</button>
+        <input
+          name="bellevue-activity-{{ .ID }}"
+          id="{{ .ID }}"
+          type="number"
+          value="{{ .Count }}"
+          min="0"
+        />
+        <button type="button" class="plus">+</button>
+      </fieldset>
+    </label>
+
+    <fieldset class="price-categories">
+      <ul>
+        <li>
+          <label>
+            <input type="radio" name="price-category__{{ .ID }}" />
+            <div class="price-category__label">
+              <span class="price-category__label-name">Reduced</span>
+              <span class="price-category__label-price">11.00 CHF</span>
+            </div>
+          </label>
+        </li>
+        <li>
+          <label>
+            <input type="radio" name="price-category__{{ .ID }}" checked />
+            <div class="price-category__label">
+              <span class="price-category__label-name">Regular</span>
+              <span class="price-category__label-price">13.00 CHF</span>
+            </div>
+          </label>
+        </li>
+        <li>
+          <label>
+            <input type="radio" name="price-category__{{ .ID }}" />
+            <div class="price-category__label">
+              <span class="price-category__label-name">Surplus</span>
+              <span class="price-category__label-price">15.00 CHF</span>
+            </div>
+          </label>
+        </li>
+      </ul>
     </fieldset>
-  </label>
+  </fieldset>
 {{ end }}

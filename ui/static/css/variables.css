@@ -2,10 +2,10 @@
 
 /* light: Rose Pine Dawn */
 :root {
-	--text: #575279;
+	--text: #2a2d2a;
 	--muted: #9893a5;
 	--subtle: #797593;
-	--base: #faf4ed;
+	--base: #fafafa;
 	--base-main: #191724;
 	--surface: #fffaf3;
 	--overlay: #f2e9e1;
@@ -20,6 +20,7 @@
 	--foam: #9ccfd8;
 	--gold: #f6c177;
 	--button-text-color: #f2e9e1;
+	--diamond-way-red: #eb4256;
 }
 
 /* dark: Rose Pine Moon */

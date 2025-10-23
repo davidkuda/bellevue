@@ -81,7 +81,6 @@ section.sidebar li.active {
 	background-color: var(--highlight-high);
 }
 
-
 section.sidebar a {
 	text-decoration: none;
 	display: block;
