@@ -2,6 +2,13 @@
 header {
 	text-align: center;
 	margin: 1.5rem;
+	display: flex;
+	flex-direction: column;
+}
+
+header > img {
+	align-self: flex-end;
+	margin-right: 1.5em;
 }
 
 header hgroup > h1 > a {
