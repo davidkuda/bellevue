@@ -7,11 +7,16 @@ window.addEventListener("htmx:load", (e) => {
 		picker.dataset.bound = "1";
 
 		const input = picker.querySelector("input");
-		picker
-			.querySelector(".minus")
-			.addEventListener("click", () => input.stepDown());
-		picker
-			.querySelector(".plus")
-			.addEventListener("click", () => input.stepUp());
+		picker.querySelector(".minus").addEventListener("click", () => {
+			input.stepDown();
+			input.dispatchEvent(new Event("input", { bubbles: true }));
+			input.dispatchEvent(new Event("change", { bubbles: true }));
+		});
+
+		picker.querySelector(".plus").addEventListener("click", () => {
+			input.stepUp();
+			input.dispatchEvent(new Event("input", { bubbles: true }));
+			input.dispatchEvent(new Event("change", { bubbles: true }));
+		});
 	});
 });

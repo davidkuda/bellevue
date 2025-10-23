@@ -65,6 +65,7 @@ label.fixed-price-activity {
 	margin-bottom: 1em;
 	border-top: 1px solid var(--highlight-med);
 }
+
 fieldset.fixed-price-activity {
 	display: flex;
 	flex-direction: row;
@@ -86,6 +87,7 @@ fieldset.price-categories {
 	display: inline-block;
 	width: max-content;
 	padding: 0;
+	opacity: 0;
 }
 
 fieldset.price-categories > ul {

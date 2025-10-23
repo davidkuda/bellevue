@@ -56,6 +56,9 @@ window.addEventListener("htmx:load", (e) => toggleInvoiceState(e.target));
 
 function toggleInvoiceState(tree = document) {
 	const table = tree.querySelector("[data-toggle-invoice-state]");
+	if (!table) {
+		return;
+	}
 	table.addEventListener("htmx:afterRequest", (e) => {
 		if (e.detail.successful) {
 			const tag = e.detail.target;
