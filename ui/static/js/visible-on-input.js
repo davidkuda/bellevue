@@ -9,9 +9,9 @@ function togglePriceCategoryVisibility(tree = document) {
 			const count = e.target.value;
 			const priceCategory = fieldset.querySelector("fieldset.price-categories");
 			if (count > 0) {
-				priceCategory.style.opacity = 1;
+				priceCategory.style.display = "inline-block";
 			} else {
-				priceCategory.style.opacity = 0;
+				priceCategory.style.display = "none";
 			}
 		});
 	});

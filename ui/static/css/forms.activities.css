@@ -85,9 +85,9 @@ fieldset.fixed-price-activity > * {
 
 fieldset.price-categories {
 	display: inline-block;
+	display: none;
 	width: max-content;
 	padding: 0;
-	opacity: 0;
 }
 
 fieldset.price-categories > ul {
