@@ -34,6 +34,7 @@ func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	addr := flag.String("addr", ":8875", "HTTP network address")
+	flag.Parse()
 
 	cookieDomain := flag.String("cookie-domain", os.Getenv("COOKIE_DOMAIN"), "localhost or kuda.ai")
 	if *cookieDomain == "" {
