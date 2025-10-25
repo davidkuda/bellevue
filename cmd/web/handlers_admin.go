@@ -49,8 +49,8 @@ func (app *application) postLogin(w http.ResponseWriter, r *http.Request) {
 	claims.Issued = jwt.NewNumericTime(time.Now())
 	claims.NotBefore = jwt.NewNumericTime(time.Now())
 	claims.Expires = jwt.NewNumericTime(time.Now().Add(24 * time.Hour))
-	claims.Issuer = "kuda.ai"
-	claims.Audiences = []string{"kuda.ai"}
+	claims.Issuer = app.JWT.Issuer
+	claims.Audiences = []string{app.JWT.Audience}
 
 	jwtBytes, err := claims.HMACSign(jwt.HS256, []byte(app.JWT.Secret))
 	if err != nil {
@@ -62,7 +62,7 @@ func (app *application) postLogin(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "id",
 		Value:    string(jwtBytes),
-		Domain:   app.JWT.CookieDomain,
+		Domain:   app.CookieDomain,
 		Expires:  time.Now().Add(10 * 24 * time.Hour),
 		Secure:   true,
 		HttpOnly: true,
@@ -80,7 +80,7 @@ func (app *application) getLogout(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "id",
 		Value:    "",
-		Domain:   app.JWT.CookieDomain,
+		Domain:   app.CookieDomain,
 		Expires:  time.Now(),
 		Secure:   true,
 		HttpOnly: true,
@@ -127,11 +127,11 @@ func (app *application) validateJWTCookie(r *http.Request) error {
 		return fmt.Errorf("token no longer valid")
 	}
 
-	if claims.Issuer != "kuda.ai" {
+	if claims.Issuer != app.JWT.Issuer {
 		return fmt.Errorf("token has invalid issuer: %v", err)
 	}
 
-	if !claims.AcceptAudience("kuda.ai") {
+	if !claims.AcceptAudience(app.JWT.Audience) {
 		return fmt.Errorf("token is not in accepted audience: %v", err)
 	}
 

@@ -15,7 +15,9 @@ type envcfg struct {
 }
 
 type JWT struct {
-	Secret []byte
+	Secret       []byte
+	Issuer       string
+	Audience     string
 }
 
 type db struct {
@@ -46,6 +48,18 @@ func parseJWT() JWT {
 	}
 
 	jwt.Secret = s
+
+	issuer := os.Getenv("JWT_ISSUER")
+	if err != nil {
+		log.Fatalln("could not read JWT_ISSUER from env")
+	}
+	jwt.Issuer = issuer
+
+	audience := os.Getenv("JWT_AUDIENCE")
+	if err != nil {
+		log.Fatalln("could not read JWT_AUDIENCE from env")
+	}
+	jwt.Audience = audience
 
 	return jwt
 }

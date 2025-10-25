@@ -17,12 +17,16 @@ import (
 type application struct {
 	models models.Models
 
-	templateCache     map[string]*template.Template
-	templateCacheHTMX map[string]*template.Template
+	templateCache         map[string]*template.Template
+	templateCacheHTMX     map[string]*template.Template
+	templateCacheSettings map[string]*template.Template
+
+	CookieDomain string
 
 	JWT struct {
 		Secret       []byte
-		CookieDomain string
+		Issuer       string
+		Audience     string // TODO: should this be []string?
 	}
 }
 
@@ -40,8 +44,10 @@ func main() {
 
 	c := envcfg.Get()
 
+	app.CookieDomain = *cookieDomain
 	app.JWT.Secret = c.JWT.Secret
-	app.JWT.CookieDomain = *cookieDomain
+	app.JWT.Issuer = c.JWT.Issuer
+	app.JWT.Audience = c.JWT.Audience
 
 	db, err := envcfg.DB()
 	if err != nil {
