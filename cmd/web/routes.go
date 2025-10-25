@@ -41,6 +41,7 @@ func (app *application) routes() http.Handler {
 	mux.Handle("GET /logout", usersOnly.ThenFunc(app.getLogout))
 
 	mux.Handle("GET /settings", adminsOnly.ThenFunc(app.getSettings))
+	mux.Handle("GET /settings/products", adminsOnly.ThenFunc(app.getSettingsProducts))
 
 	return standard.Then(mux)
 }
