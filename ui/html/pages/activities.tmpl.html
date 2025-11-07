@@ -18,7 +18,9 @@
       >
         Add a new activity
       </button>
-      {{ template "activities--overview-by-month" . }}
+      {{ if .RenderTotalsTable }}
+        {{ template "activities--overview-by-month" . }}
+      {{ end }}
       {{ range .BellevueActivityOverviews }}
         {{ template "activities--by-month" . }}
       {{ end }}

@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -35,6 +36,9 @@ type templateData struct {
 	Sidebars                  bool
 	HighlightJS               bool
 	Error                     Error
+
+	// Feature Flags
+	RenderTotalsTable bool
 }
 
 type Error struct {
@@ -82,6 +86,13 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 	rootPath = r.URL.Path[0:i]
 	title = strings.ToTitle(r.URL.Path[1:i])
 
+	var renderTotalsTable bool
+	renderTotalsTableEnv := os.Getenv("FEATURE_FLAG__RENDER_TOTALS_TABLE")
+	if renderTotalsTableEnv == "true" {
+		renderTotalsTable = true
+	}
+
+
 	// TODO: using empty structs with a pointer seems so wrong here. How to fix it?
 	// problem is that the templates will error on render.
 	return templateData{
@@ -94,6 +105,7 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 		Page:             &models.Page{},
 		BellevueActivity: models.NewBellevueActivity(),
 		Sidebars:         true,
+		RenderTotalsTable: renderTotalsTable,
 	}
 }
 
@@ -141,6 +153,7 @@ func (app *application) renderHTMXPartial(w http.ResponseWriter, r *http.Request
 	buf.WriteTo(w)
 }
 
+// named templates => [ base -> main ]
 func newTemplateCache() (map[string]*template.Template, error) {
 	cache := map[string]*template.Template{}
 
@@ -156,6 +169,11 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		return nil, fmt.Errorf("failed filepath.Glob for pages: %v", err)
 	}
 
+	// settings, err := filepath.Glob("./ui/html/pages/settings/*.tmpl.html")
+	// if err != nil {
+	// 	return nil, fmt.Errorf("failed filepath.Glob for pages: %v", err)
+	// }
+
 	partials, err := filepath.Glob("./ui/html/partials/*.tmpl.html")
 	if err != nil {
 		return nil, fmt.Errorf("failed filepath.Glob for partials: %v", err)
@@ -164,6 +182,12 @@ func newTemplateCache() (map[string]*template.Template, error) {
 	for _, page := range pages {
 		name := filepath.Base(page)
 
+		// files = [
+		//     "./ui/html/pages/base.tmpl.html",
+		//     "./ui/html/partials/nav.tmpl.html",
+		//     "./ui/html/partials/*.tmpl.html",
+		//     "./ui/html/pages/tils.tmpl.html", [ page ]
+		// ]
 		N := 1 + len(partials) + 1
 		files := make([]string, N)
 		files[0] = "./ui/html/pages/base.tmpl.html"
