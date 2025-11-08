@@ -1,6 +1,6 @@
 {{ define "activities--by-month" }}
   <h3 class="text-center stack-exception-xl">{{ .MonthYear }}</h3>
-  <div class="table-container">
+  <div class="table-container stack-exception">
     <table>
       <tr>
         <th>Date & Price</th>
@@ -14,7 +14,7 @@
             </span>
             <span class="block">{{ .TotalPrice | fmtCHF }} CHF</span>
           </td>
-          <td class="stack-xs min-width-max-content">
+          <td class="stack-exception-xs stack-xs min-width-max-content">
             {{ range .Items }}
               <span class="bellevue-activity no-wrap">
                 {{ .Count }}

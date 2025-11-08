@@ -34,9 +34,7 @@ table {
 	width: 100%;
 	border-collapse: collapse;
 	border: none;
-	border-radius: 1em;
-	border-bottom: 1px solid var(--shade-200);
-	box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 	padding: 1rem;
 }
 
@@ -51,16 +49,15 @@ td {
 	padding: 0.8em 1em;
 	vertical-align: top;
 	text-align: left;
-	border-bottom: 3px solid var(--shade-50);
 }
 
 th {
 	font-weight: bold;
-	background-color: var(--shade-350);
+	background-color: var(--table-header);
 }
 
 tr {
-	background-color: var(--shade-200);
+	border: 1px solid var(--table-border);
 }
 
 /* tr:nth-child(even) { */

@@ -1,8 +1,6 @@
-/* rose pine palette: https://rosepinetheme.com/palette/ */
+/* https://maketintsandshades.com/#eb4256,EBF1EB,D8D297,4B4856 */
 
-/* light: Rose Pine Dawn */
 :root {
-	--text: #2a2d2a;
 	--muted: #9893a5;
 	--subtle: #797593;
 	--base: #fafafa;
@@ -34,31 +32,13 @@
 	--primary-800: #5e1a22;
 	--primary-900: #2f0d11;
 
-	--shade-0: #ffffff;
-	--shade-50: #edeef0;
-	--shade-100: #dbdee1;
-	--shade-150: #c8cdd1;
-	--shade-200: #b6bcc2;
-	--shade-250: #a4acb3;
-	--shade-300: #929ba4;
-	--shade-350: #808a95;
-	--shade-400: #6d7985;
-	--shade-450: #5b6976;
-	--shade-500: #495867;
-	--shade-550: #424f5d;
-	--shade-600: #3a4652;
-	--shade-650: #333e48;
-	--shade-700: #2c353e;
-	--shade-750: #252c34;
-	--shade-800: #1d2329;
-	--shade-850: #161a1f;
-	--shade-900: #0f1215;
-	--shade-950: #07090a;
+	--text: #171817;
+	--page-background: #fdfefd;
+	--table-header: #ebf1eb;
+	--table-border: #a5a9a5;
 }
 
-/* dark: Rose Pine Moon */
 [data-theme="dark"] {
-	--text: #e0def4;
 	--muted: #6e6a86;
 	--subtle: #908caa;
 	--base: #232136;
@@ -76,9 +56,8 @@
 	--foam: #9ccfd8;
 	--gold: #f6c177;
 
-
-	--shade-0: #07090a;
-	--shade-50: #1d2329;
-	--shade-100: #252c34;
-	--shade-150: #2c353e;
+	--text: #fdfefd;
+	--page-background: #171817;
+	--table-header: #2f302f;
+	--table-border: #464846;
 }

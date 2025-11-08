@@ -1,5 +1,5 @@
 html {
-	background-color: var(--shade-0);
+	background-color: var(--page-background);
 	transition:
 		background-color 0.5s ease,
 		color 0.5s ease;
@@ -92,6 +92,10 @@ h3 {
 
 .stack-xl > * + * {
 	margin-block-start: var(--space, 4.5rem);
+}
+
+.stack-exception-xs {
+	--space: 0.25rem;
 }
 
 .stack-exception-small {
