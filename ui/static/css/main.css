@@ -1,5 +1,5 @@
 html {
-	background-color: var(--base);
+	background-color: var(--shade-0);
 	transition:
 		background-color 0.5s ease,
 		color 0.5s ease;
@@ -15,7 +15,7 @@ body {
 h2 {
 	font-size: 2em;
 	font-weight: bold;
-	color: var(--rose);
+	color: var(--primary);
 }
 
 h3 {
@@ -23,22 +23,13 @@ h3 {
 	font-weight: bold;
 }
 
-code {
-	background-color: var(--highlight-high);
-	font-family: "JetBrains Mono", monospace;
+:focus {
+  outline: 2px solid var(--primary-300);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
-p > code {
-	background-color: var(--highlight-med);
-	padding: 0.4em;
-	border-radius: 0.5em;
-}
 
-pre > code {
-	background-color: var(--surface);
-	border-radius: 0.5em;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 /* MAIN */
 
@@ -163,7 +154,7 @@ a:hover {
 
 button.individual {
 	all: unset;
-	background-color: var(--rose);
+	background-color: var(--primary);
 	color: white;
 	padding: 0.4em 0.8em;
 	border-radius: 0.4em;

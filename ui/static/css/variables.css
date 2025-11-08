@@ -21,6 +21,39 @@
 	--gold: #f6c177;
 	--button-text-color: #f2e9e1;
 	--diamond-way-red: #eb4256;
+
+	--primary-50: #fdecee;
+	--primary-100: #fbd9dd;
+	--primary-200: #f7b3bb;
+	--primary-300: #f38e9a;
+	--primary-400: #ef6878;
+	--primary: #eb4256;
+	--primary-500: #eb4256;
+	--primary-600: #bc3545;
+	--primary-700: #8d2834;
+	--primary-800: #5e1a22;
+	--primary-900: #2f0d11;
+
+	--shade-0: #ffffff;
+	--shade-50: #fdfefd;
+	--shade-100: #fbfcfb;
+	--shade-150: #f9fbf9;
+	--shade-200: #f7f9f7;
+	--shade-250: #f5f8f5;
+	--shade-300: #f3f7f3;
+	--shade-350: #f1f5f1;
+	--shade-400: #eff4ef;
+	--shade-450: #edf2ed;
+	--shade-500: #ebf1eb;
+	--shade-550: #d4d9d4;
+	--shade-600: #bcc1bc;
+	--shade-650: #a5a9a5;
+	--shade-700: #8d918d;
+	--shade-750: #767976;
+	--shade-800: #5e605e;
+	--shade-850: #464846;
+	--shade-900: #2f302f;
+	--shade-950: #171817;
 }
 
 /* dark: Rose Pine Moon */
@@ -42,4 +75,25 @@
 	--love: #eb6f92;
 	--foam: #9ccfd8;
 	--gold: #f6c177;
+
+	--shade-0: #000000;
+	--shade-950: #fdfefd;
+	--shade-900: #fbfcfb;
+	--shade-850: #f9fbf9;
+	--shade-800: #f7f9f7;
+	--shade-750: #f5f8f5;
+	--shade-700: #f3f7f3;
+	--shade-650: #f1f5f1;
+	--shade-600: #eff4ef;
+	--shade-550: #edf2ed;
+	--shade-500: #ebf1eb;
+	--shade-450: #d4d9d4;
+	--shade-400: #bcc1bc;
+	--shade-350: #a5a9a5;
+	--shade-300: #8d918d;
+	--shade-250: #767976;
+	--shade-200: #5e605e;
+	--shade-150: #464846;
+	--shade-100: #2f302f;
+	--shade-50: #171817;
 }

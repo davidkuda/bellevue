@@ -22,15 +22,19 @@ fieldset.number-picker {
 	width: 4rem;
 	text-align: center;
 	border-radius: 0;
-	border: 1px solid var(--overlay);
-	background-color: var(--surface);
+	border: 1px solid var(--shade-500);
+	background-color: var(--shade-0);
 }
 
 fieldset.number-picker button {
 	width: 3rem;
-	background-color: var(--overlay);
+	background-color: var(--shade-500);
 	cursor: pointer;
-	border: 1px solid var(--overlay);
+	border: 1px solid var(--shade-500);
+}
+
+fieldset.number-picker:active {
+	border: 1px solid red;
 }
 
 /* Rounded left corners */
@@ -110,9 +114,9 @@ fieldset.price-categories input[type="radio"] {
 }
 
 fieldset.price-categories .price-category__label {
-	background-color: var(--highlight-low);
+	background-color: var(--shade-0);
 	padding: 0.5em;
-	border: 1px solid var(--highlight-med);
+	border: 1px solid var(--shade-500);
 	border-radius: 0.5em;
 }
 
@@ -126,6 +130,5 @@ fieldset.price-categories .price-category__label {
 }
 
 input[type="radio"]:checked + .price-category__label {
-	/* background-color: var(--overlay); */
-	border: 1px solid var(--rose);
+	border: 1px solid var(--primary);
 }

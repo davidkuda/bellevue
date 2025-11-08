@@ -34,9 +34,9 @@ table {
 	width: 100%;
 	border-collapse: collapse;
 	border: none;
-	border-radius: 0.5em;
-	border-bottom: 1px solid var(--highlight-med);
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	border-radius: 1em;
+	border-bottom: 1px solid var(--shade-200);
+	box-shadow: 0 8px 12px rgba(0, 0, 0, 0.1);
 	padding: 1rem;
 }
 
@@ -51,12 +51,16 @@ td {
 	padding: 0.8em 1em;
 	vertical-align: top;
 	text-align: left;
-	border-bottom: 2px solid var(--highlight-med);
+	border-bottom: 3px solid var(--shade-50);
 }
 
 th {
 	font-weight: bold;
-	background-color: var(--highlight-med);
+	background-color: var(--shade-350);
+}
+
+tr {
+	background-color: var(--shade-200);
 }
 
 /* tr:nth-child(even) { */

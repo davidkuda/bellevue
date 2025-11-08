@@ -4,7 +4,7 @@
 form {
 	border: none;
 	border-radius: 0.4em;
-	background-color: var(--surface);
+	background-color: var(--shade-200);
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 	padding: 1rem;
 	margin-top: 1rem;
@@ -23,9 +23,11 @@ form > fieldset {
 form * {
 	box-sizing: border-box;
 	display: block;
-	/* margin-top: 1.2em; */
-	/* margin-bottom: 1.2em; */
 	overflow: hidden;
+}
+
+form label {
+	font-weight: normal;
 }
 
 input:not([type="radio"], [type="checkbox"]),
@@ -35,14 +37,11 @@ select {
 	font-size: 1rem;
 	font-family: inherit;
 	color: inherit;
-	/* border: none; */
-	/* border-bottom: solid 1px var(--rose); */
-	/* border-image: linear-gradient(to right, var(--pine), var(--accent)) 1; */
-	border: solid 1px var(--highlight-med);
+	border: solid 1px var(--shade-500);
 	border-radius: 0.2rem;
 	padding: 0.4rem;
 	width: 100%;
-	background-color: var(--overlay);
+	background-color: var(--shade-0);
 	transition:
 		border 0.2s ease,
 		box-shadow 0.2s ease;
@@ -56,16 +55,16 @@ input:not([type="radio"], [type="checkbox"]):focus,
 textarea:focus,
 select:focus {
 	outline: none;
-	border: 2px solid var(--rose);
+	border: 2px solid var(--primary-300);
 }
 
 input[aria-invalid="true"],
 textarea[aria-invalid="true"] {
-	border: 2px solid var(--love);
+	border: 2px solid var(--primary-300);
 }
 
 small.failed-validation {
-	color: var(--love);
+	color: var(--primary-300);
 }
 
 input[readonly],
@@ -80,23 +79,23 @@ textarea[readonly] {
 }
 
 form button {
-	font-size: 1em;
+	font-size: 1.125em;
 	font-weight: bold;
-	background-color: var(--rose);
+	background-color: var(--primary);
 	box-sizing: border-box;
-	color: var(--button-text-color);
+	color: var(--shade-0);
 	padding: 0.8rem;
 	width: 100%;
 	border-radius: 0.2rem;
 	border: none;
 }
 
-/* form button:hover, */
-/* form button:focus { */
-/* 	cursor: pointer; */
-/* 	background-color: var(--love); */
-/* 	border: none; */
-/* } */
+form button:hover,
+form button:focus {
+	cursor: pointer;
+	background-color: var(--primary-600);
+	border: none;
+}
 
 /* Loading Spinner */
 /* Style the button when aria-busy="true" */
