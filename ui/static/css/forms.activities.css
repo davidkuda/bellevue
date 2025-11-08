@@ -28,7 +28,7 @@ fieldset.number-picker {
 
 fieldset.number-picker button {
 	width: 3rem;
-	background-color: var(--form-input);
+	background-color: var(--form-number-picker);
 	cursor: pointer;
 	border: 1px solid var(--form-number-picker);
 }

@@ -37,9 +37,9 @@
 	--page-background: #fdfefd;
 	--table-header: #ebf1eb;
 	--table-border: #a5a9a5;
-	--form-input: #ebf1eb;
-	--form-number-picker: #d4d9d4;
-	--form-divider: #ebf1eb;
+	--form-input: #f1f5f1;
+	--form-number-picker: #ebf1eb;
+	--form-divider: #d4d9d4;
 }
 
 [data-theme="dark"] {

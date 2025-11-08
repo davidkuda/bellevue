@@ -27,14 +27,14 @@ form * {
 }
 
 label {
-	font-weight: bold;
+	font-weight: normal;
 	margin-top: 1em;
 	padding-top: 1em;
 	margin-bottom: 1em;
 }
 
 label:not(:first-of-type) {
-  border-top: 1px solid var(--form-number-picker);
+  border-top: 1px solid var(--form-divider);
 }
 
 input:not([type="radio"], [type="checkbox"]),
@@ -44,7 +44,7 @@ select {
 	font-size: 1rem;
 	font-family: inherit;
 	color: inherit;
-	border: solid 1px var(--shade-500);
+	border: none;
 	border-radius: 0.3rem;
 	padding: 0.5rem;
 	width: 100%;

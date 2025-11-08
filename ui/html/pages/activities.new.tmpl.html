@@ -27,7 +27,7 @@
     <label class="error">{{- . -}}</label>
   {{- end -}}
   <label
-    >Date:
+      ><strong>Date:</strong>
     <input
       name="bellevue-activity-date"
       type="date"
@@ -37,7 +37,7 @@
     {{- template "bellevue-activity" . -}}
   {{- end -}}
   <label
-    >Snacks & Drinks (in CHF):
+      ><strong>Snacks & Drinks (in CHF):</strong>
     <input
       name="bellevue-activity-snacks"
       type="number"
@@ -50,7 +50,7 @@
       {{- end -}}"
   /></label>
   <label
-    >Comment (max 1 Paragraph):
+      ><strong>Comment (max 1 Paragraph):</strong>
     <textarea name="bellevue-activity-comment" rows="2" aria-label="comment">
     {{- .BellevueActivity.Comment -}}
     </textarea
