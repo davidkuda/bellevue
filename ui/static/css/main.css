@@ -23,8 +23,8 @@ h3 {
 	font-weight: bold;
 }
 
-:focus {
-  outline: 2px solid var(--primary-300);
+*:focus-visible {
+  outline: 2px solid var(--primary);
   outline-offset: 3px;
   border-radius: 4px;
 }

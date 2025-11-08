@@ -22,33 +22,34 @@ fieldset.number-picker {
 	width: 4rem;
 	text-align: center;
 	border-radius: 0;
-	border: 1px solid var(--shade-500);
-	background-color: var(--shade-0);
+	border: 1px solid var(--form-number-picker);
+	background-color: var(--form-input);
 }
 
 fieldset.number-picker button {
 	width: 3rem;
-	background-color: var(--shade-500);
+	background-color: var(--form-input);
 	cursor: pointer;
-	border: 1px solid var(--shade-500);
+	border: 1px solid var(--form-number-picker);
 }
 
 fieldset.number-picker:active {
-	border: 1px solid red;
+	border: 1px solid var(--primary);
+}
+
+.number-picker button {
+	color: var(--text);
+	touch-action: manipulation;
 }
 
 /* Rounded left corners */
 .number-picker button.minus {
 	border-radius: 0.5rem 0 0 0.5rem;
-	color: var(--text);
-	touch-action: manipulation;
 }
 
 /* Rounded right corners */
 .number-picker button.plus {
 	border-radius: 0 0.5rem 0.5rem 0;
-	color: var(--text);
-	touch-action: manipulation;
 }
 
 /* remove browser input up arrow and down arrow */
@@ -61,14 +62,6 @@ input[type="number"]::-webkit-inner-spin-button {
 
 /* ---------------------------------------------------- */
 /* --- price category selector ------------------------ */
-
-label.fixed-price-activity {
-	font-weight: bold;
-	margin-top: 1em;
-	padding-top: 1em;
-	margin-bottom: 1em;
-	border-top: 1px solid var(--highlight-med);
-}
 
 fieldset.fixed-price-activity {
 	display: flex;
@@ -114,7 +107,7 @@ fieldset.price-categories input[type="radio"] {
 }
 
 fieldset.price-categories .price-category__label {
-	background-color: var(--shade-0);
+	background-color: var(--form-input);
 	padding: 0.5em;
 	border: 1px solid var(--shade-500);
 	border-radius: 0.5em;

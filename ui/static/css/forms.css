@@ -26,8 +26,15 @@ form * {
 	overflow: hidden;
 }
 
-form label {
-	font-weight: normal;
+label {
+	font-weight: bold;
+	margin-top: 1em;
+	padding-top: 1em;
+	margin-bottom: 1em;
+}
+
+label:not(:first-of-type) {
+  border-top: 1px solid var(--form-number-picker);
 }
 
 input:not([type="radio"], [type="checkbox"]),
@@ -38,10 +45,10 @@ select {
 	font-family: inherit;
 	color: inherit;
 	border: solid 1px var(--shade-500);
-	border-radius: 0.2rem;
-	padding: 0.4rem;
+	border-radius: 0.3rem;
+	padding: 0.5rem;
 	width: 100%;
-	background-color: var(--shade-0);
+	background-color: var(--form-input);
 	transition:
 		border 0.2s ease,
 		box-shadow 0.2s ease;
@@ -55,16 +62,16 @@ input:not([type="radio"], [type="checkbox"]):focus,
 textarea:focus,
 select:focus {
 	outline: none;
-	border: 2px solid var(--primary-300);
+	border: 2px solid var(--primary);
 }
 
 input[aria-invalid="true"],
 textarea[aria-invalid="true"] {
-	border: 2px solid var(--primary-300);
+	border: 2px solid var(--primary);
 }
 
 small.failed-validation {
-	color: var(--primary-300);
+	color: var(--primary-600);
 }
 
 input[readonly],
@@ -83,10 +90,10 @@ form button {
 	font-weight: bold;
 	background-color: var(--primary);
 	box-sizing: border-box;
-	color: var(--shade-0);
+	color: var(--button-text);
 	padding: 0.8rem;
 	width: 100%;
-	border-radius: 0.2rem;
+	border-radius: 0.3rem;
 	border: none;
 }
 
@@ -129,34 +136,4 @@ button#login-button[aria-busy="true"]::after {
 /* Firefox */
 input[type="number"] {
 	-moz-appearance: textfield;
-}
-
-table button {
-	all: unset;
-	font-family: inherit;
-	font-size: inherit;
-	cursor: pointer;
-	background-color: inherit;
-	padding: 0.1rem 0.8rem;
-	/* border-radius: 0.5em; */
-	/* border: 1px solid var(--text); */
-	/* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
-}
-
-form button.edit {
-	color: var(--iris);
-}
-
-button.edit:hover {
-	color: var(--text);
-	transition: color 0.2s ease-in-out;
-}
-
-button.delete {
-	color: var(--muted);
-}
-
-button.delete:hover {
-	color: var(--love);
-	transition: color 0.2s ease-in-out;
 }

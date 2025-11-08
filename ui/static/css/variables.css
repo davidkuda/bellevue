@@ -33,9 +33,13 @@
 	--primary-900: #2f0d11;
 
 	--text: #171817;
+	--button-text: #fdfefd;
 	--page-background: #fdfefd;
 	--table-header: #ebf1eb;
 	--table-border: #a5a9a5;
+	--form-input: #ebf1eb;
+	--form-number-picker: #d4d9d4;
+	--form-divider: #ebf1eb;
 }
 
 [data-theme="dark"] {
@@ -60,4 +64,6 @@
 	--page-background: #171817;
 	--table-header: #2f302f;
 	--table-border: #464846;
+	--form-input: #464846;
+	--form-number-picker: #2f302f;
 }

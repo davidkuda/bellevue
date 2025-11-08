@@ -73,3 +73,33 @@ tr {
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
+
+table button {
+	all: unset;
+	font-family: inherit;
+	font-size: inherit;
+	cursor: pointer;
+	background-color: inherit;
+	padding: 0.1rem 0.8rem;
+	/* border-radius: 0.5em; */
+	/* border: 1px solid var(--text); */
+	/* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+}
+
+button.edit {
+	color: var(--iris);
+}
+
+button.edit:hover {
+	color: var(--text);
+	transition: color 0.2s ease-in-out;
+}
+
+button.delete {
+	color: var(--muted);
+}
+
+button.delete:hover {
+	color: var(--love);
+	transition: color 0.2s ease-in-out;
+}
