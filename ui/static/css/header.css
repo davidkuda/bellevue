@@ -8,7 +8,9 @@ header {
 
 header > img {
 	align-self: flex-end;
-	margin-right: 1.5em;
+	margin-top: -0.8em;
+	margin-right: -1.5em;
+	margin-bottom: 1em;
 }
 
 header hgroup > h1 > a {

@@ -40,6 +40,12 @@
 	--form-input: #f1f5f1;
 	--form-number-picker: #ebf1eb;
 	--form-divider: #d4d9d4;
+
+	--shade-50: #fdfefd;
+	--shade-100: #fbfcfb;
+	--shade-150: #f9fbf9;
+	--shade-200: #f7f9f7;
+	--shade-250: #f5f8f5;
 }
 
 [data-theme="dark"] {
@@ -67,4 +73,10 @@
 	--form-input: #464846;
 	--form-number-picker: #2f302f;
 	--form-divider: #464846;
+
+	--shade-50: #fdfefd;
+	--shade-100: #fbfcfb;
+	--shade-150: #f9fbf9;
+	--shade-200: #f7f9f7;
+	--shade-250: #f5f8f5;
 }
