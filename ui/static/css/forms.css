@@ -35,7 +35,7 @@ label {
 }
 
 label:not(:first-of-type) {
-  border-top: 1px solid var(--form-divider);
+	border-top: 1px solid var(--form-divider);
 }
 
 input:not([type="radio"], [type="checkbox"]),

@@ -2,8 +2,4 @@
 build
 coverage
 
-# ignore JS
-./ui/static/js
-
-# ignore CSS
-./ui/static/css
+ui/static/dist/

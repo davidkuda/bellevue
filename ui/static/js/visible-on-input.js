@@ -1,5 +1,5 @@
 window.addEventListener("htmx:load", (e) =>
-	togglePriceCategoryVisibility(e.target),
+	togglePriceCategoryVisibility(e.target)
 );
 
 function togglePriceCategoryVisibility(tree = document) {
