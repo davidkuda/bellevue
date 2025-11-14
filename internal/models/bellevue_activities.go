@@ -251,7 +251,7 @@ func (m *BellevueActivityModel) Update(a *BellevueActivity) error {
 
 func (m *BellevueActivityModel) Delete(activityID int) error {
 	stmt := `
-	DELETE from bellevue.origins
+	DELETE from bellevue_origins
 	WHERE id = $1;
 	`
 
