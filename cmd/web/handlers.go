@@ -381,7 +381,6 @@ func (app *application) getActivitiesByMonths(w http.ResponseWriter, r *http.Req
 	app.renderHTMXPartial(w, r, http.StatusOK, "htmx.partial.activities.by-month.tmpl.html", &t)
 }
 
-
 func (app *application) newTemplateDataBellevueActivity(r *http.Request, form bellevueActivityForm) templateData {
 	t := app.newTemplateData(r)
 	t.BellevueActivity = form.toModel()
@@ -392,18 +391,21 @@ func (app *application) newTemplateDataBellevueActivity(r *http.Request, form be
 }
 
 type bellevueActivityForm struct {
-	ID          int
-	UserID      int
-	Date        time.Time
-	Breakfasts  int
-	Lunches     int
-	Dinners     int
-	Coffees     int
-	Saunas      int
-	Lectures    int
-	SnacksCHF   int
-	Comment     string
-	FieldErrors map[string]string
+	ID                     int
+	UserID                 int
+	Date                   time.Time
+	Breakfasts             int
+	BreakfastPriceCategory string
+	Lunches                int
+	LunchPriceCategory     string
+	Dinners                int
+	DinnerPriceCategory    string
+	Coffees                int
+	Saunas                 int
+	Lectures               int
+	SnacksCHF              int
+	Comment                string
+	FieldErrors            map[string]string
 }
 
 func (form *bellevueActivityForm) parseRequest(r *http.Request) error {
@@ -462,8 +464,11 @@ func (form *bellevueActivityForm) parseRequest(r *http.Request) error {
 
 	form.Date = date
 	form.Breakfasts = breakfasts
+	form.BreakfastPriceCategory = f.Get("price-category-breakfasts")
 	form.Lunches = lunches
+	form.LunchPriceCategory = f.Get("price-category-lunches")
 	form.Dinners = dinners
+	form.DinnerPriceCategory = f.Get("price-category-dinner")
 	form.Coffees = coffees
 	form.Saunas = saunas
 	form.Lectures = lectures
@@ -477,6 +482,22 @@ func (form *bellevueActivityForm) parseRequest(r *http.Request) error {
 
 	if form.hasOnlyZeroes() {
 		form.FieldErrors["zeroes"] = "you have all 0 and therefore not any activity to upload."
+	}
+
+	// TODO: implement form validation for price category
+	// TODO: what if no product is sent?
+	var check string
+	check = form.BreakfastPriceCategory
+	if check != "reduced" && check != "regular" && check != "surplus" {
+		form.FieldErrors["pricat"] = "you have an invalid price category"
+	}
+	check = form.LunchPriceCategory
+	if check != "reduced" && check != "regular" && check != "surplus" {
+		form.FieldErrors["pricat"] = "you have an invalid price category"
+	}
+	check = form.LunchPriceCategory
+	if check != "reduced" && check != "regular" && check != "surplus" {
+		form.FieldErrors["pricat"] = "you have an invalid price category"
 	}
 
 	if len(form.FieldErrors) > 0 {

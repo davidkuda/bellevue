@@ -23,7 +23,7 @@
       {{ range .PriceCategories }}
         <li>
           <label>
-          <input value="{{ .Name }}" type="radio" name="price-category__{{ $.ID }}" {{ if .Checked }}checked{{ end }} />
+          <input value="{{ .Name }}" type="radio" name="price-category-{{ $.ID }}" {{ if .Checked }}checked{{ end }} />
             <div class="price-category__label">
             <span class="price-category__label-name">{{ .Label }}</span>
             <span class="price-category__label-price">{{ .Price | fmtCHF }} CHF</span>
