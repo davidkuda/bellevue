@@ -17,36 +17,22 @@
       <button type="button" class="plus">+</button>
     </fieldset>
 
+  {{ if .PriceCategories }}
     <fieldset class="price-categories" data-js-visible-on-input>
       <ul>
+      {{ range .PriceCategories }}
         <li>
           <label>
-            <input type="radio" name="price-category__{{ .ID }}" />
+          <input value="{{ .Name }}" type="radio" name="price-category__{{ $.ID }}" {{ if .Checked }}checked{{ end }} />
             <div class="price-category__label">
-              <span class="price-category__label-name">Reduced</span>
-              <span class="price-category__label-price">11.00 CHF</span>
+            <span class="price-category__label-name">{{ .Label }}</span>
+            <span class="price-category__label-price">{{ .Price | fmtCHF }} CHF</span>
             </div>
           </label>
         </li>
-        <li>
-          <label>
-            <input type="radio" name="price-category__{{ .ID }}" checked />
-            <div class="price-category__label">
-              <span class="price-category__label-name">Regular</span>
-              <span class="price-category__label-price">13.00 CHF</span>
-            </div>
-          </label>
-        </li>
-        <li>
-          <label>
-            <input type="radio" name="price-category__{{ .ID }}" />
-            <div class="price-category__label">
-              <span class="price-category__label-name">Surplus</span>
-              <span class="price-category__label-price">15.00 CHF</span>
-            </div>
-          </label>
-        </li>
+      {{ end }}
       </ul>
     </fieldset>
+  {{ end }}
   </fieldset>
 {{ end }}

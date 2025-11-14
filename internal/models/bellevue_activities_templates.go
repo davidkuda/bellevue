@@ -5,7 +5,6 @@ import (
 	"time"
 )
 
-
 // used to render tables with activities
 type BellevueActivityOverviews []BellevueActivityOverview
 
@@ -92,31 +91,54 @@ type BellevueOfferings []Offer
 // TODO: I don't like these structs ... needs refactoring
 // TODO: REFACTOR: Maybe combine with Item? Will see when implementing edit and open the form.
 type Offer struct {
-	Label string
-	Price int
-	ID    string
-	Count int
+	Label           string
+	Price           int
+	ID              string
+	Count           int
+	PriceCategories []PriceCategoryT
+}
+
+type PriceCategoryT struct {
+	Name    string
+	Label   string
+	Price   int
+	Checked bool
 }
 
 func (b *BellevueActivity) NewBellevueOfferings() BellevueOfferings {
 	return BellevueOfferings{
 		Offer{
-			Label: "Breakfast (8.00 CHF):",
+			Label: "Breakfast:",
 			Price: 800,
 			ID:    "breakfasts",
 			Count: b.Breakfasts,
+			PriceCategories: []PriceCategoryT{
+				{"reduced", "Reduced", 800, false},
+				{"regular", "Regular", 900, true},
+				{"surplus", "Surplus", 1000, false},
+			},
 		},
 		Offer{
-			Label: "Lunch (11.00 CHF):",
+			Label: "Lunch:",
 			Price: 1100,
 			ID:    "lunches",
 			Count: b.Lunches,
+			PriceCategories: []PriceCategoryT{
+				{"reduced", "Reduced", 1100, false},
+				{"regular", "Regular", 1300, true},
+				{"surplus", "Surplus", 1500, false},
+			},
 		},
 		Offer{
-			Label: "Dinner (11.00 CHF):",
+			Label: "Dinner:",
 			Price: 1100,
 			ID:    "dinners",
 			Count: b.Dinners,
+			PriceCategories: []PriceCategoryT{
+				{"reduced", "Reduced", 1100, false},
+				{"regular", "Regular", 1300, true},
+				{"surplus", "Surplus", 1500, false},
+			},
 		},
 		Offer{
 			Label: "Coffee (1.00 CHF):",
