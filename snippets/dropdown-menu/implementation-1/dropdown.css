@@ -1,0 +1,67 @@
+td.actions-cell {
+	text-align: right;
+	overflow: visible;
+}
+
+/* anchor */
+.inline-menu {
+	position: relative;
+	display: inline-block;
+}
+
+/* the 3 dots */
+.inline-menu > summary {
+	list-style: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: 6px;
+	cursor: pointer;
+	color: #fff; /* WHITE DOTS */
+}
+.inline-menu > summary::-webkit-details-marker {
+	display: none;
+}
+.inline-menu[open] > summary {
+	background: rgba(255, 255, 255, 0.12);
+}
+.inline-menu svg {
+	fill: currentColor;
+}
+
+/* the menu */
+.inline-menu > ul {
+	position: absolute;
+	top: calc(100% + 6px); /* directly beneath */
+	right: 0; /* keep inside screen on mobile */
+	min-width: 140px;
+	max-width: 80vw;
+	margin: 0;
+	padding: 4px;
+	list-style: none;
+	background: #fff;
+	color: #111;
+	border: 1px solid #ddd;
+	border-radius: 10px;
+	box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* items: tighter spacing */
+.inline-menu > ul > li > * {
+	display: block;
+	width: 100%;
+	padding: 6px 10px;
+	border: 0;
+	background: none;
+	text-align: left;
+	border-radius: 6px;
+	font: inherit;
+	color: inherit;
+	cursor: pointer;
+}
+.inline-menu > ul > li > *:hover {
+	background: #f5f5f5;
+}
+

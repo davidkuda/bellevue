@@ -1,0 +1,33 @@
+<table>
+  <tr>
+    <th>Month</th>
+    <th>Price</th>
+    <th>Status</th>
+    <th>Actions</th>
+  </tr>
+{{ range .BellevueInvoices }}
+  <tr>
+    <td>{{.MonthYear}}</td>
+    <td>{{.TotalPrice | fmtCHF}} CHF</td>
+    <td>{{ .State }}</td>
+    <td class="actions-cell">
+      <details class="inline-menu">
+        <summary aria-label="Actions">
+          <!-- horizontal 3 dots, inherits color -->
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="6" cy="12" r="2"></circle>
+            <circle cx="12" cy="12" r="2"></circle>
+            <circle cx="18" cy="12" r="2"></circle>
+          </svg>
+        </summary>
+        <ul role="menu">
+          <li><button role="menuitem" hx-get="/activities/print"  hx-target="body">Print</button></li>
+            <li><button role="menuitem" hx-put="/activities/unpaid" hx-target="body">Set unpaid</button></li>
+            <li><button role="menuitem" hx-put="/activities//paid"   hx-target="body">Set paid</button></li>
+        </ul>
+      </details>
+    </td>
+  </tr>
+{{ end }}
+</table>
+{{ end }}
