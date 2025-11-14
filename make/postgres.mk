@@ -1,7 +1,3 @@
-PG_DSN_ADMIN = postgres://davidkuda:@${DB_ADDRESS}/${DB_NAME}?sslmode=disable
-
-PG_DSN_APP = postgres://${DB_USER}:${DB_PASSWORD}@${DB_ADDRESS}/${DB_NAME}?sslmode=disable
-
 db/backup/songs:
 	pg_dump \
 	--data-only \
@@ -28,6 +24,13 @@ db/drop:
 
 db/restore:
 	psql -X kuda_ai --single-transaction < ./data/postgres/dumpfile--data-only
+
+psql/davidkuda:
+	psql \
+	--host localhost \
+	--username davidkuda \
+	--port 5432 \
+	--dbname kuda_ai
 
 user ?= dev
 psql/dev:
