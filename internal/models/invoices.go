@@ -121,8 +121,13 @@ func (m *InvoiceModel) GetInvoiceOfLastMonth(user User) (Invoice, error) {
 		&invoice.State,
 	)
 	if err != nil {
-		return Invoice{}, fmt.Errorf("failed fetching most recent invoice for user with ID %i: %e", user.ID, err)
+		return Invoice{}, fmt.Errorf("failed fetching most recent invoice for user with ID %d: %e", user.ID, err)
 	}
 
 	return invoice, nil
+}
+
+func (m *InvoiceModel) AddActivity(activity BellevueActivity) error {
+
+	return nil
 }
