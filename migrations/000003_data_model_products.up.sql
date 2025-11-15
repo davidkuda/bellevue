@@ -79,7 +79,8 @@ create table bellevue.products (
 	tax_id               INT
 	                     not null
 	                     references bellevue.taxes(id),
-	name                 TEXT not null,
+	name                 TEXT not null, -- e.g. Breakfast, may be translated
+	code                 TEXT not null, -- e.g. breakfasts, used internally, for instance for forms
 	pricing_mode         TEXT
 	                     not null
 	                     default 'fixed'
@@ -97,6 +98,11 @@ create table bellevue.products (
 	created_at TIMESTAMPTZ default now() not null,
 	updated_at TIMESTAMPTZ default now() not null,
 	deleted_at TIMESTAMPTZ
+);
+
+create table bellevue.product_form_order (
+    code       text primary key,
+    sort_order int not null
 );
 
 create table bellevue.comments (
@@ -144,6 +150,12 @@ alter table financial_accounts
 owner to dev;
 
 alter table products
+owner to dev;
+
+alter table product_form_order
+owner to dev;
+
+alter table comments
 owner to dev;
 
 alter table consumptions

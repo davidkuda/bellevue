@@ -74,30 +74,35 @@ insert into financial_accounts (
 -- reduced products:
 insert into products (
 	name,
+	code,
 	price,
 	financial_account_id,
 	price_category_id,
 	tax_id
 ) values (
 	'Breakfast',
+	'breakfast',
 	800,
 	(select id from financial_accounts where code = 3000),
 	(select id from price_categories where name = 'reduced'),
 	(select id from taxes where code = 'B81')
 ), (
 	'Lunch',
+	'lunch',
 	1100,
 	(select id from financial_accounts where code = 3000),
 	(select id from price_categories where name = 'reduced'),
 	(select id from taxes where code = 'B81')
 ), (
 	'Dinner',
+	'dinner',
 	1100,
 	(select id from financial_accounts where code = 3000),
 	(select id from price_categories where name = 'reduced'),
 	(select id from taxes where code = 'B81')
 ), (
 	'Coffee',
+	'coffee',
 	100,
 	(select id from financial_accounts where code = 3002),
 	(select id from price_categories where name = 'reduced'),
@@ -108,42 +113,49 @@ insert into products (
 -- regular products:
 insert into products (
 	name,
+	code,
 	price,
 	financial_account_id,
 	price_category_id,
 	tax_id
 ) values (
 	'Breakfast',
+	'breakfast',
 	900,
 	(select id from financial_accounts where code = 3000),
 	(select id from price_categories where name = 'regular'),
 	(select id from taxes where code = 'B81')
 ), (
 	'Lunch',
+	'lunch',
 	1300,
 	(select id from financial_accounts where code = 3000),
 	(select id from price_categories where name = 'regular'),
 	(select id from taxes where code = 'B81')
 ), (
 	'Dinner',
+	'dinner',
 	1300,
 	(select id from financial_accounts where code = 3000),
 	(select id from price_categories where name = 'regular'),
 	(select id from taxes where code = 'B81')
 ), (
 	'Coffee',
+	'coffee',
 	200,
 	(select id from financial_accounts where code = 3002),
 	(select id from price_categories where name = 'regular'),
 	(select id from taxes where code = 'B81')
 ), (
 	'Sauna',
+	'sauna',
 	750,
 	(select id from financial_accounts where code = 3000),
 	(select id from price_categories where name = 'regular'),
 	(select id from taxes where code = 'B81')
 ), (
 	'Lectures',
+	'lecture',
 	1200,
 	(select id from financial_accounts where code = 3400),
 	(select id from price_categories where name = 'regular'),
@@ -154,30 +166,35 @@ insert into products (
 -- surplus products:
 insert into products (
 	name,
+	code,
 	price,
 	financial_account_id,
 	price_category_id,
 	tax_id
 ) values (
 	'Breakfast',
+	'breakfast',
 	1100,
 	(select id from financial_accounts where code = 3000),
 	(select id from price_categories where name = 'surplus'),
 	(select id from taxes where code = 'B81')
 ), (
 	'Lunch',
+	'lunch',
 	1500,
 	(select id from financial_accounts where code = 3000),
 	(select id from price_categories where name = 'surplus'),
 	(select id from taxes where code = 'B81')
 ), (
 	'Dinner',
+	'dinner',
 	1500,
 	(select id from financial_accounts where code = 3000),
 	(select id from price_categories where name = 'surplus'),
 	(select id from taxes where code = 'B81')
 ), (
 	'Coffee',
+	'coffee',
 	300,
 	(select id from financial_accounts where code = 3002),
 	(select id from price_categories where name = 'surplus'),
@@ -188,21 +205,36 @@ insert into products (
 -- custom priced products:
 insert into products (
 	name,
+	code,
 	pricing_mode,
 	financial_account_id,
 	tax_id
 ) values (
 	'Snacks/Drinks',
+	'kiosk',
 	'custom',
 	(select id from financial_accounts where code = 3000),
 	(select id from taxes where code = 'B81')
 ), (
 	'Donations',
+	'donations',
 	'custom',
 	(select id from financial_accounts where code = 3000),
 	(select id from taxes where code = 'B81')
 )
 ;
 
+
+insert into product_form_order (code, sort_order)
+VALUES
+  ('breakfast', 10),
+  ('lunch', 20),
+  ('dinner', 30),
+  ('coffee', 40),
+  ('sauna', 50),
+  ('lecture', 60),
+  ('kiosk', 70),
+  ('donations', 80)
+;
 
 COMMIT;
