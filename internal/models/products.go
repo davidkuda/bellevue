@@ -17,13 +17,25 @@ type Product struct {
 	Price         sql.NullInt64
 }
 
+func (p Products) ToProductFormConfig() ProductFormConfig {
+	for _, product := range p {
+		fmt.Println(product)
+	}
+	return nil
+}
+
 type ProductFormConfig []ProductFormSpec
 
 type ProductFormSpec struct {
+	Label           string
 	Code            string
 	HasCategories   bool
 	IsCustomAmount  bool
-	PriceCategories []string
+	PriceCategories []struct{
+		Name       string
+		PriceCents int
+		Checked    bool
+	}
 }
 
 type PriceKey struct {
@@ -40,7 +52,8 @@ type ProductModel struct {
 func (m *ProductModel) GetProductFormConfig() (ProductFormConfig, error) {
 	stmt := `
 with product_form_specs as (
-       select p.code,
+       select p.name,
+              p.code,
               bool_or(p.price_category_id is not null) as has_categories,
               bool_or(p.pricing_mode = 'custom') as is_custom_amount,
               coalesce(
@@ -55,9 +68,13 @@ with product_form_specs as (
     left join bellevue.price_categories pc
            on pc.id = p.price_category_id
         where p.deleted_at is null
-        group by p.code
+        group by p.name, p.code
 )
-   select code, has_categories, is_custom_amount, price_categories
+   select name,
+          code,
+          has_categories,
+          is_custom_amount,
+          price_categories
      from product_form_specs
 left join product_form_order
     using (code)
@@ -76,6 +93,7 @@ left join product_form_order
 		var pft ProductFormSpec
 		var cats string
 		err = rows.Scan(
+			&pft.Label,
 			&pft.Code,
 			&pft.HasCategories,
 			&pft.IsCustomAmount,
