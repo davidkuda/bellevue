@@ -18,7 +18,6 @@ func (app *application) routes() http.Handler {
 	adminsOnly := alice.New(app.requireAuthentication, app.requireAdmin)
 
 	mux.HandleFunc("GET /", app.getHome)
-	mux.HandleFunc("GET /htmx", app.someHTMXPartial)
 
 	// activities: all require authentication:
 	mux.Handle("GET /activities", usersOnly.ThenFunc(app.getActivities))
