@@ -70,13 +70,25 @@ create table bellevue.products (
 	                     not null
 	                     references bellevue.financial_accounts(id),
 	price_category_id    INT
-	                     not null
 	                     references bellevue.price_categories(id),
+	                     check (
+	                       (pricing_mode = 'fixed'  and price_category_id is not null) or
+	                       (pricing_mode = 'custom' and price_category_id is null)
+	                     ),
+
 	tax_id               INT
 	                     not null
 	                     references bellevue.taxes(id),
 	name                 TEXT not null,
-	price                INT not null, -- 11.00 CHF => 1100
+	pricing_mode         TEXT
+	                     not null
+	                     default 'fixed'
+                         check (pricing_mode in ('fixed', 'custom')),
+	price                INT -- 11.00 CHF => 1100
+	                     check (
+	                       (pricing_mode = 'fixed'  and price is not null) or
+	                       (pricing_mode = 'custom' and price is null)
+	                    ),
 	valid_from           TIMESTAMPTZ not null default now(),
 
 	unique (name, price_category_id, valid_from),

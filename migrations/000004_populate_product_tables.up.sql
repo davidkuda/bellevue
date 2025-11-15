@@ -185,4 +185,24 @@ insert into products (
 )
 ;
 
+-- custom priced products:
+insert into products (
+	name,
+	pricing_mode,
+	financial_account_id,
+	tax_id
+) values (
+	'Snacks/Drinks',
+	'custom',
+	(select id from financial_accounts where code = 3000),
+	(select id from taxes where code = 'B81')
+), (
+	'Donations',
+	'custom',
+	(select id from financial_accounts where code = 3000),
+	(select id from taxes where code = 'B81')
+)
+;
+
+
 COMMIT;
