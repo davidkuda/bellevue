@@ -18,6 +18,7 @@ type application struct {
 	models models.Models
 
 	productFormConfig models.ProductFormConfig
+	priceCategoryMap  models.PriceCategoryMap
 
 	templateCache         map[string]*template.Template
 	templateCacheHTMX     map[string]*template.Template
@@ -26,9 +27,9 @@ type application struct {
 	CookieDomain string
 
 	JWT struct {
-		Secret       []byte
-		Issuer       string
-		Audience     string // TODO: should this be []string?
+		Secret   []byte
+		Issuer   string
+		Audience string // TODO: should this be []string?
 	}
 }
 
@@ -63,6 +64,11 @@ func main() {
 	app.productFormConfig, err = app.models.Products.GetProductFormConfig()
 	if err != nil {
 		log.Fatalf("could not load productFormConfig: %v\n", err)
+	}
+
+	app.priceCategoryMap, err = app.models.PriceCategories.GetPriceCatMap()
+	if err != nil {
+		log.Fatalf("could not load app.priceCategoryMap: %v\n", err)
 	}
 
 	app.templateCache, err = newTemplateCache()

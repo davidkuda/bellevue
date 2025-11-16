@@ -16,27 +16,19 @@ var (
 	FieldError = errors.New("FieldError")
 )
 
-type Product struct {
-	Name           string
-	HasCategory    bool
-	IsCustomAmount bool
+type productForm struct {
+	ID          int
+	UserID      int
+	Date        time.Time
+	Products    []parsedProduct
+	Comment     string
+	FieldErrors map[string]string
 }
 
-// use this to render form and parse form upload
-var Products = []Product{
-	{Name: "breakfasts", HasCategory: true},
-	{Name: "lunches", HasCategory: true},
-	{Name: "dinners", HasCategory: true},
-	{Name: "coffees", HasCategory: true},
-	{Name: "saunas", HasCategory: true},
-	{Name: "lectures", HasCategory: true},
-	{Name: "snacks", IsCustomAmount: true},
-}
-
-type ParsedActivity struct {
-	Name          string
-	Quantity      int
+type parsedProduct struct {
+	Code          string
 	PriceCategory string
+	Quantity      int
 	AmountCHF     int // for snacks
 }
 
@@ -56,6 +48,57 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	formNew := productForm{}
+	formNew.FieldErrors = map[string]string{}
+
+	// NOTE: an alternative could be iterating over the key-value-pairs of the r.Form
+	// for key, values := range r.Form {
+	// 	for _, v := range values {
+	// 		fmt.Printf("key=%s value=%s\n", key, v)
+	// 	}
+	// }
+
+	for _, productFormSpec := range app.productFormConfig {
+		var pp parsedProduct
+		pp.Code = productFormSpec.Code
+		if productFormSpec.HasCategories {
+			quantityStr := r.FormValue("activities[" + productFormSpec.Code + "][quantity]")
+			quantityInt, err := strconv.Atoi(quantityStr)
+			if err != nil {
+				formNew.FieldErrors[productFormSpec.Code+"-Atoi"] = "input is not a number"
+				continue
+			}
+			if quantityInt < 0 {
+				formNew.FieldErrors[productFormSpec.Code+"-Atoi"] = "input is a negative number"
+				continue
+			}
+			pp.Quantity = quantityInt
+
+			pricecatFormField := fmt.Sprintf("activities[%s][price_category]", productFormSpec.Code)
+			pricecat := r.FormValue(pricecatFormField)
+			if ok := app.priceCategoryMap[pricecat]; ok != true {
+				formNew.FieldErrors[productFormSpec.Code+"-price-category"] = "invalid price category"
+			}
+			pp.PriceCategory = pricecat
+		}
+		if productFormSpec.IsCustomAmount {
+			priceStr := r.FormValue("activities[" + productFormSpec.Code + "][amount_chf]")
+			priceInt, err := strconv.Atoi(priceStr)
+			if err != nil {
+				formNew.FieldErrors[productFormSpec.Code+"-Atoi"] = "input is not a number"
+				continue
+			}
+			if priceInt < 0 {
+				formNew.FieldErrors[productFormSpec.Code+"-Atoi"] = "input is a negative number"
+				continue
+			}
+			pp.AmountCHF = priceInt
+		}
+		formNew.Products = append(formNew.Products, pp)
+	}
+
+	fmt.Println(formNew)
+
 	form := bellevueActivityForm{}
 
 	err = form.parseFormFromRequest(r)
@@ -72,28 +115,6 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 		}
 	}
 
-	fmt.Println("DAVID:")
-	fmt.Println(form)
-	fmt.Println("PRODUCTS:")
-	products, err := app.models.Products.GetAll()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	for _, product := range products {
-		fmt.Println(product)
-		fmt.Println(product.PriceCategory)
-	}
-	pfts, err := app.models.Products.GetProductFormConfig()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	for _, product := range pfts {
-		fmt.Println(product)
-	}
-	return
-
 	b := form.toModel()
 
 	b.UserID = userID
@@ -109,7 +130,6 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 	http.Redirect(w, r, "/bellevue-activities", http.StatusSeeOther)
 	return
 }
-
 
 type bellevueActivityForm struct {
 	ID                     int
