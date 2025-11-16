@@ -116,6 +116,22 @@ create table bellevue.comments (
 );
 
 
+-- TODO: how should I invoice consumptions?
+create table bellevue.invoices_v2 (
+	id          serial primary key,
+	user_id     int not null references auth.users(id),
+	period_from date not null,
+	period_to   date not null,
+	status      text not null default 'draft'
+	            check (status in ('draft', 'sent', 'paid', 'cancelled')),
+
+	created_at  timestamptz not null default now(),
+	updated_at  timestamptz not null default now(),
+
+	unique (user_id, period_from, period_to)
+);
+
+
 -- TODO: should I keep the following column column?
 --	mwst_price INT not null, -- unmutable fact
 -- NOTE: if invoice_id is null, editable
@@ -130,7 +146,7 @@ create table bellevue.consumptions (
 	pricecat_id INT not null
 	            references price_categories(id),
 	invoice_id  int
-	            references invoices(id),
+	            references invoices_v2(id),
 	date        DATE,
 	unit_price  INT not null, -- unmutable fact after invoice_id is not null
 	quantity    int not null
@@ -144,22 +160,6 @@ create table bellevue.consumptions (
 create index on bellevue.consumptions (user_id);
 create index on bellevue.consumptions (invoice_id);
 create index on bellevue.consumptions (date);
-
--- TODO: how should I invoice consumptions?
-create table bellevue.invoices (
-	id          serial primary key,
-	user_id     int not null references auth.users(id),
-	period_from date not null,
-	period_to   date not null,
-	status      text not null default 'draft'
-	            check (status in ('draft', 'sent', 'paid', 'cancelled')),
-
-	created_at  timestamptz not null default now(),
-	updated_at  timestamptz not null default now(),
-
-	unique (user_id, period_from, period_to)
-);
-
 
 
 ----------------------------------------------------------------------------------
