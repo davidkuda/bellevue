@@ -7,6 +7,7 @@ type Models struct {
 	Pages              PageModel
 	BellevueActivities BellevueActivityModel
 	Invoices           InvoiceModel
+	Products           ProductModel
 }
 
 func New(db *sql.DB) Models {
@@ -15,5 +16,6 @@ func New(db *sql.DB) Models {
 		Pages:              PageModel{DB: db},
 		Invoices:           InvoiceModel{DB: db},
 		BellevueActivities: BellevueActivityModel{DB: db},
+		Products:           ProductModel{DB: db},
 	}
 }

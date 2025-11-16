@@ -29,28 +29,20 @@
   <label
       ><strong>Date:</strong>
     <input
-      name="bellevue-activity-date"
+      name="date"
       type="date"
       value="{{- .BellevueActivity.Date | formatDateFormInput -}}"
   /></label>
-  {{- range .BellevueOfferings -}}
-    {{- template "bellevue-activity" . -}}
+  {{- range .ProductFormConfig -}}
+    {{- if .HasCategories -}}
+      {{- template "form-field--product-counter" . -}}
+    {{- end -}}
+    {{- if .IsCustomAmount -}}
+      {{- template "form-field--custom-amount" . -}}
+    {{- end -}}
   {{- end -}}
   <label
-      ><strong>Snacks & Drinks (in CHF):</strong>
-    <input
-      name="bellevue-activity-snacks"
-      type="number"
-      min="0"
-      step="0.01"
-      value="{{- if .Edit -}}
-        {{- .BellevueActivity.SnacksCHF | fmtCHF -}}
-      {{- else -}}
-        0
-      {{- end -}}"
-  /></label>
-  <label
-      ><strong>Comment (max 1 Paragraph):</strong>
+      ><strong>Comment:</strong>
     <textarea name="bellevue-activity-comment" rows="2" aria-label="comment">
     {{- .BellevueActivity.Comment -}}
     </textarea

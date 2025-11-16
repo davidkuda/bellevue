@@ -16,6 +16,30 @@ var (
 	FieldError = errors.New("FieldError")
 )
 
+type Product struct {
+	Name           string
+	HasCategory    bool
+	IsCustomAmount bool
+}
+
+// use this to render form and parse form upload
+var Products = []Product{
+	{Name: "breakfasts", HasCategory: true},
+	{Name: "lunches", HasCategory: true},
+	{Name: "dinners", HasCategory: true},
+	{Name: "coffees", HasCategory: true},
+	{Name: "saunas", HasCategory: true},
+	{Name: "lectures", HasCategory: true},
+	{Name: "snacks", IsCustomAmount: true},
+}
+
+type ParsedActivity struct {
+	Name          string
+	Quantity      int
+	PriceCategory string
+	AmountCHF     int // for snacks
+}
+
 // POST /activity
 func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
@@ -50,6 +74,25 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 
 	fmt.Println("DAVID:")
 	fmt.Println(form)
+	fmt.Println("PRODUCTS:")
+	products, err := app.models.Products.GetAll()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, product := range products {
+		fmt.Println(product)
+		fmt.Println(product.PriceCategory)
+	}
+	pfts, err := app.models.Products.GetProductFormConfig()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for _, product := range pfts {
+		fmt.Println(product)
+	}
+	return
 
 	b := form.toModel()
 

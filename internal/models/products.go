@@ -17,17 +17,10 @@ type Product struct {
 	Price         sql.NullInt64
 }
 
-func (p Products) ToProductFormConfig() ProductFormConfig {
-	for _, product := range p {
-		fmt.Println(product)
-	}
-	return nil
-}
-
 type PriceCategoryOption struct {
-	Name       string `json:"name"`
-	PriceCents int    `json:"price"`
-	Checked    bool   `json:"checked"`
+	Name    string `json:"name"`
+	Price   int    `json:"price"`
+	Checked bool   `json:"checked"`
 }
 
 type ProductFormConfig []ProductFormSpec
@@ -37,7 +30,7 @@ type ProductFormSpec struct {
 	Code            string
 	HasCategories   bool
 	IsCustomAmount  bool
-	Categories     []PriceCategoryOption
+	PriceCategories []PriceCategoryOption
 }
 
 type PriceKey struct {
@@ -56,8 +49,8 @@ func (m *ProductModel) GetProductFormConfig() (ProductFormConfig, error) {
 with product_form_specs as (
        select p.name,
               p.code,
-              bool_or(p.pricing_mode = 'custom') as is_custom_amount,
               bool_or(p.price_category_id is not null) as has_categories,
+              bool_or(p.pricing_mode = 'custom') as is_custom_amount,
               json_agg(
                 json_build_object(
                   'name',    pc.name,
@@ -79,8 +72,8 @@ with product_form_specs as (
 )
   select name,
          code,
-         is_custom_amount,
          has_categories,
+         is_custom_amount,
          coalesce(categories_json, '[]'::json) as categories_json
     from product_form_specs
 order by sort_order nulls last, code
@@ -113,7 +106,7 @@ order by sort_order nulls last, code
 		if err := json.Unmarshal(catsJSON, &categories); err != nil {
 			return nil, fmt.Errorf("unmarshal categories for %s: %w", spec.Code, err)
 		}
-		spec.Categories = categories
+		spec.PriceCategories = categories
 		pfcs = append(pfcs, spec)
 	}
 

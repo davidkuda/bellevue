@@ -48,8 +48,14 @@ func (app *application) getActivities(w http.ResponseWriter, r *http.Request) {
 
 // GET /activities/new
 func (app *application) getActivitiesNew(w http.ResponseWriter, r *http.Request) {
+	var err error
+
 	t := app.newTemplateData(r)
 	t.Title = "New Bellevue Activity"
+	t.ProductFormConfig, err = app.models.Products.GetProductFormConfig()
+	if err != nil {
+		log.Fatalf("failed Products.GetProductFormTemplates: %v\n", err)
+	}
 	t.BellevueOfferings = t.BellevueActivity.NewBellevueOfferings()
 	t.Form = bellevueActivityForm{}
 
