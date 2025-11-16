@@ -24,7 +24,6 @@ func (app *application) routes() http.Handler {
 	mux.Handle("GET /activities/new", usersOnly.ThenFunc(app.getActivitiesNew))
 	mux.Handle("POST /activities", usersOnly.ThenFunc(app.bellevueActivityPost))
 	mux.Handle("GET /activities/{id}/edit", usersOnly.ThenFunc(app.getActivitiesIDEdit))
-	mux.Handle("PUT /activities/{id}", usersOnly.ThenFunc(app.putActivitiesID))
 	mux.Handle("DELETE /activities/{id}", usersOnly.ThenFunc(app.bellevueActivityDelete))
 
 	// HTMX Partials:

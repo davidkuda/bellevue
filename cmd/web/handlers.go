@@ -52,7 +52,7 @@ func (app *application) getActivitiesNew(w http.ResponseWriter, r *http.Request)
 	t.Title = "New Bellevue Activity"
 	t.ProductFormConfig  = app.productFormConfig
 	t.BellevueOfferings = t.BellevueActivity.NewBellevueOfferings()
-	t.Form = bellevueActivityForm{}
+	t.Form = productForm{}
 
 	isHTMX := r.Header.Get("HX-Request") == "true"
 	if isHTMX {
@@ -111,110 +111,13 @@ func (app *application) getActivitiesIDEdit(w http.ResponseWriter, r *http.Reque
 	t.BellevueActivity = activity
 	t.Title = "New Bellevue Activity"
 	t.BellevueOfferings = activity.NewBellevueOfferings()
-	t.Form = bellevueActivityForm{}
+	t.Form = productForm{}
 
 	if isHTMX {
 		app.renderHTMXPartial(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
 	} else {
 		app.render(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
 	}
-}
-
-// PUT /activity/:id
-func (app *application) putActivitiesID(w http.ResponseWriter, r *http.Request) {
-	var err error
-
-	// get ID from URL:
-	parts := strings.Split(r.URL.Path, "/")
-
-	// We expect: ["", "bellevue-activities", "{ID}"]
-	if len(parts) != 3 {
-		log.Println("failed splitting request URL")
-		app.renderClientError(w, r, http.StatusBadRequest)
-		return
-	}
-
-	idStr := parts[2]
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		log.Printf("failed converting idStr to id (int); idStr=%s:, %v\n", idStr, err)
-		app.renderClientError(w, r, http.StatusBadRequest)
-		return
-	}
-
-	err = r.ParseForm()
-	if err != nil {
-		log.Printf("Failed parsing form: %v", err)
-		app.renderClientError(w, r, http.StatusBadRequest)
-		return
-	}
-
-	form := bellevueActivityForm{}
-	err = form.parseFormFromRequest(r)
-	if err != nil {
-		if err == FieldError {
-			t := app.newTemplateDataBellevueActivity(r, form)
-			app.render(w, r, http.StatusUnprocessableEntity, "activities.new.tmpl.html", &t)
-			return
-		} else {
-			log.Println(fmt.Errorf("failed parsing form bellevue activity: %v", err))
-			app.renderClientError(w, r, http.StatusUnprocessableEntity)
-			return
-		}
-	}
-
-	form.ID = id
-
-	userID, ok := r.Context().Value("userID").(int)
-	if !ok {
-		err = errors.New("could not get userID from request.Context")
-		app.serverError(w, r, err)
-		return
-	}
-	form.UserID = userID
-
-	authorized, err := app.models.BellevueActivities.ActivityOwnedByUserID(form.ID, form.UserID)
-	if err != nil {
-		log.Printf("PUT /bellevue-activity/%d: ActivityOwnedByUserID(%d, %d) failed: %v\n", id, id, form.UserID, err)
-		app.serverError(w, r, err)
-		return
-	}
-
-	// TODO: I really need to setup testing with all the stuff implemented...
-	if !authorized {
-		log.Printf("PUT /bellevue-activity/%d: ActivityOwnedByUserID(%d, %d): unauthorized request\n", form.ID, form.ID, form.UserID)
-		app.serverError(w, r, err)
-		return
-	}
-
-	a := form.toModel()
-
-	err = app.models.BellevueActivities.Update(a)
-	if err != nil {
-		err = fmt.Errorf("PUT /bellevue-activity/%d: failed app.models.BellevueActivites.Update: %v", id, err)
-		// TODO: Now with HTMX, app.serverError does no longer give feedback to the user
-		// app.clientError does not work, either. needs partials.
-		app.serverError(w, r, err)
-		return
-	}
-
-	t := app.newTemplateData(r)
-
-	BAOs, err := app.models.BellevueActivities.NewBellevueActivityOverviews(t.User.ID)
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-	}
-
-	t.BellevueActivityOverviews = BAOs
-
-	bas, err := app.models.BellevueActivities.GetAllByUser(t.User.ID)
-	if err != nil {
-		log.Println(fmt.Errorf("failed reading bellevue activities: %v", err))
-	}
-	t.BellevueActivityOverview.BellevueActivities = bas
-	t.BellevueActivityOverview.CalculateTotalPrice()
-	app.renderHTMXPartial(w, r, http.StatusOK, "activities.tmpl.html", &t)
 }
 
 // DELETE /bellevue-activity/:id
