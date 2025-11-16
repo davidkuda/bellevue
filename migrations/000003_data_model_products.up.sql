@@ -101,18 +101,18 @@ create table bellevue.products (
 );
 
 create table bellevue.product_form_order (
-    code       text primary key,
-    sort_order int not null
+	code       text primary key,
+	sort_order int not null
 );
 
 create table bellevue.comments (
-    user_id    INT  not null references auth.users(id),
-    date       DATE not null,
-    comment    TEXT,
-    created_at TIMESTAMPTZ default now() not null,
-    updated_at TIMESTAMPTZ default now() not null,
+	user_id    INT  not null references auth.users(id),
+	date       DATE not null,
+	comment    TEXT,
+	created_at TIMESTAMPTZ default now() not null,
+	updated_at TIMESTAMPTZ default now() not null,
 
-    primary key (user_id, date)
+	primary key (user_id, date)
 );
 
 
