@@ -72,7 +72,7 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 		}
 		consumption := models.Consumption{
 			UserID:    userID,
-			ProductID: app.productIDMap[p.Code + pricecat],
+			ProductID: app.productIDMap[p.Code+pricecat],
 			TaxID:     0,
 			Price:     price,
 			TaxPrice:  0,
@@ -88,7 +88,16 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 	}
 
 	if formNew.Comment != "" {
-		// TODO: insert comment
+		c := models.Comment{
+			UserID:  userID,
+			Date:    formNew.Date,
+			Comment: formNew.Comment,
+		}
+		err = app.models.Comments.Insert(c)
+		if err != nil {
+			app.serverError(w, r, err)
+			return
+		}
 	}
 
 	form := bellevueActivityForm{}
