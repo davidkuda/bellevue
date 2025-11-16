@@ -33,7 +33,7 @@
       type="date"
       value="{{- .BellevueActivity.Date | formatDateFormInput -}}"
   /></label>
-  {{- range .ProductFormConfig -}}
+  {{- range .ProductFormConfig.Specs -}}
     {{- if .HasCategories -}}
       {{- template "form-field--product-counter" . -}}
     {{- end -}}

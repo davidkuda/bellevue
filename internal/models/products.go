@@ -23,7 +23,10 @@ type PriceCategoryOption struct {
 	Checked bool   `json:"checked"`
 }
 
-type ProductFormConfig []ProductFormSpec
+type ProductFormConfig struct {
+	Prices map[string]int
+	Specs  []ProductFormSpec
+}
 
 type ProductFormSpec struct {
 	Label           string
@@ -82,7 +85,7 @@ order by sort_order nulls last, code
 
 	rows, err := m.DB.Query(stmt)
 	if err != nil {
-		return nil, fmt.Errorf("DB.Query(stmt): %v", err)
+		return ProductFormConfig{}, fmt.Errorf("DB.Query(stmt): %v", err)
 	}
 	defer rows.Close()
 
@@ -99,19 +102,19 @@ order by sort_order nulls last, code
 			&catsJSON,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("for rows.Next(): %v", err)
+			return ProductFormConfig{}, fmt.Errorf("for rows.Next(): %v", err)
 		}
 
 		var categories []PriceCategoryOption
 		if err := json.Unmarshal(catsJSON, &categories); err != nil {
-			return nil, fmt.Errorf("unmarshal categories for %s: %w", spec.Code, err)
+			return ProductFormConfig{}, fmt.Errorf("unmarshal categories for %s: %w", spec.Code, err)
 		}
 		spec.PriceCategories = categories
-		pfcs = append(pfcs, spec)
+		pfcs.Specs = append(pfcs.Specs, spec)
 	}
 
 	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("rows.Err(): %v", err)
+		return ProductFormConfig{}, fmt.Errorf("rows.Err(): %v", err)
 	}
 
 	return pfcs, nil
