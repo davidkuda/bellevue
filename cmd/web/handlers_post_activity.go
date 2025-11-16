@@ -91,6 +91,14 @@ func (app *application) parseProductForm(r *http.Request) productForm {
 	form := productForm{}
 	form.FieldErrors = map[string]string{}
 
+	dateStr := r.PostForm.Get("date")
+	date, err := time.Parse("2006-01-02", dateStr)
+	if err != nil {
+		form.FieldErrors["date"] = "invalid date input"
+	}
+	form.Date = date
+
+
 	// NOTE: an alternative could be iterating over the key-value-pairs of the r.Form
 	// for key, values := range r.Form {
 	// 	for _, v := range values {
