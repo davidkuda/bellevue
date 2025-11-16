@@ -6,6 +6,8 @@ import (
 	"fmt"
 )
 
+type ProductIDMap map[string]int
+
 type Products []Product
 
 type Product struct {
@@ -45,6 +47,23 @@ type ProductPrices map[PriceKey]int
 
 type ProductModel struct {
 	DB *sql.DB
+}
+
+func (m *ProductModel) GetProductIDsMap() (ProductIDMap, error) {
+	pidm := ProductIDMap{}
+	products, err := m.GetAll()
+	if err != nil {
+		return nil, fmt.Errorf("Products.GetAll: %v", err)
+	}
+	for _, p := range products {
+		var pricecat string
+		if p.PriceCategory.Valid {
+			pricecat = "/" + p.PriceCategory.String
+		}
+		pidm[p.Code + pricecat] = p.ID
+	}
+
+	return pidm, nil
 }
 
 func (m *ProductModel) GetProductFormConfig() (ProductFormConfig, error) {
