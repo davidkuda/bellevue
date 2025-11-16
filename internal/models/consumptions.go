@@ -14,7 +14,7 @@ type Consumption struct {
 	UserID     int
 	ProductID  int
 	TaxID      int
-	PriceCatID int
+	PriceCatID sql.NullInt64
 	Date       time.Time
 	UnitPrice  int
 	Quantity   int

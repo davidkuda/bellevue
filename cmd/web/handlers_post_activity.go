@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"log"
@@ -65,15 +66,26 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 		if p.PriceCategory != "" {
 			pricecat = "/" + p.PriceCategory
 		}
+
 		price := p.Price
 		if price == 0 {
 			price = p.AmountCHF
 		}
+
+
+		var pricecatID sql.NullInt64
+		pricecatIDInt := app.priceCategoryIDMap[p.PriceCategory]
+		if pricecatIDInt == 0 {
+			pricecatID = sql.NullInt64{Valid: false}
+		} else {
+			pricecatID = sql.NullInt64{Int64: int64(pricecatIDInt), Valid: true}
+		}
+
 		consumption := models.Consumption{
 			UserID:    userID,
 			ProductID: app.productIDMap[p.Code+pricecat],
 			TaxID:     0,
-			PriceCatID: app.priceCategoryIDMap[p.PriceCategory],
+			PriceCatID: pricecatID,
 			Date:      formNew.Date,
 			UnitPrice: price,
 			Quantity:  p.Quantity,
@@ -173,6 +185,8 @@ func (app *application) parseProductForm(r *http.Request) productForm {
 			}
 
 			pp.AmountCHF = priceInt
+			pp.Price = priceInt
+			pp.Quantity = 1
 		}
 		form.Products = append(form.Products, pp)
 	}
