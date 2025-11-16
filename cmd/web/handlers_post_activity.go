@@ -51,26 +51,47 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 
 	formNew := app.parseProductForm(r)
 	formNew.UserID = userID
-	fmt.Println(formNew)
 
 	// TODO: if ValidationErrors, return form with errors
-	// TODO: Create Consumptions from parsedProducts and write to DB
+	if len(formNew.FieldErrors) > 0 {
+		t := app.newTemplateData(r)
+		app.render(w, r, http.StatusUnprocessableEntity, "activities.new.tmpl.html", &t)
+		return
+	}
+
+	// TODO: deal with taxes
+	var consumptions models.Consumptions
+	for _, p := range formNew.Products {
+		var pricecat string
+		if p.PriceCategory != "" {
+			pricecat = "/" + p.PriceCategory
+		}
+		price := p.Price
+		if price == 0 {
+			price = p.AmountCHF
+		}
+		consumption := models.Consumption{
+			UserID:    userID,
+			ProductID: app.productIDMap[p.Code + pricecat],
+			TaxID:     0,
+			Price:     price,
+			TaxPrice:  0,
+			Date:      formNew.Date,
+		}
+		consumptions = append(consumptions, consumption)
+	}
+
+	err = app.models.Consumptions.InsertMany(userID, formNew.Date, consumptions)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	if formNew.Comment != "" {
+		// TODO: insert comment
+	}
 
 	form := bellevueActivityForm{}
-
-	err = form.parseFormFromRequest(r)
-	fmt.Println(form.FieldErrors)
-	if err != nil {
-		if err == FieldError {
-			t := app.newTemplateDataBellevueActivity(r, form)
-			app.render(w, r, http.StatusUnprocessableEntity, "activities.new.tmpl.html", &t)
-			return
-		} else {
-			log.Println(fmt.Errorf("failed parsing form bellevue activity: %v", err))
-			app.renderClientError(w, r, http.StatusUnprocessableEntity)
-			return
-		}
-	}
 
 	b := form.toModel()
 
@@ -98,7 +119,6 @@ func (app *application) parseProductForm(r *http.Request) productForm {
 		form.FieldErrors["date"] = "invalid date input"
 	}
 	form.Date = date
-
 
 	// NOTE: an alternative could be iterating over the key-value-pairs of the r.Form
 	// for key, values := range r.Form {
@@ -132,7 +152,7 @@ func (app *application) parseProductForm(r *http.Request) productForm {
 				form.FieldErrors[productFormSpec.Code+"-price-category"] = "invalid price category"
 			}
 			pp.PriceCategory = pricecat
-			pp.Price = app.productFormConfig.Prices[pp.Code + "/" + pricecat]
+			pp.Price = app.productFormConfig.Prices[pp.Code+"/"+pricecat]
 		}
 
 		if productFormSpec.IsCustomAmount {
@@ -159,6 +179,8 @@ func (app *application) parseProductForm(r *http.Request) productForm {
 		}
 		form.Products = append(form.Products, pp)
 	}
+
+	form.Comment = r.PostForm.Get("comment")
 
 	return form
 }
