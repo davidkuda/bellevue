@@ -226,12 +226,3 @@ func (app *application) getActivitiesByMonths(w http.ResponseWriter, r *http.Req
 	t.BellevueActivityOverviews = BAOs
 	app.renderHTMXPartial(w, r, http.StatusOK, "htmx.partial.activities.by-month.tmpl.html", &t)
 }
-
-func (app *application) newTemplateDataBellevueActivity(r *http.Request, form bellevueActivityForm) templateData {
-	t := app.newTemplateData(r)
-	t.BellevueActivity = form.toModel()
-	t.BellevueActivity.PopulateItems()
-	t.BellevueOfferings = t.BellevueActivity.NewBellevueOfferings()
-	t.Form = form
-	return t
-}
