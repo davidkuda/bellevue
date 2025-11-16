@@ -89,7 +89,8 @@ order by sort_order nulls last, code
 	}
 	defer rows.Close()
 
-	var pfcs ProductFormConfig
+	var pfc ProductFormConfig
+	pfc.Prices = make(map[string]int)
 	for rows.Next() {
 
 		var catsJSON []byte
@@ -110,14 +111,17 @@ order by sort_order nulls last, code
 			return ProductFormConfig{}, fmt.Errorf("unmarshal categories for %s: %w", spec.Code, err)
 		}
 		spec.PriceCategories = categories
-		pfcs.Specs = append(pfcs.Specs, spec)
+		pfc.Specs = append(pfc.Specs, spec)
+		for _, category := range categories {
+			pfc.Prices[spec.Code + "/" + category.Name] = category.Price
+		}
 	}
 
 	if err = rows.Err(); err != nil {
 		return ProductFormConfig{}, fmt.Errorf("rows.Err(): %v", err)
 	}
 
-	return pfcs, nil
+	return pfc, nil
 }
 
 func (m *ProductModel) GetAll() (Products, error) {
