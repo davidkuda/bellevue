@@ -17,6 +17,8 @@ import (
 type application struct {
 	models models.Models
 
+	productFormConfig models.ProductFormConfig
+
 	templateCache         map[string]*template.Template
 	templateCacheHTMX     map[string]*template.Template
 	templateCacheSettings map[string]*template.Template
@@ -57,6 +59,11 @@ func main() {
 	defer db.Close()
 
 	app.models = models.New(db)
+
+	app.productFormConfig, err = app.models.Products.GetProductFormConfig()
+	if err != nil {
+		log.Fatalf("could not load productFormConfig: %v\n", err)
+	}
 
 	app.templateCache, err = newTemplateCache()
 	if err != nil {
