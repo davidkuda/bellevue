@@ -132,7 +132,11 @@ create table bellevue.consumptions (
 	invoice_id  int
 	            references invoices(id),
 	date        DATE,
-	price       INT not null, -- unmutable fact after invoice_id is not null
+	unit_price  INT not null, -- unmutable fact after invoice_id is not null
+	quantity    int not null
+                    check (quantity > 0),
+	total_price int generated always as (quantity * unit_price) stored,
+
 
 	created_at TIMESTAMPTZ default now() not null
 );
