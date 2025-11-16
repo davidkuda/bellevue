@@ -50,6 +50,7 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 	}
 
 	formNew := app.parseProductForm(r)
+	formNew.UserID = userID
 	fmt.Println(formNew)
 
 	// TODO: if ValidationErrors, return form with errors
@@ -120,6 +121,9 @@ func (app *application) parseProductForm(r *http.Request) productForm {
 				form.FieldErrors[productFormSpec.Code+"-Atoi"] = "input is a negative number"
 				continue
 			}
+			if quantityInt == 0 {
+				continue
+			}
 			pp.Quantity = quantityInt
 
 			pricecatFormField := fmt.Sprintf("activities[%s][price_category]", productFormSpec.Code)
@@ -128,19 +132,29 @@ func (app *application) parseProductForm(r *http.Request) productForm {
 				form.FieldErrors[productFormSpec.Code+"-price-category"] = "invalid price category"
 			}
 			pp.PriceCategory = pricecat
-			// TODO: pp.Price = productFormSpec.PriceCategories
+			pp.Price = app.productFormConfig.Prices[pp.Code + "/" + pricecat]
 		}
+
 		if productFormSpec.IsCustomAmount {
 			priceStr := r.FormValue("activities[" + productFormSpec.Code + "][amount_chf]")
-			priceInt, err := strconv.Atoi(priceStr)
+			// default input is 0, ignore if 0
+			if priceStr == "0" {
+				continue
+			}
+
+			var priceInt int
+			priceFloat, err := strconv.ParseFloat(priceStr, 64)
 			if err != nil {
-				form.FieldErrors[productFormSpec.Code+"-Atoi"] = "input is not a number"
+				form.FieldErrors[productFormSpec.Code+"-ParseFloat"] = "invalid custom amount CHF"
 				continue
 			}
+			priceInt = int(math.Round(priceFloat * 100))
+
 			if priceInt < 0 {
-				form.FieldErrors[productFormSpec.Code+"-Atoi"] = "input is a negative number"
+				form.FieldErrors[productFormSpec.Code] = "input is a negative number"
 				continue
 			}
+
 			pp.AmountCHF = priceInt
 		}
 		form.Products = append(form.Products, pp)
