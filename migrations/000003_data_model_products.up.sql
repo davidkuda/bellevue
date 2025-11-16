@@ -143,7 +143,7 @@ create table bellevue.consumptions (
 	            references products(id),
 	tax_id      INT not null
 	            references taxes(id),
-	pricecat_id INT not null
+	pricecat_id INT
 	            references price_categories(id),
 	invoice_id  int
 	            references invoices_v2(id),
