@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-type PriceCategoryMap map[string]bool
+type PriceCategoryIDMap map[string]int
 
 type PriceCategories []PriceCategory
 
@@ -18,14 +18,14 @@ type PriceCategoryModel struct {
 	DB *sql.DB
 }
 
-func (m *PriceCategoryModel) GetPriceCatMap() (PriceCategoryMap, error) {
-	pcm := PriceCategoryMap{}
+func (m *PriceCategoryModel) GetPriceCatMap() (PriceCategoryIDMap, error) {
+	pcm := PriceCategoryIDMap{}
 	pricecats, err := m.GetAll()
 	if err != nil {
 		return nil, fmt.Errorf("PriceCategoryModel.GetAll: %v", err)
 	}
 	for _, pricecat := range pricecats {
-		pcm[pricecat.Name] = true
+		pcm[pricecat.Name] = pricecat.ID
 	}
 
 	return pcm, nil

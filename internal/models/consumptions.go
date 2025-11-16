@@ -10,14 +10,16 @@ import (
 type Consumptions []Consumption
 
 type Consumption struct {
-	ID        int
-	UserID    int
-	ProductID int
-	TaxID     int
-	Price     int
-	TaxPrice  int
-	Date      time.Time
-	CreatedAt time.Time
+	ID         int
+	UserID     int
+	ProductID  int
+	TaxID      int
+	PriceCatID int
+	Date       time.Time
+	UnitPrice  int
+	Quantity   int
+	TotalPrice int
+	CreatedAt  time.Time
 }
 
 type ConsumptionModel struct {
@@ -54,15 +56,19 @@ func (m *ConsumptionModel) InsertMany(
 			user_id,
 			product_id,
 			tax_id,
+			pricecat_id,
 			date,
-			price
+			unit_price,
+			quantity
 		)
         values (
 			$1,
 			$2,
 			(select tax_id from products where id = $2),
 			$3,
-			$4
+			$4,
+			$5,
+			$6
 		);
     `
 		if _, err := tx.ExecContext(
@@ -70,8 +76,10 @@ func (m *ConsumptionModel) InsertMany(
 			ins,
 			c.UserID,
 			c.ProductID,
+			c.PriceCatID,
 			c.Date,
-			c.Price,
+			c.UnitPrice,
+			c.Quantity,
 		); err != nil {
 			return fmt.Errorf("failed inserting consumptions: %e", err)
 		}

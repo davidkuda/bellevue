@@ -17,9 +17,9 @@ import (
 type application struct {
 	models models.Models
 
-	productFormConfig models.ProductFormConfig
-	priceCategoryMap  models.PriceCategoryMap
-	productIDMap      models.ProductIDMap
+	productFormConfig  models.ProductFormConfig
+	priceCategoryIDMap models.PriceCategoryIDMap
+	productIDMap       models.ProductIDMap
 
 	templateCache         map[string]*template.Template
 	templateCacheHTMX     map[string]*template.Template
@@ -67,7 +67,7 @@ func main() {
 		log.Fatalf("could not load productFormConfig: %v\n", err)
 	}
 
-	app.priceCategoryMap, err = app.models.PriceCategories.GetPriceCatMap()
+	app.priceCategoryIDMap, err = app.models.PriceCategories.GetPriceCatMap()
 	if err != nil {
 		log.Fatalf("could not load app.priceCategoryMap: %v\n", err)
 	}

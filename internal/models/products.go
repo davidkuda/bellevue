@@ -49,7 +49,7 @@ type ProductModel struct {
 	DB *sql.DB
 }
 
-func (m *ProductModel) GetProductIDsMap() (ProductIDMap, error) {
+func (m *ProductModel) GetProductIDMap() (ProductIDMap, error) {
 	pidm := ProductIDMap{}
 	products, err := m.GetAll()
 	if err != nil {

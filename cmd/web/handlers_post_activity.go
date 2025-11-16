@@ -59,7 +59,6 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// TODO: deal with taxes
 	var consumptions models.Consumptions
 	for _, p := range formNew.Products {
 		var pricecat string
@@ -74,9 +73,10 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 			UserID:    userID,
 			ProductID: app.productIDMap[p.Code+pricecat],
 			TaxID:     0,
-			Price:     price,
-			TaxPrice:  0,
+			PriceCatID: app.priceCategoryIDMap[p.PriceCategory],
 			Date:      formNew.Date,
+			UnitPrice: price,
+			Quantity:  p.Quantity,
 		}
 		consumptions = append(consumptions, consumption)
 	}
@@ -144,7 +144,8 @@ func (app *application) parseProductForm(r *http.Request) productForm {
 
 			pricecatFormField := fmt.Sprintf("activities[%s][price_category]", productFormSpec.Code)
 			pricecat := r.FormValue(pricecatFormField)
-			if ok := app.priceCategoryMap[pricecat]; ok != true {
+			pcid := app.priceCategoryIDMap[pricecat]
+			if pcid == 0 {
 				form.FieldErrors[productFormSpec.Code+"-price-category"] = "invalid price category"
 			}
 			pp.PriceCategory = pricecat
