@@ -1,0 +1,15 @@
+{{ define "form-field--product-counter" }}
+  <label
+><strong>{{ .Label }}</strong>
+    <input
+      name="activities[{{.Code}}][amount_chf]"
+      type="number"
+      min="0"
+      step="0.01"
+      value="{{- if .Edit -}}
+        {{- .BellevueActivity.SnacksCHF | fmtCHF -}}
+      {{- else -}}
+        0
+      {{- end -}}"
+  /></label>
+{{ end }}
