@@ -75,32 +75,30 @@ func (m *ActivityModel) GetActivityMonths(userID int) ([]ActivityMonth, error) {
 func (m *ActivityModel) GetActivityDays(userID int) ([]ActivityDay, error) {
 	const stmt = `
 WITH per_day_product AS (
-    SELECT
-        c.user_id,
-        c.date,
-        p.id   AS product_id,
-        p.name AS product_name,
-        SUM(c.quantity)            AS quantity,
-        c.unit_price               AS unit_price,
-        SUM(c.total_price)         AS line_total
-    FROM bellevue.consumptions c
-    JOIN bellevue.products p ON p.id = c.product_id
-    WHERE c.user_id = $1
+      SELECT c.user_id,
+             c.date,
+             p.id AS product_id,
+             p.name AS product_name,
+             sum(c.quantity) AS quantity,
+             c.unit_price AS unit_price,
+             sum(c.total_price) AS line_total
+        FROM bellevue.consumptions c
+        JOIN bellevue.products p ON p.id = c.product_id
+       WHERE c.user_id = $1
     GROUP BY c.user_id, c.date, p.id, p.name, c.unit_price
 )
-SELECT
-    date,
-    SUM(line_total) AS total_price,
-    jsonb_agg(
-        jsonb_build_object(
-            'product_id', product_id,
-            'name', product_name,
-            'unit_price', unit_price,
-            'quantity', quantity
-        )
-        ORDER BY product_name
-    ) AS items
-FROM per_day_product
+  SELECT date,
+         SUM(line_total) AS total_price,
+         jsonb_agg(
+             jsonb_build_object(
+                 'product_id', product_id,
+                 'name', product_name,
+                 'unit_price', unit_price,
+                 'quantity', quantity
+             )
+             ORDER BY product_name
+         ) AS items
+    FROM per_day_product
 GROUP BY date
 ORDER BY date DESC;
 `
