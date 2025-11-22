@@ -1,0 +1,47 @@
+{{ define "title" }}Bellevue Team Login{{ end }}
+{{ define "main" }}
+  <main class="center stack">
+    <form
+      id="signup-form"
+      action="/signup"
+      method="post"
+      hx-boost="true"
+    >
+      <h2>Sign Up</h2>
+      <fieldset>
+        <label>
+          First Name:
+          <input type="text" name="first-name" required autofocus />
+        </label>
+        <label>
+          Last Name:
+          <input type="text" name="last-name" required />
+        </label>
+        <label>
+          email:
+          <input
+            type="email"
+            name="email"
+            autocomplete="email"
+            required
+            aria-label="Email"
+          />
+        </label>
+        <label>
+          password:
+          <input
+            type="password"
+            name="password"
+            aria-label="Password"
+            autocomplete="current-password"
+            required
+          />
+        </label>
+        <span class="error"></span>
+      </fieldset>
+      <button type="submit" id="login-button" class="stack-exception">
+        Sign Up
+      </button>
+    </form>
+  </main>
+{{ end }}

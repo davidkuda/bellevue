@@ -1,0 +1,15 @@
+section.login {
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	padding: 1rem;
+	border: 1px solid var(--table-border);
+}
+.login button {
+	font-weight: bold;
+	background-color: var(--primary);
+	box-sizing: border-box;
+	color: var(--button-text);
+	padding: 0.4rem 0.8rem;
+	border-radius: 0.3rem;
+	border: none;
+	cursor: pointer;
+}

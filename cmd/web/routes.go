@@ -29,6 +29,9 @@ func (app *application) routes() http.Handler {
 	mux.Handle("PATCH /invoices/{id}", usersOnly.ThenFunc(app.patchInvoicesIDState))
 
 	mux.HandleFunc("GET /login", app.getLogin)
+	mux.HandleFunc("GET /login/email", app.getLoginEmail)
+	mux.HandleFunc("GET /signup", app.getLoginSignup)
+	mux.HandleFunc("POST /signup", app.postSignup)
 	mux.HandleFunc("POST /login", app.postLogin)
 	// protected:
 	mux.Handle("GET /logout", usersOnly.ThenFunc(app.getLogout))

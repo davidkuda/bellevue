@@ -23,15 +23,22 @@ type UserModel struct {
 }
 
 // Creates a new user in the database
-func (m *UserModel) Insert(email, password string) error {
+func (m *UserModel) Insert(u User, password string) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 15)
 	if err != nil {
 		return err
 	}
 
-	stmt := `INSERT INTO auth.users (email, hashed_password) VALUES($1, $2);`
+	stmt := `INSERT INTO auth.users (first_name, last_name, email, hashed_password)
+	VALUES($1, $2, $3, $4);`
 
-	result, err := m.DB.Exec(stmt, email, string(hashedPassword))
+	result, err := m.DB.Exec(
+		stmt,
+		u.FirstName,
+		u.LastName,
+		u.Email,
+		string(hashedPassword),
+		)
 	if err != nil {
 		return err
 	}
