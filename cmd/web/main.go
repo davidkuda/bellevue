@@ -21,9 +21,7 @@ type application struct {
 	priceCategoryIDMap models.PriceCategoryIDMap
 	productIDMap       models.ProductIDMap
 
-	templateCache         map[string]*template.Template
-	templateCacheHTMX     map[string]*template.Template
-	templateCacheSettings map[string]*template.Template
+	templateCache map[string]*template.Template
 
 	CookieDomain string
 
@@ -78,11 +76,6 @@ func main() {
 	}
 
 	app.templateCache, err = newTemplateCache()
-	if err != nil {
-		log.Fatalf("could not initialise templateCache: %v\n", err)
-	}
-
-	app.templateCacheHTMX, err = newTemplateCacheForHTMXPartials()
 	if err != nil {
 		log.Fatalf("could not initialise templateCache: %v\n", err)
 	}
