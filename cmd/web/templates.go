@@ -26,9 +26,6 @@ type templateData struct {
 	Page                      *models.Page
 	ActivityMonths            []models.ActivityMonth
 	BellevueInvoices          []models.Invoice
-	BellevueActivityOverviews models.BellevueActivityOverviews
-	BellevueActivityOverview  models.BellevueActivityOverview
-	BellevueActivity          *models.BellevueActivity
 	ProductFormConfig         models.ProductFormConfig
 	Form                      any
 	Edit                      bool // used in form templates to show render a different form
@@ -103,7 +100,6 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 		RootPath:          rootPath,
 		Path:              r.URL.Path,
 		Page:              &models.Page{},
-		BellevueActivity:  models.NewBellevueActivity(),
 		Sidebars:          true,
 		RenderTotalsTable: renderTotalsTable,
 	}

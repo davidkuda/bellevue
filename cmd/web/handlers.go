@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -29,20 +28,6 @@ func (app *application) getActivities(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, r, fmt.Errorf("could not get activity months: %e"))
 	}
 
-	BAOs, err := app.models.BellevueActivities.NewBellevueActivityOverviews(t.User.ID)
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-	}
-
-	t.BellevueActivityOverviews = BAOs
-
-	bas, err := app.models.BellevueActivities.GetAllByUser(t.User.ID)
-	if err != nil {
-		log.Println(fmt.Errorf("failed reading bellevue activities: %v", err))
-	}
-	t.BellevueActivityOverview.BellevueActivities = bas
-	t.BellevueActivityOverview.CalculateTotalPrice()
 	app.render(w, r, http.StatusOK, "activities.tmpl.html", &t)
 }
 
@@ -74,40 +59,11 @@ func (app *application) getActivitiesIDEdit(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	idStr := parts[2]
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		log.Printf("failed converting idStr to id (int); idStr=%s:, %v\n", idStr, err)
-		app.renderClientError(w, r, http.StatusBadRequest)
-		return
-	}
-
-	// TODO: compare maxID
-
-	userID, ok := r.Context().Value("userID").(int)
-	if !ok {
-		err = errors.New("could not get userID from request.Context")
-		app.serverError(w, r, err)
-		return
-	}
-
-	activity, err := app.models.BellevueActivities.GetByID(id)
-	if err != nil {
-		err = fmt.Errorf("failed fetching activity by ID; id=%d: %v", id, err)
-		app.serverError(w, r, err)
-		return
-	}
-
-	if activity.UserID != userID {
-		app.renderClientError(w, r, http.StatusUnauthorized)
-		return
-	}
 
 	isHTMX := r.Header.Get("HX-Request") == "true"
 
 	t := app.newTemplateData(r)
 	t.Edit = true
-	t.BellevueActivity = activity
 	t.Title = "New Bellevue Activity"
 	t.Form = productForm{}
 
@@ -120,7 +76,6 @@ func (app *application) getActivitiesIDEdit(w http.ResponseWriter, r *http.Reque
 
 // DELETE /bellevue-activity/:id
 func (app *application) bellevueActivityDelete(w http.ResponseWriter, r *http.Request) {
-	var err error
 
 	// get ID from URL:
 	parts := strings.Split(r.URL.Path, "/")
@@ -129,41 +84,6 @@ func (app *application) bellevueActivityDelete(w http.ResponseWriter, r *http.Re
 	if len(parts) != 3 {
 		log.Println("failed splitting request URL")
 		app.renderClientError(w, r, http.StatusBadRequest)
-		return
-	}
-
-	idStr := parts[2]
-	activityID, err := strconv.Atoi(idStr)
-	if err != nil {
-		log.Printf("failed converting idStr to id (int); idStr=%s:, %v\n", idStr, err)
-		app.renderClientError(w, r, http.StatusBadRequest)
-		return
-	}
-
-	userID, ok := r.Context().Value("userID").(int)
-	if !ok {
-		err = errors.New("could not get userID from request.Context")
-		app.serverError(w, r, err)
-		return
-	}
-
-	authorized, err := app.models.BellevueActivities.ActivityOwnedByUserID(activityID, userID)
-	if err != nil {
-		log.Printf("DELETE /bellevue-activity/%d: ActivityOwnedByUserID(%d, %d) failed: %v\n", activityID, activityID, userID, err)
-		app.serverError(w, r, err)
-		return
-	}
-
-	// TODO: I really need to setup testing with all the stuff implemented...
-	if !authorized {
-		log.Printf("DELETE /bellevue-activity/%d: ActivityOwnedByUserID(%d, %d): unauthorized request\n", activityID, activityID, userID)
-		app.renderClientError(w, r, http.StatusForbidden)
-		return
-	}
-
-	err = app.models.BellevueActivities.Delete(activityID)
-	if err != nil {
-		app.serverError(w, r, fmt.Errorf("failed BellevueActivities.Delete(actiityID=%d): %v", activityID, err))
 		return
 	}
 
@@ -201,26 +121,4 @@ func (app *application) patchInvoicesIDState(w http.ResponseWriter, r *http.Requ
 	log.Printf("id=%s, state=%s", id, state)
 }
 
-// HTMX Partial: GET /activities/overview-by-months
-func (app *application) getActivitiesOverviewByMonths(w http.ResponseWriter, r *http.Request) {
-	t := app.newTemplateData(r)
-	BAOs, err := app.models.BellevueActivities.NewBellevueActivityOverviews(t.User.ID)
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-	}
-	t.BellevueActivityOverviews = BAOs
-	app.renderHTMXPartial(w, r, http.StatusOK, "htmx.partial.activities.overview-by-month.tmpl.html", &t)
-}
-
-// HTMX Partial: GET /activities/by-month
-func (app *application) getActivitiesByMonths(w http.ResponseWriter, r *http.Request) {
-	t := app.newTemplateData(r)
-	BAOs, err := app.models.BellevueActivities.NewBellevueActivityOverviews(t.User.ID)
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-	}
-	t.BellevueActivityOverviews = BAOs
-	app.renderHTMXPartial(w, r, http.StatusOK, "htmx.partial.activities.by-month.tmpl.html", &t)
-}
+// for HTMX: GET /activities?month="2025-05"

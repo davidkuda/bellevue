@@ -1,56 +1,43 @@
 {{- define "title" -}}New Bellevue Activity{{ end }}
 {{- define "main" -}}
-<main class="center stack-large">
-  <p class="margin-top margin-bottom text-center">
-    <a href="/activities">Go back to activities overview</a>
-  </p>
-  {{- if .Edit -}}
-    <form
-      hx-put="/activities/{{- .BellevueActivity.ID -}}"
-      hx-target="main"
-      hx-swap="innerHTML show:main:top"
-      hx-push-url="/activities"
-      class="stack"
-    >
-  {{- else -}}
-    <form
-      action="/activities"
-      method="post"
-      class="stack"
-    >
-  {{- end -}}
-  <h2>{{- if .Edit -}}Edit{{ else }}New{{ end }} Bellevue Activity</h2>
-  {{- with .Form.FieldErrors.negatives -}}
-    <label class="error">{{- . -}}</label>
-  {{- end -}}
-  {{- with .Form.FieldErrors.zeroes -}}
-    <label class="error">{{- . -}}</label>
-  {{- end -}}
-  <label
-      ><strong>Date:</strong>
-    <input
-      name="date"
-      type="date"
-      value="{{- .BellevueActivity.Date | formatDateFormInput -}}"
-  /></label>
-  {{- range .ProductFormConfig.Specs -}}
-    {{- if .HasCategories -}}
-      {{- template "form-field--product-counter" . -}}
-    {{- end -}}
-    {{- if .IsCustomAmount -}}
-      {{- template "form-field--custom-amount" . -}}
-    {{- end -}}
-  {{- end -}}
-  <label
-      ><strong>Comment:</strong>
-    <textarea name="comment" rows="2" aria-label="comment">
-    {{- .BellevueActivity.Comment -}}
+  <main class="center stack-large">
+    <p class="margin-top margin-bottom text-center">
+      <a href="/activities">Go back to activities overview</a>
+    </p>
+    <form action="/activities" method="post" class="stack">
+      <h2>{{- if .Edit -}}Edit{{ else }}New{{ end }} Bellevue Activity</h2>
+      {{- with .Form.FieldErrors.negatives -}}
+        <label class="error">{{- . -}}</label>
+      {{- end -}}
+      {{- with .Form.FieldErrors.zeroes -}}
+        <label class="error">{{- . -}}</label>
+      {{- end -}}
+      <label>
+        <strong>Date:</strong>
+        <input
+          name="date"
+          type="date"
+          value="{{- .Today | formatDateFormInput -}}"
+        />
+      </label>
+      {{- range .ProductFormConfig.Specs -}}
+        {{- if .HasCategories -}}
+          {{- template "form-field--product-counter" . -}}
+        {{- end -}}
+        {{- if .IsCustomAmount -}}
+          {{- template "form-field--custom-amount" . -}}
+        {{- end -}}
+      {{- end -}}
+      <label>
+        <strong>Comment:</strong>
+        <textarea name="comment" rows="2" aria-label="comment">
+    {{- .Today -}}
     </textarea
-    >
-  </label>
-  <button type="submit" class="stack-exception-large">
-    {{- if .Edit -}}Edit{{ else }}Add{{ end }}
-  </button>
-  </form>
-</main>
+        >
+      </label>
+      <button type="submit" class="stack-exception-large">
+        {{- if .Edit -}}Edit{{ else }}Add{{ end }}
+      </button>
+    </form>
+  </main>
 {{- end -}}

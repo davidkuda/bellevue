@@ -126,8 +126,3 @@ func (m *InvoiceModel) GetInvoiceOfLastMonth(user User) (Invoice, error) {
 
 	return invoice, nil
 }
-
-func (m *InvoiceModel) AddActivity(activity BellevueActivity) error {
-
-	return nil
-}

@@ -26,13 +26,8 @@ func (app *application) routes() http.Handler {
 	mux.Handle("GET /activities/{id}/edit", usersOnly.ThenFunc(app.getActivitiesIDEdit))
 	mux.Handle("DELETE /activities/{id}", usersOnly.ThenFunc(app.bellevueActivityDelete))
 
-	// HTMX Partials:
-	mux.Handle("GET /activities/overview-by-month", usersOnly.ThenFunc(app.getActivitiesOverviewByMonths))
-	mux.Handle("GET /activities/by-month", usersOnly.ThenFunc(app.getActivitiesOverviewByMonths))
-
 	mux.Handle("PATCH /invoices/{id}", usersOnly.ThenFunc(app.patchInvoicesIDState))
 
-	// admin:
 	mux.HandleFunc("GET /login", app.getLogin)
 	mux.HandleFunc("POST /login", app.postLogin)
 	// protected:

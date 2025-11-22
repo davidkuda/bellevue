@@ -1,14 +1,7 @@
 {{ define "title" }}Bellevue Activities{{ end }}
 {{ define "main" }}
   <main class="center stack-xl">
-    {{ if .BellevueActivityOverviews }}
-      <div
-        id="data-tables"
-        hx-get="/htmx"
-        hx-trigger="refresh-table from:body"
-        hx-target="this"
-        hx-swap="afterbegin"
-      ></div>
+    {{ if .ActivityMonths }}
       <button
         class="individual"
         hx-get="/activities/new"
@@ -18,9 +11,6 @@
       >
         Add a new activity
       </button>
-      {{ if .RenderTotalsTable }}
-        {{ template "activities--overview-by-month" . }}
-      {{ end }}
       {{ range .ActivityMonths }}
         {{ template "activities--by-month" . }}
       {{ end }}
