@@ -28,7 +28,6 @@ type templateData struct {
 	BellevueActivityOverviews models.BellevueActivityOverviews
 	BellevueActivityOverview  models.BellevueActivityOverview
 	BellevueActivity          *models.BellevueActivity
-	BellevueOfferings         models.BellevueOfferings
 	ProductFormConfig         models.ProductFormConfig
 	Form                      any
 	Edit                      bool // used in form templates to show render a different form

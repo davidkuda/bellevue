@@ -51,7 +51,6 @@ func (app *application) getActivitiesNew(w http.ResponseWriter, r *http.Request)
 	t := app.newTemplateData(r)
 	t.Title = "New Bellevue Activity"
 	t.ProductFormConfig  = app.productFormConfig
-	t.BellevueOfferings = t.BellevueActivity.NewBellevueOfferings()
 	t.Form = productForm{}
 
 	isHTMX := r.Header.Get("HX-Request") == "true"
@@ -110,7 +109,6 @@ func (app *application) getActivitiesIDEdit(w http.ResponseWriter, r *http.Reque
 	t.Edit = true
 	t.BellevueActivity = activity
 	t.Title = "New Bellevue Activity"
-	t.BellevueOfferings = activity.NewBellevueOfferings()
 	t.Form = productForm{}
 
 	if isHTMX {
