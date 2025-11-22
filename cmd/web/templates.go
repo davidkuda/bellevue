@@ -22,8 +22,6 @@ type templateData struct {
 	Path              string
 	RootPath          string
 	HTML              template.HTML
-	Pages             models.Pages
-	Page              *models.Page
 	Today             time.Time
 	ActivityMonths    []models.ActivityMonth
 	BellevueInvoices  []models.Invoice
@@ -100,7 +98,6 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 		Title:             title,
 		RootPath:          rootPath,
 		Path:              r.URL.Path,
-		Page:              &models.Page{},
 		Sidebars:          true,
 		RenderTotalsTable: renderTotalsTable,
 		Today:             time.Now(),
