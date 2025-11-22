@@ -15,25 +15,26 @@ import (
 )
 
 type templateData struct {
-	LoggedIn                  bool
-	User                      models.User
-	IsAdmin                   bool
-	Title                     string
-	Path                      string
-	RootPath                  string
-	HTML                      template.HTML
-	Pages                     models.Pages
-	Page                      *models.Page
-	ActivityMonths            []models.ActivityMonth
-	BellevueInvoices          []models.Invoice
-	ProductFormConfig         models.ProductFormConfig
-	Form                      any
-	Edit                      bool // used in form templates to show render a different form
-	ShowUpdatedAt             bool
-	HideNav                   bool
-	Sidebars                  bool
-	HighlightJS               bool
-	Error                     Error
+	LoggedIn          bool
+	User              models.User
+	IsAdmin           bool
+	Title             string
+	Path              string
+	RootPath          string
+	HTML              template.HTML
+	Pages             models.Pages
+	Page              *models.Page
+	Today             time.Time
+	ActivityMonths    []models.ActivityMonth
+	BellevueInvoices  []models.Invoice
+	ProductFormConfig models.ProductFormConfig
+	Form              any
+	Edit              bool // used in form templates to show render a different form
+	ShowUpdatedAt     bool
+	HideNav           bool
+	Sidebars          bool
+	HighlightJS       bool
+	Error             Error
 
 	// Feature Flags
 	RenderTotalsTable bool
@@ -102,6 +103,7 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 		Page:              &models.Page{},
 		Sidebars:          true,
 		RenderTotalsTable: renderTotalsTable,
+		Today:             time.Now(),
 	}
 }
 

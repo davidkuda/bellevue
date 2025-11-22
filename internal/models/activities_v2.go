@@ -29,11 +29,11 @@ type ActivityDay struct {
 
 // one product summary inside a day
 type LineItem struct {
-	ProductID int    `json:"product_id"`
-	Name      string `json:"name"`
-	UnitPrice int    `json:"unit_price"` // rappen
-	Quantity  int    `json:"quantity"`
-	// TODO: include price category name here and in template
+	ProductID     int    `json:"product_id"`
+	Name          string `json:"name"`
+	UnitPrice     int    `json:"unit_price"` // rappen
+	Quantity      int    `json:"quantity"`
+	PriceCategory string `json:"price_category"`
 }
 
 func (m *ActivityModel) GetActivityMonths(userID int) ([]ActivityMonth, error) {
@@ -74,19 +74,23 @@ func (m *ActivityModel) GetActivityMonths(userID int) ([]ActivityMonth, error) {
 
 func (m *ActivityModel) GetActivityDays(userID int) ([]ActivityDay, error) {
 	const stmt = `
-WITH per_day_product AS (
-      SELECT c.user_id,
-             c.date,
-             p.id AS product_id,
-             p.name AS product_name,
-             sum(c.quantity) AS quantity,
-             c.unit_price AS unit_price,
-             sum(c.total_price) AS line_total
-        FROM bellevue.consumptions c
-        JOIN bellevue.products p ON p.id = c.product_id
-       WHERE c.user_id = $1
-    GROUP BY c.user_id, c.date, p.id, p.name, c.unit_price
-)
+WITH
+per_day_product AS (
+  SELECT c.user_id,
+         c.date,
+         p.id AS product_id,
+         p.name AS product_name,
+         sum(c.quantity) AS quantity,
+         c.unit_price AS unit_price,
+         pc.name AS pricecat,
+         sum(c.total_price) AS line_total
+    FROM consumptions c
+    JOIN products p ON p.id = c.product_id
+    JOIN price_categories pc ON pc.id = c.pricecat_id
+   WHERE c.user_id = $1
+GROUP BY c.user_id, c.date, p.id, p.name, c.unit_price, pricecat
+),
+jsonagg AS (
   SELECT date,
          SUM(line_total) AS total_price,
          jsonb_agg(
@@ -94,13 +98,23 @@ WITH per_day_product AS (
                  'product_id', product_id,
                  'name', product_name,
                  'unit_price', unit_price,
-                 'quantity', quantity
+                 'quantity', quantity,
+                 'price_category', pricecat
              )
              ORDER BY product_name
          ) AS items
-    FROM per_day_product
-GROUP BY date
-ORDER BY date DESC;
+    FROM per_day_product p
+GROUP BY p.date
+ORDER BY p.date DESC
+)
+   SELECT p.date,
+          c.comment,
+          total_price,
+          items
+     FROM jsonagg p
+LEFT JOIN comments c
+       ON c.date = p.date
+      AND c.user_id = $1;
 `
 
 	rows, err := m.DB.Query(stmt, userID)
@@ -112,26 +126,31 @@ ORDER BY date DESC;
 	var days []ActivityDay
 
 	for rows.Next() {
-		var (
-			date       time.Time
-			totalPrice int
-			itemsJSON  []byte
-		)
+		var itemsJSON []byte
+		var comment sql.NullString
+		day := ActivityDay{}
 
-		if err := rows.Scan(&date, &totalPrice, &itemsJSON); err != nil {
+		if err := rows.Scan(
+			&day.Date,
+			&comment,
+			&day.TotalPrice,
+			&itemsJSON,
+		); err != nil {
 			return nil, err
 		}
+
+        if comment.Valid {
+            day.Comment = comment.String
+        }
 
 		var items []LineItem
 		if err := json.Unmarshal(itemsJSON, &items); err != nil {
 			return nil, err
 		}
+        day.Items = items
 
-		days = append(days, ActivityDay{
-			Date:       date,
-			TotalPrice: totalPrice,
-			Items:      items,
-		})
+		days = append(days, day)
+        fmt.Println(day)
 	}
 
 	return days, rows.Err()

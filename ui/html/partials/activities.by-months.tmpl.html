@@ -19,9 +19,12 @@
               <span class="bellevue-activity no-wrap">
                 {{ .Quantity }}
                 {{ .Name }}
-                for {{ .UnitPrice | fmtCHF }} CHF
+                for {{ .UnitPrice | fmtCHF }} CHF ({{ .PriceCategory }})
               </span>
             {{ end }}
+            <span class="bellevue-activity stack-exception-medium">
+              <small class="comment">{{ .Comment }}</small>
+            </span>
             <div class="buttons stack-exception-small">
               <button
                 hx-get="/activities/edit?date={{ .Date | formatDateFormInput }}"
