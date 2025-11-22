@@ -37,14 +37,7 @@ func (app *application) getActivitiesNew(w http.ResponseWriter, r *http.Request)
 	t.Title = "New Bellevue Activity"
 	t.ProductFormConfig  = app.productFormConfig
 	t.Form = productForm{}
-
-	isHTMX := r.Header.Get("HX-Request") == "true"
-	if isHTMX {
-		app.renderHTMXPartial(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
-	} else {
-		app.render(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
-	}
-
+	app.render(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
 }
 
 // HTMX: GET /activities/{ID}/edit
@@ -59,19 +52,12 @@ func (app *application) getActivitiesIDEdit(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-
-	isHTMX := r.Header.Get("HX-Request") == "true"
-
 	t := app.newTemplateData(r)
 	t.Edit = true
 	t.Title = "New Bellevue Activity"
 	t.Form = productForm{}
 
-	if isHTMX {
-		app.renderHTMXPartial(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
-	} else {
-		app.render(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
-	}
+	app.render(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
 }
 
 // DELETE /bellevue-activity/:id

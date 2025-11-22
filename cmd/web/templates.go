@@ -114,29 +114,13 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 
 	buf := bytes.Buffer{}
 
-	err := ts.ExecuteTemplate(&buf, "base", data)
-	if err != nil {
-		errMsg := fmt.Errorf("error executing template %s: %s", page, err.Error())
-		app.serverError(w, r, errMsg)
-		return
+	var err error
+	isHTMX := r.Header.Get("HX-Request") == "true"
+	if isHTMX {
+		err = ts.ExecuteTemplate(&buf, "main", data)
+	} else {
+		err = ts.ExecuteTemplate(&buf, "base", data)
 	}
-
-	w.WriteHeader(status)
-
-	buf.WriteTo(w)
-}
-
-func (app *application) renderHTMXPartial(w http.ResponseWriter, r *http.Request, status int, page string, data *templateData) {
-	ts, ok := app.templateCache[page]
-	if !ok {
-		err := fmt.Errorf("couldn't find template \"%s\" in app.templateCache", page)
-		app.serverError(w, r, err)
-		return
-	}
-
-	buf := bytes.Buffer{}
-
-	err := ts.ExecuteTemplate(&buf, "main", data)
 	if err != nil {
 		errMsg := fmt.Errorf("error executing template %s: %s", page, err.Error())
 		app.serverError(w, r, errMsg)
