@@ -21,7 +21,7 @@
       {{ if .RenderTotalsTable }}
         {{ template "activities--overview-by-month" . }}
       {{ end }}
-      {{ range .BellevueActivityOverviews }}
+      {{ range .ActivityMonths }}
         {{ template "activities--by-month" . }}
       {{ end }}
     {{ else }}

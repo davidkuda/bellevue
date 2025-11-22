@@ -20,14 +20,14 @@ func (app *application) getHome(w http.ResponseWriter, r *http.Request) {
 
 // GET /activities
 func (app *application) getActivities(w http.ResponseWriter, r *http.Request) {
+	var err error
+
 	t := app.newTemplateData(r)
 
-	invoices, err := app.models.Invoices.GetAllInvoicesOfUser(t.User.ID)
+	t.ActivityMonths, err = app.models.Activities.GetActivityMonths(t.User.ID)
 	if err != nil {
-		app.serverError(w, r, err)
-		return
+		app.serverError(w, r, fmt.Errorf("could not get activity months: %e"))
 	}
-	t.BellevueInvoices = invoices
 
 	BAOs, err := app.models.BellevueActivities.NewBellevueActivityOverviews(t.User.ID)
 	if err != nil {

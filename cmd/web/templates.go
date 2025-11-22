@@ -24,6 +24,7 @@ type templateData struct {
 	HTML                      template.HTML
 	Pages                     models.Pages
 	Page                      *models.Page
+	ActivityMonths            []models.ActivityMonth
 	BellevueInvoices          []models.Invoice
 	BellevueActivityOverviews models.BellevueActivityOverviews
 	BellevueActivityOverview  models.BellevueActivityOverview
@@ -92,19 +93,18 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 		renderTotalsTable = true
 	}
 
-
 	// TODO: using empty structs with a pointer seems so wrong here. How to fix it?
 	// problem is that the templates will error on render.
 	return templateData{
-		LoggedIn:         isAuthenticated,
-		User:             user,
-		IsAdmin:          isAdmin,
-		Title:            title,
-		RootPath:         rootPath,
-		Path:             r.URL.Path,
-		Page:             &models.Page{},
-		BellevueActivity: models.NewBellevueActivity(),
-		Sidebars:         true,
+		LoggedIn:          isAuthenticated,
+		User:              user,
+		IsAdmin:           isAdmin,
+		Title:             title,
+		RootPath:          rootPath,
+		Path:              r.URL.Path,
+		Page:              &models.Page{},
+		BellevueActivity:  models.NewBellevueActivity(),
+		Sidebars:          true,
 		RenderTotalsTable: renderTotalsTable,
 	}
 }
@@ -162,6 +162,7 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		"formatDateFormInput": formatDateFormInput,
 		"fmtDateNiceRead":     formatDateNiceRead,
 		"fmtCHF":              formatCurrency,
+		"fmtMonth":            formatMonth,
 	}
 
 	pages, err := filepath.Glob("./ui/html/pages/*.tmpl.html")
@@ -216,6 +217,7 @@ func newTemplateCacheForHTMXPartials() (map[string]*template.Template, error) {
 		"formatDateFormInput": formatDateFormInput,
 		"fmtDateNiceRead":     formatDateNiceRead,
 		"fmtCHF":              formatCurrency,
+		"fmtMonth":            formatMonth,
 	}
 
 	pages, err := filepath.Glob("./ui/html/pages/*.tmpl.html")
@@ -259,6 +261,7 @@ func newTemplatePartialsCache() (map[string]*template.Template, error) {
 		"formatDateFormInput": formatDateFormInput,
 		"fmtDateNiceRead":     formatDateNiceRead,
 		"fmtCHF":              formatCurrency,
+		"fmtMonth":            formatMonth,
 	}
 
 	pages, err := filepath.Glob("./ui/html/pages/*.tmpl.html")
@@ -307,6 +310,10 @@ func formatDateFormInput(t time.Time) string {
 
 func formatDateNiceRead(t time.Time) string {
 	return t.Format("Mon 2.01.2006")
+}
+
+func formatMonth(t time.Time) string {
+	return t.Format("January 2006")
 }
 
 // formatCurrency converts an integer (in Rappen) to a currency string like "22.50 CHF".

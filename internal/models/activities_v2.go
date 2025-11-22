@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"sort"
 	"time"
 )
@@ -31,8 +32,44 @@ type LineItem struct {
     Name      string `json:"name"`
     UnitPrice int    `json:"unit_price"` // rappen
     Quantity  int    `json:"quantity"`
+    // TODO: include price category name here and in template
 }
 
+func (m *ActivityModel) GetActivityMonths(userID int) ([]ActivityMonth, error) {
+    days, err := m.GetActivityDays(userID)
+    if err != nil {
+        return nil, fmt.Errorf("could not get activity days: %e", err)
+    }
+    byMonth := map[string]*ActivityMonth{}
+
+    for _, day := range days {
+        key := day.Date.Format("2006-01") // month key
+        monthStart, _ := time.Parse("2006-01-02", key+"-01")
+
+        m, ok := byMonth[key]
+        if !ok {
+            m = &ActivityMonth{
+                Month: monthStart,
+            }
+            byMonth[key] = m
+        }
+
+        m.Days = append(m.Days, day)
+        m.TotalPrice += day.TotalPrice
+    }
+
+    // convert to slice & sort by month descending
+    result := make([]ActivityMonth, 0, len(byMonth))
+    for _, m := range byMonth {
+        result = append(result, *m)
+    }
+
+    sort.Slice(result, func(i, j int) bool {
+        return result[i].Month.After(result[j].Month)
+    })
+
+    return result, nil
+}
 
 func (m *ActivityModel) GetActivityDays(userID int) ([]ActivityDay, error) {
     const stmt = `
@@ -99,37 +136,5 @@ ORDER BY date DESC;
     }
 
     return days, rows.Err()
-}
-
-func GetActivityMonths(days []ActivityDay) []ActivityMonth {
-    byMonth := map[string]*ActivityMonth{}
-
-    for _, day := range days {
-        key := day.Date.Format("2006-01") // month key
-        monthStart, _ := time.Parse("2006-01-02", key+"-01")
-
-        m, ok := byMonth[key]
-        if !ok {
-            m = &ActivityMonth{
-                Month: monthStart,
-            }
-            byMonth[key] = m
-        }
-
-        m.Days = append(m.Days, day)
-        m.TotalPrice += day.TotalPrice
-    }
-
-    // convert to slice & sort by month descending
-    result := make([]ActivityMonth, 0, len(byMonth))
-    for _, m := range byMonth {
-        result = append(result, *m)
-    }
-
-    sort.Slice(result, func(i, j int) bool {
-        return result[i].Month.After(result[j].Month)
-    })
-
-    return result
 }
 

@@ -1,13 +1,13 @@
 {{ define "activities--by-month" }}
-  <h3 class="text-center stack-exception-xl">{{ .MonthYear }}</h3>
+  <h3 class="text-center stack-exception-xl">{{ .Month | fmtMonth }}</h3>
   <div class="table-container stack-exception">
     <table>
       <tr>
         <th>Date & Price</th>
         <th>Activities</th>
       </tr>
-      {{ range .BellevueActivities }}
-        <tr id="activity-{{ .ID }}" class="fade-out">
+      {{ range .Days }}
+        <tr>
           <td class="date-price no-break stack-exception-xs stack-xs">
             <span class="no-break bold block">
               {{ .Date | fmtDateNiceRead }}
@@ -17,22 +17,14 @@
           <td class="stack-exception-xs stack-xs min-width-max-content">
             {{ range .Items }}
               <span class="bellevue-activity no-wrap">
-                {{ .Count }}
-                {{ .Activity }}
+                {{ .Quantity }}
+                {{ .Name }}
+                for {{ .UnitPrice | fmtCHF }} CHF
               </span>
             {{ end }}
-            {{ if gt .SnacksCHF 0 }}
-              <span class="bellevue-activity">
-                {{ .SnacksCHF | fmtCHF }} CHF Snacks and Drinks
-              </span>
-            {{ end }}
-            {{ if ne .Comment "" }}{{ end }}
-            <span class="bellevue-activity stack-exception-medium">
-              <small class="comment">{{ .Comment }}</small>
-            </span>
             <div class="buttons stack-exception-small">
               <button
-                hx-get="/activities/{{ .ID }}/edit"
+                hx-get="/activities/edit?date={{ .Date | formatDateFormInput }}"
                 hx-target="main"
                 hx-push-url="true"
                 type="button"
@@ -43,7 +35,7 @@
               </button>
               <span></span>
               <button
-                hx-delete="/activities/{{ .ID }}"
+                hx-delete="/activities?date={{ .Date | formatDateFormInput }}"
                 hx-target="closest tr"
                 hx-confirm="are you sure that you want to delete this activity?"
                 hx-swap="delete swap:400ms"
@@ -59,7 +51,7 @@
       <tr>
         <td></td>
         <td class="stack-xs">
-          <span class="bold block">Total Price {{ .MonthYear }}:</span>
+          <span class="bold block">Total Price {{ .Month | fmtMonth }}:</span>
           <span class="bold block">{{ .TotalPrice | fmtCHF }} CHF</span>
         </td>
       </tr>
