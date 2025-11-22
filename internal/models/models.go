@@ -11,6 +11,7 @@ type Models struct {
 	PriceCategories    PriceCategoryModel
 	Consumptions       ConsumptionModel
 	Comments           CommentModel
+	Activities         ActivityModel
 }
 
 func New(db *sql.DB) Models {
@@ -23,5 +24,6 @@ func New(db *sql.DB) Models {
 		PriceCategories:    PriceCategoryModel{DB: db},
 		Consumptions:       ConsumptionModel{DB: db},
 		Comments:           CommentModel{DB: db},
+		Activities:         ActivityModel{DB: db},
 	}
 }
