@@ -150,7 +150,6 @@ LEFT JOIN comments c
         day.Items = items
 
 		days = append(days, day)
-        fmt.Println(day)
 	}
 
 	return days, rows.Err()
