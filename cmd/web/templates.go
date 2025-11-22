@@ -144,7 +144,7 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		"fmtMonth":            formatMonth,
 	}
 
-	pages, err := filepath.Glob("./ui/html/pages/*.tmpl.html")
+	pages, err := filepath.Glob("./ui/html/*.tmpl.html")
 	if err != nil {
 		return nil, fmt.Errorf("failed filepath.Glob for pages: %v", err)
 	}
@@ -159,7 +159,7 @@ func newTemplateCache() (map[string]*template.Template, error) {
 
 		N := 1 + len(partials) + 1
 		files := make([]string, N)
-		files[0] = "./ui/html/pages/base.tmpl.html"
+		files[0] = "./ui/html/base.tmpl.html"
 		for i, partial := range partials {
 			files[i+1] = partial
 		}
