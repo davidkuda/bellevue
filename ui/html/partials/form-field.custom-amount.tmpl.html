@@ -1,11 +1,12 @@
 {{ define "form-field--custom-amount" }}
-  <label
-><strong>{{ .Label }}:</strong>
+  <label>
+    <strong>{{ .Label }}:</strong>
     <input
-      name="activities[{{.Code}}][amount_chf]"
+      name="activities[{{ .Code }}][amount_chf]"
       type="number"
       min="0"
       step="0.01"
       value="0"
-  /></label>
+    />
+  </label>
 {{ end }}

@@ -1,8 +1,6 @@
 {{ define "form-field--product-counter" }}
   <label for="activities[{{ .Code }}][quantity]" class="fixed-price-activity">
-    <strong>
-      {{ .Label }}:
-    </strong>
+    <strong>{{ .Label }}:</strong>
   </label>
   <fieldset class="fixed-price-activity">
     <fieldset class="number-picker">
@@ -17,22 +15,29 @@
       <button type="button" class="plus">+</button>
     </fieldset>
 
-  {{ if .HasCategories }}
-    <fieldset class="price-categories" data-js-visible-on-input>
-      <ul>
-      {{ range .PriceCategories }}
-        <li>
-          <label>
-          <input value="{{ .Name }}" type="radio" name="activities[{{ $.Code }}][price_category]" {{ if .Checked }}checked{{ end }} />
-            <div class="price-category__label">
-            <span class="price-category__label-name">{{ .Name }}</span>
-            <span class="price-category__label-price">{{ .Price | fmtCHF }} CHF</span>
-            </div>
-          </label>
-        </li>
-      {{ end }}
-      </ul>
-    </fieldset>
-  {{ end }}
+    {{ if .HasCategories }}
+      <fieldset class="price-categories" data-js-visible-on-input>
+        <ul>
+          {{ range .PriceCategories }}
+            <li>
+              <label>
+                <input
+                  value="{{ .Name }}"
+                  type="radio"
+                  name="activities[{{ $.Code }}][price_category]"
+                  {{ if .Checked }}checked{{ end }}
+                />
+                <div class="price-category__label">
+                  <span class="price-category__label-name">{{ .Name }}</span>
+                  <span class="price-category__label-price">
+                    {{ .Price | fmtCHF }} CHF
+                  </span>
+                </div>
+              </label>
+            </li>
+          {{ end }}
+        </ul>
+      </fieldset>
+    {{ end }}
   </fieldset>
 {{ end }}
