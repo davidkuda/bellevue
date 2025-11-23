@@ -1,5 +1,34 @@
 BEGIN;
 
+
+create table bellevue.users (
+		id              SERIAL primary key,
+	    first_name      TEXT not null,
+	    last_name       TEXT not null,
+	    email_address   TEXT not null unique,
+	    method          TEXT not null,
+
+		-- email / password logins:
+	    hashed_password CHAR(60),
+		-- openid connect logins:
+	    sub             TEXT unique,
+
+		created_at      timestamptz NOT NULL DEFAULT now(),
+
+	CHECK (
+		case
+			when method = 'password'
+			then hashed_password is not null
+
+			when method = 'openidconnect'
+			then sub is not null
+
+			else false -- reject unknown methods
+		end
+	)
+);
+
+
 ----------------------------------------------------------------------------------
 -- create a generic model for products and prices --------------------------------
 --

@@ -10,12 +10,16 @@ import (
 )
 
 type User struct {
-	ID             int
-	Email          string
-	FirstName      string
-	LastName       string
+	ID        int
+	Email     string
+	FirstName string
+	LastName  string
+	Method    string
+	// email signups / logins:
 	HashedPassword []byte
-	Created        time.Time
+	// OpenID Connect signups / logins:
+	SUB       string
+	CreatedAt time.Time
 }
 
 type UserModel struct {
@@ -24,24 +28,53 @@ type UserModel struct {
 
 // Creates a new user in the database
 func (m *UserModel) Insert(u User, password string) error {
+	var err error
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 15)
 	if err != nil {
 		return err
 	}
 
-	stmt := `INSERT INTO auth.users (first_name, last_name, email, hashed_password)
-	VALUES($1, $2, $3, $4);`
+	var stmt string
+	var result sql.Result
 
-	result, err := m.DB.Exec(
-		stmt,
-		u.FirstName,
-		u.LastName,
-		u.Email,
-		string(hashedPassword),
+	if u.Method == "password" {
+		stmt = `
+		INSERT INTO users (
+			first_name, last_name, email, method, hashed_password
+		) VALUES (
+			$1,         $2,        $3,    $4,     $5
+		);`
+		result, err = m.DB.Exec(
+			stmt,
+			u.FirstName,
+			u.LastName,
+			u.Email,
+			"password",
+			string(hashedPassword),
 		)
+	} else if u.Method == "openidconnect" {
+		stmt = `
+		INSERT INTO users (
+			first_name, last_name, email, method, sub
+		) VALUES (
+			$1,         $2,        $3,    $4,     $5
+		);`
+		result, err = m.DB.Exec(
+			stmt,
+			u.FirstName,
+			u.LastName,
+			u.Email,
+			"openidconnect",
+			u.SUB,
+		)
+	} else {
+		return fmt.Errorf("invalid User.method: method=%s", u.Method)
+	}
 	if err != nil {
 		return err
 	}
+	// TODO: what to do with rows affected?
 	result.RowsAffected()
 
 	return nil
@@ -50,7 +83,7 @@ func (m *UserModel) Insert(u User, password string) error {
 func (m *UserModel) Authenticate(email, password string) error {
 	var hashedPassword []byte
 
-	stmt := "SELECT hashed_password FROM auth.users WHERE email = $1;"
+	stmt := "SELECT hashed_password FROM users WHERE email = $1;"
 
 	err := m.DB.QueryRow(stmt, email).Scan(&hashedPassword)
 	if err != nil {
@@ -78,7 +111,7 @@ func (m *UserModel) Exists(email string) (bool, error) {
 }
 
 func (m *UserModel) GetUserIDByEmail(email string) (int, error) {
-	stmt := "SELECT id FROM auth.users WHERE email = $1;"
+	stmt := "SELECT id FROM users WHERE email = $1;"
 
 	var userID int
 
@@ -93,7 +126,7 @@ func (m *UserModel) GetUserIDByEmail(email string) (int, error) {
 func (m *UserModel) GetAll() ([]User, error) {
 	stmt := `
 	SELECT id, first_name, last_name, email
-	FROM auth.users;
+	FROM users;
 	`
 
 	rows, err := m.DB.Query(stmt)
@@ -129,7 +162,7 @@ func (m *UserModel) GetAll() ([]User, error) {
 func (m *UserModel) GetUserByEmail(email string) (User, error) {
 	stmt := `
 	SELECT id, first_name, last_name
-	FROM auth.users
+	FROM users
 	WHERE email = $1;
 	`
 
