@@ -1,7 +1,7 @@
 {{ define "title" }}Bellevue Activities{{ end }}
 {{ define "main" }}
-  <main class="center stack-xl">
-    {{ if .ActivityMonths }}
+  {{ if .ActivityMonths }}
+    <main class="center stack-xl">
       <button
         class="individual"
         hx-get="/activities/new"
@@ -14,20 +14,33 @@
       {{ range .ActivityMonths }}
         {{ template "activities--by-month" . }}
       {{ end }}
-    {{ else }}
-      <h2>Welcome To Team Bellevue Activities!</h2>
+    </main>
+  {{ else }}
+    <main class="center stack">
+      <h3>Welcome To Team Bellevue Activities!</h3>
       <p>
-        Here, you can record activities that you need to pay for. At the
-        beginning of each month, you will receive an invoice by email.
+        Here, you can keep track of your activities that you need to pay for.
+        Whenever you eat, go to a lecture, go to the sauna, etc., you can just
+        add your activities to this web app.
       </p>
+      <p>
+        The idea is that you will get an invoice to your email
+        ({{ .User.Email }}) once every month.
+      </p>
+      <p>
+        It took me many hours to build this. So I hope that you will find it
+        useful. Please don't hesitate to contact me whenever you have questions,
+        ideas or feedback.
+      </p>
+      <p>Yours sincerely, David.</p>
       <button
         hx-get="/activities/new"
         hx-push-url="true"
         hx-target="main"
         hx-swap="innerHTML show:html:top"
       >
-        Add a new activity
+        Add your first activity
       </button>
-    {{ end }}
-  </main>
+    </main>
+  {{ end }}
 {{ end }}
