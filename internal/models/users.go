@@ -27,7 +27,7 @@ type UserModel struct {
 }
 
 // Creates a new user in the database
-func (m *UserModel) Insert(u User, password string) error {
+func (m *UserModel) InsertPassword(u User, password string) error {
 	var err error
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 15)
@@ -38,47 +38,57 @@ func (m *UserModel) Insert(u User, password string) error {
 	var stmt string
 	var result sql.Result
 
-	if u.Method == "password" {
-		stmt = `
-		INSERT INTO users (
-			first_name, last_name, email, method, hashed_password
-		) VALUES (
-			$1,         $2,        $3,    $4,     $5
-		);`
-		result, err = m.DB.Exec(
-			stmt,
-			u.FirstName,
-			u.LastName,
-			u.Email,
-			"password",
-			string(hashedPassword),
-		)
-	} else if u.Method == "openidconnect" {
-		stmt = `
-		INSERT INTO users (
-			first_name, last_name, email, method, sub
-		) VALUES (
-			$1,         $2,        $3,    $4,     $5
-		);`
-		result, err = m.DB.Exec(
-			stmt,
-			u.FirstName,
-			u.LastName,
-			u.Email,
-			"openidconnect",
-			u.SUB,
-		)
-	} else {
-		return fmt.Errorf("invalid User.method: method=%s", u.Method)
-	}
+	stmt = `
+	INSERT INTO users (
+		first_name, last_name, email, method, hashed_password
+	) VALUES (
+		$1,         $2,        $3,    $4,     $5
+	);`
+	result, err = m.DB.Exec(
+		stmt,
+		u.FirstName,
+		u.LastName,
+		u.Email,
+		"password",
+		string(hashedPassword),
+	)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed inserting user: %s", err)
 	}
 	// TODO: what to do with rows affected?
 	result.RowsAffected()
 
 	return nil
 }
+
+func (m *UserModel) InsertOIDC(u User) error {
+	var err error
+	var stmt string
+	var result sql.Result
+
+	stmt = `
+	INSERT INTO users (
+		first_name, last_name, email, method, sub
+	) VALUES (
+		$1,         $2,        $3,    $4,     $5
+	);`
+	result, err = m.DB.Exec(
+		stmt,
+		u.FirstName,
+		u.LastName,
+		u.Email,
+		"openidconnect",
+		u.SUB,
+	)
+	if err != nil {
+		return fmt.Errorf("failed inserting user: %s", err)
+	}
+	// TODO: what to do with rows affected?
+	result.RowsAffected()
+
+	return nil
+}
+
 
 func (m *UserModel) Authenticate(email, password string) error {
 	var hashedPassword []byte

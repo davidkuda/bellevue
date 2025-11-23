@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/coreos/go-oidc/v3/oidc"
+	"github.com/davidkuda/bellevue/internal/models"
 	"golang.org/x/oauth2"
 )
 
@@ -82,7 +83,16 @@ func (app *application) oidcCallbackHandler(w http.ResponseWriter, r *http.Reque
 		app.serverError(w, r, fmt.Errorf("failed checking if user with email=%s exists:", c.Email))
 	}
 	if !exists {
-		//create
+		u := models.User{
+			Email: c.Email,
+			FirstName: c.GivenName,
+			LastName: c.FamilyName,
+			SUB: c.SUB,
+		}
+		err = app.models.Users.InsertOIDC(u)
+		if err != nil {
+			app.serverError(w, r, fmt.Errorf("failed inserting new user: %s", err))
+		}
 	}
 
 	// save session

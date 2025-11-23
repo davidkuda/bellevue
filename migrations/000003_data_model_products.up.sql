@@ -5,7 +5,7 @@ create table bellevue.users (
 		id              SERIAL primary key,
 	    first_name      TEXT not null,
 	    last_name       TEXT not null,
-	    email_address   TEXT not null unique,
+	    email           TEXT not null unique,
 	    method          TEXT not null,
 
 		-- email / password logins:
@@ -27,6 +27,17 @@ create table bellevue.users (
 		end
 	)
 );
+
+alter table bellevue.users
+owner to dev;
+
+grant select, insert, update, delete
+on table users
+to app;
+
+grant usage, select, update
+on sequence users_id_seq
+to app;
 
 
 ----------------------------------------------------------------------------------

@@ -75,7 +75,7 @@ func (app *application) postSignup(w http.ResponseWriter, r *http.Request) {
 		Email: form.email,
 	}
 
-	err = app.models.Users.Insert(user, form.password)
+	err = app.models.Users.InsertPassword(user, form.password)
 	if err != nil {
 		app.serverError(w, r, fmt.Errorf("failed to insert user=%+v to db: %s", user, err))
 	}
