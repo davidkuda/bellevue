@@ -10,11 +10,12 @@ import (
 
 // GET /
 func (app *application) getHome(w http.ResponseWriter, r *http.Request) {
-	if app.isAuthenticated(r) {
-		http.Redirect(w, r, "/activities", http.StatusSeeOther)
-	} else {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
-	}
+   user := app.contextGetUser(r)
+    if user == nil {
+        http.Redirect(w, r, "/login", http.StatusSeeOther)
+        return
+    }
+	http.Redirect(w, r, "/activities", http.StatusSeeOther)
 }
 
 // GET /activities

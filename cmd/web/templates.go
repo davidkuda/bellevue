@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -56,19 +55,22 @@ func newError(r *http.Request, errorCode int) Error {
 
 func (app *application) newTemplateData(r *http.Request) templateData {
 
-	isAuthenticated, ok := r.Context().Value("isAuthenticated").(bool)
+	// TODO: if user != nil { isAuthenticated is true }
+	isAuthenticated, ok := r.Context().Value(isAuthenticatedContextKey).(bool)
 	if !ok {
 		isAuthenticated = false
 	}
 
 	var user models.User
-	var isAdmin bool
+	userPointer := app.contextGetUser(r)
+	if userPointer != nil {
+		user = *userPointer
+	} else {
+		user = models.User{}
+	}
 
+	var isAdmin bool
 	if isAuthenticated {
-		user, ok = r.Context().Value("user").(models.User)
-		if !ok {
-			log.Println("newTemplateData: could not get userID from request.Context")
-		}
 		isAdmin, ok = r.Context().Value("isAdmin").(bool)
 		if !ok {
 			isAdmin = false

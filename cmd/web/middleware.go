@@ -12,8 +12,8 @@ import (
 type contextKey string
 
 const (
-    userContextKey          contextKey = "user"
-    isAuthenticatedContextKey contextKey = "isAuthenticated"
+	userContextKey            contextKey = "user"
+	isAuthenticatedContextKey contextKey = "isAuthenticated"
 )
 
 func logRequest(next http.Handler) http.Handler {
@@ -45,39 +45,39 @@ func logRequest(next http.Handler) http.Handler {
 }
 
 func (app *application) authenticate(next http.Handler) http.Handler {
-    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-        userID := app.sessionManager.GetInt(r.Context(), "userID")
-        if userID == 0 {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		userID := app.sessionManager.GetInt(r.Context(), "UserID")
+		if userID == 0 {
 			ctx := r.Context()
 			ctx = context.WithValue(ctx, "isAuthenticated", false)
 			r = r.WithContext(ctx)
 			next.ServeHTTP(w, r)
-            return
-        }
+			return
+		}
 
 		user, err := app.models.Users.GetUserByID(userID)
-        if err != nil {
-            // if user vanished, nuke the session and continue unauthenticated
-            app.sessionManager.Remove(r.Context(), "userID")
-            next.ServeHTTP(w, r)
-            return
-        }
+		if err != nil {
+			// if user vanished, nuke the session and continue unauthenticated
+			app.sessionManager.Remove(r.Context(), "userID")
+			next.ServeHTTP(w, r)
+			return
+		}
 
 		ctx := r.Context()
 		ctx = context.WithValue(ctx, isAuthenticatedContextKey, true)
-		ctx = context.WithValue(ctx, userContextKey, user)
+		ctx = context.WithValue(ctx, userContextKey, &user)
 		r = r.WithContext(ctx)
 
-        next.ServeHTTP(w, r)
-    })
+		next.ServeHTTP(w, r)
+	})
 }
 
 func (app *application) contextGetUser(r *http.Request) *models.User {
-    user, ok := r.Context().Value(userContextKey).(*models.User)
-    if !ok {
-        return nil
-    }
-    return user
+	user, ok := r.Context().Value(userContextKey).(*models.User)
+	if !ok {
+		return nil
+	}
+	return user
 }
 
 func (app *application) identify(next http.Handler) http.Handler {
@@ -125,9 +125,9 @@ func (app *application) identify(next http.Handler) http.Handler {
 
 func (app *application) requireAuthentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// TODO: think this over, this makes another JWT decoding
-		if !app.isAuthenticated(r) {
-			http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
+		isAuthenticated, ok := r.Context().Value(isAuthenticatedContextKey).(bool)
+		if !isAuthenticated || !ok {
+			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
 		next.ServeHTTP(w, r)

@@ -101,7 +101,7 @@ func (app *application) oidcCallbackHandler(w http.ResponseWriter, r *http.Reque
 
 	app.sessionManager.Put(r.Context(), "UserID", userID)
 
-	http.Redirect(w, r, "/login", http.StatusSeeOther)
+	http.Redirect(w, r, "/activities", http.StatusSeeOther)
 }
 
 func randString(nByte int) (string, error) {
