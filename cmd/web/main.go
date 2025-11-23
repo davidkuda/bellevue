@@ -15,9 +15,13 @@ import (
 	"github.com/coreos/go-oidc/v3/oidc"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"golang.org/x/oauth2"
+	"github.com/alexedwards/scs/postgresstore"
+	"github.com/alexedwards/scs/v2"
 )
 
 type application struct {
+	sessionManager *scs.SessionManager
+
 	models models.Models
 
 	productFormConfig  models.ProductFormConfig
@@ -89,6 +93,10 @@ func main() {
 	}
 	defer db.Close()
 
+	// https://pkg.go.dev/github.com/alexedwards/scs/postgresstore#section-readme
+	app.sessionManager = scs.New()
+	app.sessionManager.Store = postgresstore.New(db)
+
 	app.models = models.New(db)
 
 	app.productFormConfig, err = app.models.Products.GetProductFormConfig()
@@ -112,6 +120,8 @@ func main() {
 	}
 
 	log.Print(fmt.Sprintf("Starting web server, listening on %s", *addr))
-	err = http.ListenAndServe(*addr, app.routes())
+	mux := app.routes()
+	smux := app.sessionManager.LoadAndSave(mux)
+	err = http.ListenAndServe(*addr, smux)
 	log.Fatal(err)
 }

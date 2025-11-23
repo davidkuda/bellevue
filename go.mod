@@ -3,6 +3,8 @@ module github.com/davidkuda/bellevue
 go 1.24.0
 
 require (
+	github.com/alexedwards/scs/postgresstore v0.0.0-20251002162104-209de6e426de
+	github.com/alexedwards/scs/v2 v2.9.0
 	github.com/coreos/go-oidc/v3 v3.17.0
 	github.com/jackc/pgx/v5 v5.6.0
 	github.com/justinas/alice v1.2.0

@@ -186,3 +186,20 @@ func (m *UserModel) GetUserByEmail(email string) (User, error) {
 
 	return u, nil
 }
+
+func (m *UserModel) GetUserIDBySUB(sub string) (int, error) {
+	stmt := `
+	SELECT id
+	FROM users
+	WHERE sub = $1;
+	`
+
+	var userID int
+
+	err := m.DB.QueryRow(stmt, sub).Scan(&userID)
+	if err != nil {
+		return 0, fmt.Errorf("DB.QueryRow(): failed getting user by sub %s: %v", sub, err)
+	}
+
+	return userID, nil
+}

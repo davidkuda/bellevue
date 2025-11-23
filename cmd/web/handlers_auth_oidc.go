@@ -4,6 +4,7 @@ package main
 import (
 	"context"
 	"crypto/rand"
+	"database/sql"
 	"encoding/base64"
 	"fmt"
 	"io"
@@ -78,26 +79,28 @@ func (app *application) oidcCallbackHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	exists, err := app.models.Users.Exists(c.Email)
+	userID, err := app.models.Users.GetUserIDBySUB(c.SUB)
 	if err != nil {
-		app.serverError(w, r, fmt.Errorf("failed checking if user with email=%s exists:", c.Email))
-	}
-	if !exists {
-		u := models.User{
-			Email: c.Email,
-			FirstName: c.GivenName,
-			LastName: c.FamilyName,
-			SUB: c.SUB,
-		}
-		err = app.models.Users.InsertOIDC(u)
-		if err != nil {
-			app.serverError(w, r, fmt.Errorf("failed inserting new user: %s", err))
+		if err == sql.ErrNoRows {
+			u := models.User{
+				Email:     c.Email,
+				FirstName: c.GivenName,
+				LastName:  c.FamilyName,
+				SUB:       c.SUB,
+			}
+			err = app.models.Users.InsertOIDC(u)
+			if err != nil {
+				app.serverError(w, r, fmt.Errorf("failed inserting new user: %s", err))
+				return
+			}
+		} else {
+			app.serverError(w, r, fmt.Errorf("failed getting id with sub=%s:", c.SUB))
+			return
 		}
 	}
 
-	// save session
+	app.sessionManager.Put(r.Context(), "UserID", userID)
 
-	fmt.Printf("%+v\n", c)
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
 

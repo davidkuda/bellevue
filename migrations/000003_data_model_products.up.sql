@@ -1,5 +1,7 @@
 BEGIN;
 
+----------------------------------------------------------------------------------
+-- user authentication and sessions (cookies) relations:
 
 create table bellevue.users (
 		id              SERIAL primary key,
@@ -28,11 +30,25 @@ create table bellevue.users (
 	)
 );
 
+-- https://pkg.go.dev/github.com/alexedwards/scs/postgresstore#section-readme
+-- https://pkg.go.dev/github.com/alexedwards/scs/pgxstore#section-readme
+create table bellevue.sessions (
+	token  text primary key,
+	data   bytea not null,
+	expiry timestamptz not null
+);
+
+create index sessions_expiry_idx
+on sessions (expiry);
+
 alter table bellevue.users
 owner to dev;
 
+alter table bellevue.sessions
+owner to dev;
+
 grant select, insert, update, delete
-on table users
+on table users, sessions
 to app;
 
 grant usage, select, update
