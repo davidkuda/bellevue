@@ -9,6 +9,13 @@ import (
 	"github.com/davidkuda/bellevue/internal/models"
 )
 
+type contextKey string
+
+const (
+    userContextKey          contextKey = "user"
+    isAuthenticatedContextKey contextKey = "isAuthenticated"
+)
+
 func logRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var (
@@ -35,6 +42,42 @@ func logRequest(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func (app *application) authenticate(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        userID := app.sessionManager.GetInt(r.Context(), "userID")
+        if userID == 0 {
+			ctx := r.Context()
+			ctx = context.WithValue(ctx, "isAuthenticated", false)
+			r = r.WithContext(ctx)
+			next.ServeHTTP(w, r)
+            return
+        }
+
+		user, err := app.models.Users.GetUserByID(userID)
+        if err != nil {
+            // if user vanished, nuke the session and continue unauthenticated
+            app.sessionManager.Remove(r.Context(), "userID")
+            next.ServeHTTP(w, r)
+            return
+        }
+
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, isAuthenticatedContextKey, true)
+		ctx = context.WithValue(ctx, userContextKey, user)
+		r = r.WithContext(ctx)
+
+        next.ServeHTTP(w, r)
+    })
+}
+
+func (app *application) contextGetUser(r *http.Request) *models.User {
+    user, ok := r.Context().Value(userContextKey).(*models.User)
+    if !ok {
+        return nil
+    }
+    return user
 }
 
 func (app *application) identify(next http.Handler) http.Handler {

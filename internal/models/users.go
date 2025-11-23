@@ -169,6 +169,28 @@ func (m *UserModel) GetAll() ([]User, error) {
 	return users, nil
 }
 
+func (m *UserModel) GetUserByID(id int) (User, error) {
+	stmt := `
+	SELECT id, first_name, last_name, email
+	FROM users
+	WHERE id = $1;
+	`
+
+	var u User
+	err := m.DB.QueryRow(stmt, id).Scan(
+		&u.ID,
+		&u.FirstName,
+		&u.LastName,
+		&u.Email,
+	)
+	if err != nil {
+		return u, fmt.Errorf("failed getting user by id with id=%d: %s", id, err)
+	}
+
+	return u, nil
+}
+
+
 func (m *UserModel) GetUserByEmail(email string) (User, error) {
 	stmt := `
 	SELECT id, first_name, last_name
