@@ -33,6 +33,9 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("GET /signup", app.getLoginSignup)
 	mux.HandleFunc("POST /signup", app.postSignup)
 	mux.HandleFunc("POST /login", app.postLogin)
+	mux.HandleFunc("GET /login/dwbn", app.oidcLogin)
+	mux.HandleFunc("GET /login/dwbn/callback", app.oidcCallbackHandler)
+
 	// protected:
 	mux.Handle("GET /logout", usersOnly.ThenFunc(app.getLogout))
 

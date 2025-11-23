@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"html/template"
@@ -11,7 +12,9 @@ import (
 	"github.com/davidkuda/bellevue/internal/envcfg"
 	"github.com/davidkuda/bellevue/internal/models"
 
+	"github.com/coreos/go-oidc/v3/oidc"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"golang.org/x/oauth2"
 )
 
 type application struct {
@@ -22,6 +25,7 @@ type application struct {
 	productIDMap       models.ProductIDMap
 
 	templateCache map[string]*template.Template
+	OIDC          openIDConnect
 
 	CookieDomain string
 
@@ -31,6 +35,13 @@ type application struct {
 		Audience string // TODO: should this be []string?
 	}
 }
+
+var (
+	clientID     = os.Getenv("OIDC_CLIENT_ID")
+	clientSecret = os.Getenv("OIDC_CLIENT_SECRET")
+	issuer       = os.Getenv("OIDC_ISSUER")
+	redirectURL  = os.Getenv("OIDC_REDIRECT_URL")
+)
 
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -44,6 +55,26 @@ func main() {
 	}
 
 	app := &application{}
+
+	ctx := context.Background()
+	provider, err := oidc.NewProvider(ctx, issuer)
+	if err != nil {
+		log.Fatal(err)
+	}
+	app.OIDC.provider = provider
+
+	oidcConfig := &oidc.Config{
+		ClientID: clientID,
+	}
+	app.OIDC.verifier = provider.Verifier(oidcConfig)
+
+	app.OIDC.config = oauth2.Config{
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		Endpoint:     provider.Endpoint(),
+		RedirectURL:  redirectURL,
+		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
+	}
 
 	c := envcfg.Get()
 
