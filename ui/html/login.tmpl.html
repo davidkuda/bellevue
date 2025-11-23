@@ -2,16 +2,20 @@
 {{ define "main" }}
   <main class="center stack">
     <section class="login">
-      <h2>Welcome to Bellevue Team Activities.</h2>
+      <h3>Welcome to Bellevue Team Activities.</h3>
       <p>To use this app, you need to login.</p>
       <p>You can use your DW-Connect account to login.</p>
-      <button>Login with DW-Connect</button>
+      <p>
+        <a href="/login/dwconnect" hx-boost="false">
+          <button>Login with DW-Connect</button>
+        </a>
+      </p>
       <p>
         Alternatively, you can create a new account with your email.
         <a
           href="/signup"
-          hx-target="closest main"
-          hx-swap="beforeend"
+          hx-target="section.login__email"
+          hx-swap="innerHTML show:html:top"
           hx-push-url="false"
         >
           Create an account
@@ -19,14 +23,16 @@
         or
         <a
           href="/login/email"
-          hx-target="closest main"
-          hx-swap="beforeend"
+          hx-target="section.login__email"
+          hx-swap="innerHTML show:html:top"
           hx-push-url="false"
         >
           login with your email and password
         </a>
         .
       </p>
+      <section class="login__email">
+      </section>
     </section>
   </main>
 {{ end }}
