@@ -29,7 +29,9 @@
         />
         <hgroup>
           <h1>
-            <a href="/" hx-target="main" hx-swap="outerHTML show:html:top">Bellevue Team Activities</a>
+            <a href="/" hx-target="main" hx-swap="outerHTML show:html:top">
+              Bellevue Team Activities
+            </a>
           </h1>
           <div class="nav">
             <span id="themeToggle">dark mode</span>
@@ -38,7 +40,11 @@
               <p><a href="/settings" hx-target="main">settings</a></p>
             {{ end }}
             {{ if .LoggedIn }}
-              <p><a href="/logout" hx-target="main" hx-swap="outerHTML">logout</a></p>
+              <p>
+                <a href="/logout" hx-target="main" hx-swap="outerHTML">
+                  logout
+                </a>
+              </p>
             {{ end }}
           </div>
         </hgroup>
