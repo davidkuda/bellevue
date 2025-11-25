@@ -89,7 +89,6 @@ func (m *UserModel) InsertOIDC(u User) error {
 	return nil
 }
 
-
 func (m *UserModel) Authenticate(email, password string) error {
 	var hashedPassword []byte
 
@@ -190,7 +189,6 @@ func (m *UserModel) GetUserByID(id int) (User, error) {
 	return u, nil
 }
 
-
 func (m *UserModel) GetUserByEmail(email string) (User, error) {
 	stmt := `
 	SELECT id, first_name, last_name
@@ -220,7 +218,7 @@ func (m *UserModel) GetUserIDBySUB(sub string) (int, error) {
 
 	err := m.DB.QueryRow(stmt, sub).Scan(&userID)
 	if err != nil {
-		return 0, fmt.Errorf("DB.QueryRow(): failed getting user by sub %s: %v", sub, err)
+		return 0, err
 	}
 
 	return userID, nil
