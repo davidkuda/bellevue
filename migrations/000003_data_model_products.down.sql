@@ -8,4 +8,5 @@ drop table bellevue.product_form_order cascade;
 drop table bellevue.comments cascade;
 drop table bellevue.invoices_v2 cascade;
 drop table bellevue.consumptions cascade;
+drop table bellevue.sessions cascade;
 COMMIT;

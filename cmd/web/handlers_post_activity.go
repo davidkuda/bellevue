@@ -43,12 +43,8 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	userID, ok := r.Context().Value("userID").(int)
-	if !ok {
-		log.Println("post /bellevue-activity: could not get userID from request.Context")
-		app.renderClientError(w, r, http.StatusUnauthorized)
-		return
-	}
+	user := app.contextGetUser(r)
+	userID := user.ID // TODO: Deal with case where user is nil
 
 	formNew := app.parseProductForm(r)
 	formNew.UserID = userID
@@ -72,7 +68,6 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 			price = p.AmountCHF
 		}
 
-
 		var pricecatID sql.NullInt64
 		pricecatIDInt := app.priceCategoryIDMap[p.PriceCategory]
 		if pricecatIDInt == 0 {
@@ -82,13 +77,13 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 		}
 
 		consumption := models.Consumption{
-			UserID:    userID,
-			ProductID: app.productIDMap[p.Code+pricecat],
-			TaxID:     0,
+			UserID:     userID,
+			ProductID:  app.productIDMap[p.Code+pricecat],
+			TaxID:      0,
 			PriceCatID: pricecatID,
-			Date:      formNew.Date,
-			UnitPrice: price,
-			Quantity:  p.Quantity,
+			Date:       formNew.Date,
+			UnitPrice:  price,
+			Quantity:   p.Quantity,
 		}
 		consumptions = append(consumptions, consumption)
 	}
