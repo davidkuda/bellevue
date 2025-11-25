@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -81,7 +82,7 @@ func (app *application) oidcCallbackHandler(w http.ResponseWriter, r *http.Reque
 
 	userID, err := app.models.Users.GetUserIDBySUB(c.SUB)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			u := models.User{
 				Email:     c.Email,
 				FirstName: c.GivenName,
@@ -94,7 +95,7 @@ func (app *application) oidcCallbackHandler(w http.ResponseWriter, r *http.Reque
 				return
 			}
 		} else {
-			app.serverError(w, r, fmt.Errorf("failed getting id with sub=%s:", c.SUB))
+			app.serverError(w, r, fmt.Errorf("failed getting id with sub=%s: %T: %s", c.SUB, err, err))
 			return
 		}
 	}
