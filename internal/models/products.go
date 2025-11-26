@@ -19,12 +19,6 @@ type Product struct {
 	Price         sql.NullInt64
 }
 
-type PriceCategoryOption struct {
-	Name    string `json:"name"`
-	Price   int    `json:"price"`
-	Checked bool   `json:"checked"`
-}
-
 type ProductFormConfig struct {
 	Prices map[string]int
 	Specs  []ProductFormSpec
@@ -36,6 +30,12 @@ type ProductFormSpec struct {
 	HasCategories   bool
 	IsCustomAmount  bool
 	PriceCategories []PriceCategoryOption
+}
+
+type PriceCategoryOption struct {
+	Name    string `json:"name"`
+	Price   int    `json:"price"`
+	Checked bool   `json:"checked"`
 }
 
 type PriceKey struct {

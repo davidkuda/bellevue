@@ -6,15 +6,16 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // GET /
 func (app *application) getHome(w http.ResponseWriter, r *http.Request) {
-   user := app.contextGetUser(r)
-    if user == nil {
-        http.Redirect(w, r, "/login", http.StatusSeeOther)
-        return
-    }
+	user := app.contextGetUser(r)
+	if user == nil {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
 	http.Redirect(w, r, "/activities", http.StatusSeeOther)
 }
 
@@ -36,9 +37,29 @@ func (app *application) getActivities(w http.ResponseWriter, r *http.Request) {
 func (app *application) getActivitiesNew(w http.ResponseWriter, r *http.Request) {
 	t := app.newTemplateData(r)
 	t.Title = "New Bellevue Activity"
-	t.ProductFormConfig  = app.productFormConfig
+	t.ProductFormConfig = app.productFormConfig
 	t.Form = productForm{}
 	app.render(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
+}
+
+// GET /activities/edit?date=2025-11-26
+func (app *application) getActivitiesEdit(w http.ResponseWriter, r *http.Request) {
+	dateStr := r.URL.Query().Get("date")
+	t, err := time.Parse("2006-01-02", dateStr)
+	if err != nil {
+		app.renderClientError(w, r, http.StatusBadRequest)
+		return
+	}
+
+	var userID int
+	userID = app.contextGetUser(r).ID
+
+	data, err := app.models.Activities.GetActivityDayForUser(t, userID)
+	if err != nil {
+		app.serverError(w, r, fmt.Errorf("could not get activity day for user with day=%v and userID=%d: %s", t, userID, err))
+	}
+
+	fmt.Println(data)
 }
 
 // HTMX: GET /activities/{ID}/edit

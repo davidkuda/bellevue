@@ -139,18 +139,60 @@ LEFT JOIN comments c
 			return nil, err
 		}
 
-        if comment.Valid {
-            day.Comment = comment.String
-        }
+		if comment.Valid {
+			day.Comment = comment.String
+		}
 
 		var items []LineItem
 		if err := json.Unmarshal(itemsJSON, &items); err != nil {
 			return nil, err
 		}
-        day.Items = items
+		day.Items = items
 
 		days = append(days, day)
 	}
 
 	return days, rows.Err()
+}
+
+func (m *ActivityModel) GetActivityDayForUser(t time.Time, userID int) (*ActivityDay, error) {
+	const stmt = `
+	select p.id, p.code, pc.name, c.unit_price, c.quantity
+	  from consumptions c
+	  join products p
+	    on p.id = c.product_id
+	  join price_categories pc
+	    on pc.id = c.pricecat_id
+	 where date = $1
+	   and user_id = $2;
+	`
+
+	rows, err := m.DB.Query(stmt, t, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var day ActivityDay
+	day.Items = make([]LineItem, 0)
+
+	for rows.Next() {
+		li := LineItem{}
+		if err := rows.Scan(
+			&li.ProductID,
+			&li.Name,
+			&li.PriceCategory,
+			&li.UnitPrice,
+			&li.Quantity,
+		); err != nil {
+			return nil, err
+		}
+
+		day.Items = append(day.Items, li)
+		day.TotalPrice += li.Quantity * li.UnitPrice
+	}
+
+	// TODO: get comment if exists into day
+
+	return &day, nil
 }
