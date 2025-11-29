@@ -75,15 +75,14 @@ func (app *application) postSignup(w http.ResponseWriter, r *http.Request) {
 		Email: form.email,
 	}
 
-	err = app.models.Users.InsertPassword(user, form.password)
+	userID, err := app.models.Users.InsertPassword(user, form.password)
 	if err != nil {
 		app.serverError(w, r, fmt.Errorf("failed to insert user=%+v to db: %s", user, err))
 	}
-
-	// TODO: send JWT cookie, or render login-form
+	app.sessionManager.Put(r.Context(), "UserID", userID)
 	// TODO: do we need user activation emails?
 
-	http.Redirect(w, r, "/login", http.StatusSeeOther)
+	http.Redirect(w, r, "/activities", http.StatusSeeOther)
 }
 
 // POST /login

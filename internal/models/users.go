@@ -27,24 +27,22 @@ type UserModel struct {
 }
 
 // Creates a new user in the database
-func (m *UserModel) InsertPassword(u User, password string) error {
+func (m *UserModel) InsertPassword(u User, password string) (int, error) {
 	var err error
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), 15)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	var stmt string
-	var result sql.Result
-
-	stmt = `
+	stmt := `
 	INSERT INTO users (
 		first_name, last_name, email, method, hashed_password
 	) VALUES (
 		$1,         $2,        $3,    $4,     $5
-	);`
-	result, err = m.DB.Exec(
+	)
+	RETURNING id;`
+	row := m.DB.QueryRow(
 		stmt,
 		u.FirstName,
 		u.LastName,
@@ -52,13 +50,13 @@ func (m *UserModel) InsertPassword(u User, password string) error {
 		"password",
 		string(hashedPassword),
 	)
+	var userID int
+	err = row.Scan(&userID)
 	if err != nil {
-		return fmt.Errorf("failed inserting user: %s", err)
+		return 0, fmt.Errorf("failed inserting user: %s", err)
 	}
-	// TODO: what to do with rows affected?
-	result.RowsAffected()
 
-	return nil
+	return userID, nil
 }
 
 func (m *UserModel) InsertOIDC(u User) error {
