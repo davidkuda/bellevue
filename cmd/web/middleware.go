@@ -72,6 +72,33 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 	})
 }
 
+func (app *application) requireAuthentication(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		auth := app.isAuthenticated(r)
+		if !auth {
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) requireAdmin(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// TODO: Implement permissions management
+		user := app.contextGetUser(r)
+		if user == nil {
+			return
+		}
+		// TODO: right now, user 1 is the admin x)
+		if user.ID != 1 {
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func (app *application) contextGetUser(r *http.Request) *models.User {
 	user, ok := r.Context().Value(userContextKey).(*models.User)
 	if !ok {
@@ -80,73 +107,12 @@ func (app *application) contextGetUser(r *http.Request) *models.User {
 	return user
 }
 
-func (app *application) identify(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Cache-Control", "no-store")
-
-		var user models.User
-		var userEmail string
-		var userID int
-
-		userEmail, err := app.extractUserFromJWTCookie(r)
-		if err != nil {
-			ctx := r.Context()
-			ctx = context.WithValue(ctx, "isAuthenticated", false)
-			r = r.WithContext(ctx)
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		user, err = app.models.Users.GetUserByEmail(userEmail)
-		if err != nil {
-			err = fmt.Errorf("could not get user with email %s: %v\n", userEmail, err)
-			app.serverError(w, r, err)
-			return
-		}
-
-		userID = user.ID
-
-		ctx := r.Context()
-		ctx = context.WithValue(ctx, "isAuthenticated", true)
-		ctx = context.WithValue(ctx, "userEmail", userEmail)
-		ctx = context.WithValue(ctx, "userID", userID)
-		ctx = context.WithValue(ctx, "user", user)
-
-		// TODO: implement nice permission management...
-		if userID == 1 {
-			ctx = context.WithValue(ctx, "isAdmin", true)
-		}
-
-		r = r.WithContext(ctx)
-
-		next.ServeHTTP(w, r)
-	})
-}
-
-func (app *application) requireAuthentication(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		isAuthenticated, ok := r.Context().Value(isAuthenticatedContextKey).(bool)
-		if !isAuthenticated || !ok {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
-			return
-		}
-		next.ServeHTTP(w, r)
-	})
-}
-
-func (app *application) requireAdmin(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		isAdmin, ok := r.Context().Value("isAdmin").(bool)
-		if !ok {
-			app.renderClientError(w, r, http.StatusForbidden)
-			return
-		}
-		if !isAdmin {
-			app.renderClientError(w, r, http.StatusForbidden)
-			return
-		}
-		next.ServeHTTP(w, r)
-	})
+func (app *application) isAuthenticated(r *http.Request) bool {
+	isAuthenticated, ok := r.Context().Value(isAuthenticatedContextKey).(bool)
+	if !ok {
+		return false
+	}
+	return isAuthenticated
 }
 
 // see https://owasp.org/www-project-secure-headers/
