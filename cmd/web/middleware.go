@@ -76,6 +76,7 @@ func (app *application) requireAuthentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		auth := app.isAuthenticated(r)
 		if !auth {
+			app.renderClientError(w, r, http.StatusUnauthorized)
 			return
 		}
 
@@ -88,10 +89,12 @@ func (app *application) requireAdmin(next http.Handler) http.Handler {
 		// TODO: Implement permissions management
 		user := app.contextGetUser(r)
 		if user == nil {
+			app.renderClientError(w, r, http.StatusUnauthorized)
 			return
 		}
 		// TODO: right now, user 1 is the admin x)
 		if user.ID != 1 {
+			app.renderClientError(w, r, http.StatusForbidden)
 			return
 		}
 
