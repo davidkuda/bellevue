@@ -21,7 +21,7 @@ func (app *application) getLogin(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, 200, "login.tmpl.html", &t)
 }
 
-// GET /login/email
+// GET /login/email: Partial: Login form that asks for email and password.
 func (app *application) getLoginEmail(w http.ResponseWriter, r *http.Request) {
 	if app.isAuthenticated(r) {
 		http.Redirect(w, r, "/activities", http.StatusSeeOther)
@@ -32,7 +32,7 @@ func (app *application) getLoginEmail(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, 200, "login.email.tmpl.html", &t)
 }
 
-// GET /signup
+// GET /signup: Partial: Signup form that asks for name, email and password.
 func (app *application) getLoginSignup(w http.ResponseWriter, r *http.Request) {
 	if app.isAuthenticated(r) {
 		http.Redirect(w, r, "/activities", http.StatusSeeOther)
