@@ -1,11 +1,25 @@
 BEGIN;
 
-SET ROLE dev;
-
---create schema if not exists bellevue;
-
 ----------------------------------------------------------------------------------
 -- Bellevue Origins: (original design) -------------------------------------------
+
+CREATE SCHEMA IF NOT EXISTS auth;
+
+CREATE TABLE auth.users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    hashed_password CHAR(60) NOT NULL,
+    created_at timestamp(0) with time zone NOT NULL DEFAULT NOW()
+);
+
+GRANT SELECT, INSERT, UPDATE, DELETE
+ON ALL TABLES IN SCHEMA auth
+TO application;
+
+GRANT USAGE, SELECT ON SEQUENCE auth.users_id_seq TO application;
+
 
 -- NOTE: Prices are stored in Rappen, not as fraction of CHF.
 -- i.e., 108.00 CHF are represented as integer 10800.
@@ -16,7 +30,7 @@ SET ROLE dev;
 
 create table bellevue.bellevue_origins (
 	id              SERIAL primary key,
-	user_id         INT references bellevue.users(id),
+	user_id         INT references auth.users(id),
 	activity_date   DATE not null,
 	breakfast_count INT default 0 not null,
 	lunch_count     INT default 0 not null,
@@ -78,7 +92,7 @@ CREATE TYPE invoice_state AS ENUM (
 
 CREATE TABLE bellevue.invoices (
 	id                 SERIAL primary key,
-	user_id            INT not null references bellevue.users(id),
+	user_id            INT not null references auth.users(id),
 	period             DATE not null,
 	total_price_rappen INT not null default 0,
 	total_eating       INT not null default 0,
