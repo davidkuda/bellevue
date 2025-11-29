@@ -143,5 +143,6 @@ func (app *application) postLogin(w http.ResponseWriter, r *http.Request) {
 
 // GET /logout
 func (app *application) getLogout(w http.ResponseWriter, r *http.Request) {
+	app.sessionManager.Destroy(r.Context())
 	http.Redirect(w, r, "/login", http.StatusSeeOther)
 }
