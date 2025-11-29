@@ -46,7 +46,7 @@ func (m *ConsumptionModel) InsertMany(
 	  and date = $2
 	`
 	if _, err := tx.ExecContext(ctx, deleteQuery, userID, date); err != nil {
-		return fmt.Errorf("failed deleting consumptions: %e", err)
+		return fmt.Errorf("failed deleting consumptions: %s", err)
 	}
 
 	// TODO: Deal with TaxPrice
@@ -81,12 +81,12 @@ func (m *ConsumptionModel) InsertMany(
 			c.UnitPrice,
 			c.Quantity,
 		); err != nil {
-			return fmt.Errorf("failed inserting consumptions: %e", err)
+			return fmt.Errorf("failed inserting consumptions: %s", err)
 		}
 	}
 
 	if err := tx.Commit(); err != nil {
-		return fmt.Errorf("failed committing transaction: %e", err)
+		return fmt.Errorf("failed committing transaction: %s", err)
 	}
 
 	return nil
