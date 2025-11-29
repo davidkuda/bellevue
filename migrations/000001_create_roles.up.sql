@@ -32,6 +32,8 @@ to app;
 
 CREATE ROLE dev WITH login PASSWORD 'pa55word' INHERIT;
 GRANT developer TO dev;
-
+GRANT app TO kuda_ai;
+GRANT developer TO bellevue;
+GRANT app TO bellevue;
 
 ALTER SCHEMA bellevue OWNER TO dev;

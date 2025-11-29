@@ -2,7 +2,7 @@ BEGIN;
 
 SET ROLE dev;
 
-create schema if not exists bellevue;
+--create schema if not exists bellevue;
 
 ----------------------------------------------------------------------------------
 -- Bellevue Origins: (original design) -------------------------------------------
@@ -16,7 +16,7 @@ create schema if not exists bellevue;
 
 create table bellevue.bellevue_origins (
 	id              SERIAL primary key,
-	user_id         INT references auth.users(id),
+	user_id         INT references bellevue.users(id),
 	activity_date   DATE not null,
 	breakfast_count INT default 0 not null,
 	lunch_count     INT default 0 not null,
@@ -78,7 +78,7 @@ CREATE TYPE invoice_state AS ENUM (
 
 CREATE TABLE bellevue.invoices (
 	id                 SERIAL primary key,
-	user_id            INT not null references auth.users(id),
+	user_id            INT not null references bellevue.users(id),
 	period             DATE not null,
 	total_price_rappen INT not null default 0,
 	total_eating       INT not null default 0,
