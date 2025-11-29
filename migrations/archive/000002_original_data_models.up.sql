@@ -1,11 +1,25 @@
 BEGIN;
 
-SET ROLE dev;
-
-create schema if not exists bellevue;
-
 ----------------------------------------------------------------------------------
 -- Bellevue Origins: (original design) -------------------------------------------
+
+CREATE SCHEMA IF NOT EXISTS auth;
+
+CREATE TABLE auth.users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    hashed_password CHAR(60) NOT NULL,
+    created_at timestamp(0) with time zone NOT NULL DEFAULT NOW()
+);
+
+GRANT SELECT, INSERT, UPDATE, DELETE
+ON ALL TABLES IN SCHEMA auth
+TO application;
+
+GRANT USAGE, SELECT ON SEQUENCE auth.users_id_seq TO application;
+
 
 -- NOTE: Prices are stored in Rappen, not as fraction of CHF.
 -- i.e., 108.00 CHF are represented as integer 10800.

@@ -4,7 +4,7 @@ BEGIN;
 -- user authentication and sessions (cookies) relations:
 
 create table bellevue.users (
-		id              SERIAL primary key,
+	    id              SERIAL primary key,
 	    first_name      TEXT not null,
 	    last_name       TEXT not null,
 	    email           TEXT not null unique,
