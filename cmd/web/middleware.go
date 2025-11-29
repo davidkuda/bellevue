@@ -94,7 +94,7 @@ func (app *application) requireAdmin(next http.Handler) http.Handler {
 		}
 		// TODO: right now, user 1 is the admin x)
 		if user.ID != 1 {
-			app.renderClientError(w, r, http.StatusForbidden)
+			app.renderClientError(w, r, http.StatusUnauthorized)
 			return
 		}
 
