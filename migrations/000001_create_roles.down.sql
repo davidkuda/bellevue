@@ -1,7 +1,11 @@
-ALTER DATABASE kuda_ai OWNER TO davidkuda;
+BEGIN;
+ALTER DATABASE bellevue OWNER TO bellevue;
+ALTER SCHEMA bellevue OWNER TO bellevue;
+DROP SCHEMA bellevue;
 DROP ROLE dev;
 DROP OWNED BY developer;
 DROP ROLE developer;
-DROP OWNED BY kuda_ai;
-DROP ROLE kuda_ai;
+DROP OWNED BY app;
 DROP ROLE app;
+DROP ROLE application;
+COMMIT;
