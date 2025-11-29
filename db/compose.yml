@@ -1,0 +1,18 @@
+volumes:
+  data_postgres: 
+
+services:
+  postgres:
+    image: postgres:17.6
+    restart: unless-stopped
+    shm_size: 128mb
+    container_name: postgres
+    ports:
+    - "5432:5432"
+    volumes:
+    - data_postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: bellevue
+      POSTGRES_USER: bellevue
+      POSTGRES_PASSWORD: pa55sword
+
