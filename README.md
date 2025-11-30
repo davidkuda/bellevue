@@ -65,17 +65,14 @@ psql \
 In the folder `db` there is a docker compose script
 
 1. Change into the db folder
-2. Run the docker compose with `docker compose up -d`
-3. Copy the migration files to the container with
-
-```sh
-docker cp migrations/ postgres:/migrations/
-```
+2. Run the docker compose with `docker compose up -d`. 
+Note that we have mapped the data directory into the `db` folder. The data will be persisted and you only need to do this setup once.
+To delete the database data, just delete the folder `db/data_postgres` that was created when you ran docker compose. 
 
 4. Jump into a bash terminal on the container with:
 
 ```sh
-`docker exec -it \
+docker exec -it \
 -e PGPASSWORD="pa55word" \
 -e PGDATABASE="bellevue" \
 -e PGUSER="bellevue" \
@@ -85,6 +82,8 @@ postgres bash
 5. Run the initialisation scripts that you copied earlier
 ```sh
 psql -f migrations/000001_create_roles.up.sql
+psql -f migrations/000002_data_model_products.up.sql
+psql -f migrations/000003_populate_product_tables.up.sql
 ```
 
 
@@ -99,7 +98,44 @@ export PGPORT=5432
 psql -X -q -c '\conninfo'
 ```
 
-### Docker compose
-
 ## npm
 Install npm dependencies with `npm install` in the root of the directory and then `npm install esbuild`
+
+## make
+In order to make the JS and CSS bundels, you need to update the path to esbuild in the `make/bundle.mk` file. 
+
+If you install esbuild locally to the project, you should find it in a folder called `node_modules`. For me, it was `node_modules/esbuild/bin/esbuild`
+
+Then run 
+```sh
+make bundle/css
+make bundle/js
+```
+
+## Envriomental variables
+The website is configured via envriomental variables. Create a file called `envs` and past the following variables into it:
+```sh
+export DB_SCHEME="postgres"
+export DB_USER="bellevue"
+export DB_PASSWORD="pa55word"
+export DB_ADDRESS="localhost"
+export DB_NAME="bellevue"
+
+export PGHOST=localhost
+export PGPORT="5432"
+export PGUSER="bellevue"
+export PGDATABASE="bellevue"
+
+export PG_DSN="contact your administrator"
+export JWT_SECRET_KEY="contact your administrator"
+
+export COOKIE_DOMAIN=localhost
+
+export OIDC_CLIENT_ID="contact your administrator"
+export OIDC_CLIENT_SECRET="contact your administrator"
+export OIDC_ISSUER="https://sso.dwbn.org"
+export OIDC_REDIRECT_URL="http://localhost:8875/login/dwbn/callback"
+export SESSION_SECRET="randomly-genearted-secret--see-Makefile"
+```
+## Run the website!
+Run the with `go run ./cmd/web/`. If all went correctly, you should be able to see it at [http://localhost:8875](http://localhost:8875).

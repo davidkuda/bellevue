@@ -1,6 +1,3 @@
-volumes:
-  data_postgres: 
-
 services:
   postgres:
     image: postgres:17.6
@@ -10,9 +7,10 @@ services:
     ports:
     - "5432:5432"
     volumes:
-    - data_postgres:/var/lib/postgresql/data
+      - ./data_postgres:/var/lib/postgresql/data
+      - ../migrations:/migrations
     environment:
       POSTGRES_DB: bellevue
       POSTGRES_USER: bellevue
-      POSTGRES_PASSWORD: pa55sword
+      POSTGRES_PASSWORD: pa55word
 
