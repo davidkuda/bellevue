@@ -11,6 +11,6 @@ services:
       - ../migrations:/migrations
     environment:
       POSTGRES_DB: bellevue
-      POSTGRES_USER: bellevue
+      POSTGRES_USER: bellevueadmin
       POSTGRES_PASSWORD: pa55word
 
