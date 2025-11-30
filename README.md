@@ -106,7 +106,7 @@ In order to make the JS and CSS bundels, you need to update the path to esbuild 
 
 If you install esbuild locally to the project, you should find it in a folder called `node_modules`. For me, it was `node_modules/esbuild/bin/esbuild`
 
-The run 
+Then run 
 ```sh
 make bundle/css
 make bundle/js
