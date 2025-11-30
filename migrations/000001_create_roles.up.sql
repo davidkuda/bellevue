@@ -52,6 +52,17 @@ GRANT SELECT, INSERT, UPDATE, DELETE
 ON TABLES
 TO application;
 
+-- also consider sequences:
+-- USAGE: allows nextval(), currval(), lastval()
+-- SELECT: allows currval() and reading the sequence via SELECT directly.
+-- UPDATE: allows nextval() and setval() – modifying the sequence’s current value.
+ALTER DEFAULT PRIVILEGES
+FOR ROLE developer
+IN SCHEMA bellevue
+GRANT USAGE, SELECT, UPDATE
+ON SEQUENCES
+TO application;
+
 
 --------------------------------------------------------------------
 -- Roles: Users: (with login) --------------------------------------
