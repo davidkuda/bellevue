@@ -1,5 +1,7 @@
 BEGIN;
 
+SET ROLE developer;
+
 ----------------------------------------------------------------------------------
 -- user authentication and sessions (cookies) relations:
 
@@ -40,20 +42,6 @@ create table bellevue.sessions (
 
 create index sessions_expiry_idx
 on sessions (expiry);
-
-alter table bellevue.users
-owner to dev;
-
-alter table bellevue.sessions
-owner to dev;
-
-grant select, insert, update, delete
-on table users, sessions
-to app;
-
-grant usage, select, update
-on sequence users_id_seq
-to app;
 
 
 ----------------------------------------------------------------------------------
@@ -217,37 +205,5 @@ create index on bellevue.consumptions (user_id);
 create index on bellevue.consumptions (invoice_id);
 create index on bellevue.consumptions (date);
 
-
-----------------------------------------------------------------------------------
--- Update Permissions: -----------------------------------------------------------
-
-alter table price_categories
-owner to dev;
-
-alter table taxes
-owner to dev;
-
-alter table financial_accounts
-owner to dev;
-
-alter table products
-owner to dev;
-
-alter table product_form_order
-owner to dev;
-
-alter table comments
-owner to dev;
-
-alter table consumptions
-owner to dev;
-
-GRANT SELECT, INSERT, UPDATE, DELETE
-ON ALL TABLES IN SCHEMA bellevue
-TO app;
-
-GRANT USAGE, SELECT, UPDATE
-ON ALL SEQUENCES IN SCHEMA bellevue
-TO app;
 
 COMMIT;
