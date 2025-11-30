@@ -98,3 +98,42 @@ psql -X -q -c '\conninfo'
 
 ## npm
 Install npm dependencies with `npm install` in the root of the directory and then `npm install esbuild`
+
+## make
+In order to make the JS and CSS bundels, you need to update the path to esbuild in the `make/bundle.mk` file. 
+
+If you install esbuild locally to the project, you should find it in a folder called `node_modules`. For me, it was `node_modules/esbuild/bin/esbuild`
+
+The run 
+```sh
+make bundle/css
+make bundle/js
+```
+
+## Envriomental variables
+The website is configured via envriomental variables. Create a file called `envs` and past the following variables into it:
+```sh
+export DB_SCHEME="postgres"
+export DB_USER="bellevue"
+export DB_PASSWORD="pa55word"
+export DB_ADDRESS="localhost"
+export DB_NAME="bellevue"
+
+export PGHOST=localhost
+export PGPORT="5432"
+export PGUSER="bellevue"
+export PGDATABASE="bellevue"
+
+export PG_DSN="contact your administrator"
+export JWT_SECRET_KEY="contact your administrator"
+
+export COOKIE_DOMAIN=localhost
+
+export OIDC_CLIENT_ID="contact your administrator"
+export OIDC_CLIENT_SECRET="contact your administrator"
+export OIDC_ISSUER="https://sso.dwbn.org"
+export OIDC_REDIRECT_URL="http://localhost:8875/login/dwbn/callback"
+export SESSION_SECRET="randomly-genearted-secret--see-Makefile"
+```
+## Run the website!
+Run the with `go run ./cmd/web/`. If all went correctly, you should be able to see it at [http://localhost:8875](http://localhost:8875).
