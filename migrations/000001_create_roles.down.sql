@@ -1,11 +1,11 @@
 BEGIN;
-ALTER DATABASE bellevue OWNER TO bellevue;
-ALTER SCHEMA bellevue OWNER TO bellevue;
+ALTER DATABASE bellevue OWNER TO bellevueadmin;
+ALTER SCHEMA bellevue OWNER TO bellevueadmin;
 DROP SCHEMA bellevue;
 DROP ROLE dev;
 DROP OWNED BY developer;
 DROP ROLE developer;
-DROP OWNED BY app;
-DROP ROLE app;
+DROP OWNED BY application;
 DROP ROLE application;
+DROP ROLE bellevue;
 COMMIT;
