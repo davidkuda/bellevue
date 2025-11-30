@@ -3,14 +3,14 @@
   {{ .Error.HTTPStatusText }}
 {{ end }}
 {{ define "main" }}
-<main class="center">
-  <h2>{{ .Error.HTTPStatusText }}</h2>
-  <p>
-    {{ .Error.Method }}
-    {{ .Error.Path }}
-    {{ .Error.HTTPStatusCode }}
-    {{ .Error.HTTPStatusText }}
-  </p>
-</main>
+  <main class="center">
+    <h2>{{ .Error.HTTPStatusText }}</h2>
+    <p>
+      {{ .Error.Method }}
+      {{ .Error.Path }}
+      {{ .Error.HTTPStatusCode }}
+      {{ .Error.HTTPStatusText }}
+    </p>
+  </main>
   {{ .HTML }}
 {{ end }}
