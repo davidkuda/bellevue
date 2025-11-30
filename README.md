@@ -65,12 +65,14 @@ psql \
 In the folder `db` there is a docker compose script
 
 1. Change into the db folder
-2. Run the docker compose with `docker compose up -d`. Note that we have a volumn mapped to the host directory. The data will be persisted and you only need to do this setup once.
+2. Run the docker compose with `docker compose up -d`. 
+Note that we have mapped the data directory into the `db` folder. The data will be persisted and you only need to do this setup once.
+To delete the database data, just delete the folder `db/data_postgres` that was created when you ran docker compose. 
 
 4. Jump into a bash terminal on the container with:
 
 ```sh
-`docker exec -it \
+docker exec -it \
 -e PGPASSWORD="pa55word" \
 -e PGDATABASE="bellevue" \
 -e PGUSER="bellevue" \
