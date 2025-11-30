@@ -1,5 +1,5 @@
 volumes:
-  data_postgres: 
+  datexi_postgres: 
 
 services:
   postgres:
@@ -10,9 +10,10 @@ services:
     ports:
     - "5432:5432"
     volumes:
-    - data_postgres:/var/lib/postgresql/data
+      - data_postgres:/var/lib/postgresql/data
+      - ../migrations:/migrations
     environment:
       POSTGRES_DB: bellevue
       POSTGRES_USER: bellevue
-      POSTGRES_PASSWORD: pa55sword
+      POSTGRES_PASSWORD: pa55word
 

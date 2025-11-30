@@ -65,12 +65,7 @@ psql \
 In the folder `db` there is a docker compose script
 
 1. Change into the db folder
-2. Run the docker compose with `docker compose up -d`
-3. Copy the migration files to the container with
-
-```sh
-docker cp migrations/ postgres:/migrations/
-```
+2. Run the docker compose with `docker compose up -d`. Note that we have a volumn mapped to the host directory. The data will be persisted and you only need to do this setup once.
 
 4. Jump into a bash terminal on the container with:
 
@@ -85,6 +80,8 @@ postgres bash
 5. Run the initialisation scripts that you copied earlier
 ```sh
 psql -f migrations/000001_create_roles.up.sql
+psql -f migrations/000002_data_model_products.up.sql
+psql -f migrations/000003_populate_product_tables.up.sql
 ```
 
 
@@ -98,8 +95,6 @@ export PGPORT=5432
 
 psql -X -q -c '\conninfo'
 ```
-
-### Docker compose
 
 ## npm
 Install npm dependencies with `npm install` in the root of the directory and then `npm install esbuild`
