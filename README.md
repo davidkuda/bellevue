@@ -91,9 +91,10 @@ If you have `psql` as a command on your system and docker is running in a contai
 
 ```sh
 export PGDATABASE=bellevue
-export PGUSER=bellevue
+export PGUSER=bellevueadmin
 export PGPASSWORD=pa55sword
 export PGPORT=5432
+export PGHOST=localhost
 
 psql -X -q -c '\conninfo'
 ```
@@ -138,4 +139,4 @@ export OIDC_REDIRECT_URL="http://localhost:8875/login/dwbn/callback"
 export SESSION_SECRET="randomly-genearted-secret--see-Makefile"
 ```
 ## Run the website!
-Run the with `go run ./cmd/web/`. If all went correctly, you should be able to see it at [http://localhost:8875](http://localhost:8875).
+Install go packages with `go mod tidy` and then run the website with `go run ./cmd/web/`. If all went correctly, you should be able to see it at [http://localhost:8875](http://localhost:8875).
