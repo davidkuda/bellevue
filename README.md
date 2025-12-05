@@ -141,24 +141,3 @@ export SESSION_SECRET="randomly-genearted-secret--see-Makefile"
 ## Run the website!
 Install go packages with `go mod tidy` and then run the website with `go run ./cmd/web/`. If all went correctly, you should be able to see it at [http://localhost:8875](http://localhost:8875).
 
-# Testing
-1. Install Node js
-On ubuntu you can use
-```sh
-# Download and install nvm (node version manager):
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-
-# in lieu of restarting the shell
-\. "$HOME/.nvm/nvm.sh"
-
-# Download and install Node.js:
-nvm install 24
-
-# Verify the Node.js version:
-node -v # Should print "v24.11.1".
-
-# Verify npm version:
-npm -v # Should print "11.6.2".
-```
-
-https://playwright.dev/docs/getting-started-vscode#core-features

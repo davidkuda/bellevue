@@ -1,5 +1,6 @@
 envs
 db/data_postgres/*
+venv/*
 tmp/
 pico.pumpkin.css
 pico.pumpkin.min.css
