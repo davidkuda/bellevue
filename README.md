@@ -140,3 +140,4 @@ export SESSION_SECRET="randomly-genearted-secret--see-Makefile"
 ```
 ## Run the website!
 Install go packages with `go mod tidy` and then run the website with `go run ./cmd/web/`. If all went correctly, you should be able to see it at [http://localhost:8875](http://localhost:8875).
+

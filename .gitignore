@@ -1,5 +1,8 @@
+
+
 envs
 db/data_postgres/*
+venv/*
 tmp/
 pico.pumpkin.css
 pico.pumpkin.min.css
@@ -21,3 +24,6 @@ ui/static/dist/*
 !ui/static/dist/logo.svg
 
 .envrc
+
+__pycache__/*
+__pycache__
