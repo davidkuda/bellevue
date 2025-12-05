@@ -1,3 +1,5 @@
+
+
 envs
 db/data_postgres/*
 venv/*
@@ -22,3 +24,5 @@ ui/static/dist/*
 !ui/static/dist/logo.svg
 
 .envrc
+
+__pycache__/*
