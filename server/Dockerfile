@@ -20,7 +20,6 @@ RUN make bundle/css; make bundle/js
 COPY go.mod /app/
 COPY internal /app/internal
 COPY /cmd/web /app/cmd/web
-COPY main.go /app/
 
 RUN go mod tidy
 

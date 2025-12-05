@@ -34,10 +34,9 @@ services:
         condition: service_healthy
       
   server:
-    build: 
-      context: ./server
-      additional_contexts:
-        resources: .
+    build:
+      context: .
+      dockerfile: server/Dockerfile
     container_name: go-server
     env_file: envs
     environment:
