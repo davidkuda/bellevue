@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:17.6
+    restart: unless-stopped
+    shm_size: 128mb
+    container_name: postgres
+    ports:
+    - 5432:5432
+    environment:
+      POSTGRES_DB: bellevue
+      POSTGRES_USER: bellevueadmin
+      POSTGRES_PASSWORD: pa55word
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  postgres-setup:
+    # This is a bit inelegant: running a full debian system to execute 
+    # 3 lines of bash scripts but it works and we can refine it if we have time.
+    build: db
+    container_name: postgres-setup
+    volumes:
+      - ./migrations:/migrations
+    environment:
+      PGDATABASE: bellevue
+      PGUSER: bellevueadmin
+      PGPASSWORD: pa55word
+      PGPORT: 5432
+      PGHOST: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+      
+  server:
+    build: 
+      context: ./server
+      additional_contexts:
+        resources: .
+    container_name: go-server
+    env_file: envs
+    environment:
+      PGHOST: postgres
+      DB_ADDRESS: postgres
+    ports:
+      - 8875:8875
+    depends_on:
+      postgres-setup:
+        condition: service_completed_successfully
+
