@@ -38,10 +38,20 @@ services:
       context: .
       dockerfile: server/Dockerfile
     container_name: go-server
-    env_file: envs
     environment:
-      PGHOST: postgres
-      DB_ADDRESS: postgres
+    - PGHOST=postgres
+    - DB_ADDRESS=postgres:5433
+    - DB_SCHEME
+    - DB_USER
+    - DB_PASSWORD
+    - DB_NAME
+    - PG_DSN
+    - JWT_SECRET_KEY
+    - COOKIE_DOMAIN=localhost
+    - OIDC_CLIENT_ID
+    - OIDC_CLIENT_SECRET
+    - OIDC_ISSUER
+    - OIDC_REDIRECT_URL
     ports:
       - 8875:8875
     depends_on:
