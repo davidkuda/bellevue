@@ -40,7 +40,7 @@ services:
     container_name: go-web-server
     environment:
     - PGHOST=postgres
-    - DB_ADDRESS=postgres:5433
+    - DB_ADDRESS=postgres:5432
     - DB_SCHEME
     - DB_USER
     - DB_PASSWORD
