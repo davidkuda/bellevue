@@ -1,26 +1,62 @@
-FROM golang:tip-trixie
+# ---------------------------------------------------------------------------
+# --- Multi-Stage: builder
+# --- This stage will generate the executable / binary called "web".
+# --- The last stage "runner" will copy this and use it as entrypoint.
 
-RUN mkdir /app
+FROM    golang:1.25.5-trixie AS builder
+WORKDIR /build
+COPY    go.mod .
+COPY    go.sum .
+RUN     go mod download
+COPY    .      .
+RUN     go build ./cmd/web
+
+
+# ---------------------------------------------------------------------------
+# --- Multi-Stage: bundler
+# --- This stage will bundle the JavaScript (and TypeScript) and css files.
+# --- The last stage "runner" will copy these and use them for the web app.
+
+FROM    node:lts-alpine AS bundler
+RUN     apk add make
+WORKDIR /bundle
+
+COPY ./package.json         .
+COPY ./package-lock.json    .
+RUN  npm install
+
+COPY ./Makefile    .
+COPY ./make        ./make
+COPY ./ui          ui
+
+# RUN make bundle
+
+
+# ---------------------------------------------------------------------------
+# --- Multi-Stage: runner
+
+FROM debian:trixie-slim AS runner
+
+# Setup a non-root user
+RUN groupadd --system --gid 999 nonroot \
+ && useradd --system --gid 999 --uid 999 --create-home nonroot
+
+# install trusted root TLS certificates
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
-RUN echo ${PWD} && ls -lR
 
+# Copy the application from the builder
+COPY --from=builder --chown=nonroot:nonroot /build/web /app/web
 
-# npm packages
-RUN apt update; apt install npm -y
-RUN npm install; npm install esbuild
+# Copy the JS/TS and CSS bundles from the bundler
+COPY --from=bundler --chown=nonroot:nonroot /bundle/ui/static/dist /app/ui/static/dist
 
-COPY package.json /app/
-COPY Makefile /app/
-COPY make/ /app/make/
-COPY make/docker_bundle.mk /app/make/bundle.mk
-COPY ui /app/ui
+RUN ln -s /app/web /usr/local/bin/web
 
-RUN make bundle/css; make bundle/js
+# Use the non-root user to run the webs erver
+USER nonroot
 
-COPY go.mod /app/
-COPY internal /app/internal
-COPY /cmd/web /app/cmd/web
-
-RUN go mod tidy
-
-CMD [ "go", "run", "./cmd/web" ]
+ENTRYPOINT ["web"]
