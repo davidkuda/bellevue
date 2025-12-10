@@ -53,6 +53,7 @@ COPY --from=builder --chown=nonroot:nonroot /build/web /app/web
 
 # Copy the JS/TS and CSS bundles from the bundler
 COPY --from=bundler --chown=nonroot:nonroot /bundle/ui/static/dist /app/ui/static/dist
+COPY --from=bundler --chown=nonroot:nonroot /bundle/ui/html        /app/ui/html
 
 RUN ln -s /app/web /usr/local/bin/web
 
