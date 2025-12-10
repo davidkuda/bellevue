@@ -36,7 +36,7 @@ services:
   server:
     build:
       context: .
-      dockerfile: server/Dockerfile
+      dockerfile: ./Dockerfile
     container_name: go-server
     environment:
     - PGHOST=postgres
