@@ -22,7 +22,7 @@ services:
     build: db
     container_name: postgres-setup
     volumes:
-      - ./migrations:/migrations
+    - ./migrations:/migrations
     environment:
       PGDATABASE: bellevue
       PGUSER: bellevueadmin
@@ -37,7 +37,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-    container_name: go-server
+    container_name: go-web-server
     environment:
     - PGHOST=postgres
     - DB_ADDRESS=postgres:5433
