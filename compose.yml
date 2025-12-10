@@ -12,9 +12,9 @@ services:
       POSTGRES_PASSWORD: pa55word
     healthcheck:
       test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
-      interval: 30s
+      interval: 5s
       timeout: 10s
-      retries: 5
+      retries: 10
 
   postgres-setup:
     # This is a bit inelegant: running a full debian system to execute 
