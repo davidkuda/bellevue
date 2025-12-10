@@ -1,38 +1,41 @@
+.PHONY: bundle
+bundle: bundle/js/minify bundle/css/minify
+
 bundle/js:
-	esbuild \
+	@./node_modules/.bin/esbuild \
 	--bundle \
 	./ui/static/js/bundle.js \
 	--outfile=./ui/static/dist/app.js
 
 bundle/js/watch:
-	esbuild \
+	@./node_modules/.bin/esbuild \
 	--bundle \
 	./ui/static/js/bundle.js \
 	--outfile=./ui/static/dist/app.js \
 	--watch
 
 bundle/js/minify:
-	esbuild \
+	@./node_modules/.bin/esbuild \
 	--bundle \
 	--minify \
 	./ui/static/js/bundle.js \
 	--outfile=./ui/static/dist/app.js
 
 bundle/css:
-	esbuild \
+	@./node_modules/.bin/esbuild \
 	--bundle \
 	./ui/static/css/bundle.css \
 	--outfile=./ui/static/dist/styles.css
 
 bundle/css/watch:
-	esbuild \
+	@./node_modules/.bin/esbuild \
 	--bundle \
 	./ui/static/css/bundle.css \
 	--outfile=./ui/static/dist/styles.css \
 	--watch
 
 bundle/css/minify:
-	esbuild \
+	@./node_modules/.bin/esbuild \
 	--bundle \
 	--minify \
 	./ui/static/css/bundle.css \
