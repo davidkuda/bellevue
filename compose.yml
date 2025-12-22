@@ -48,6 +48,7 @@ services:
     - PG_DSN
     - JWT_SECRET_KEY
     - COOKIE_DOMAIN=localhost
+    - OIDC_ISSUER
     - OIDC_CLIENT_ID
     - OIDC_CLIENT_SECRET
     - OIDC_ISSUER
