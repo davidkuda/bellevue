@@ -37,3 +37,23 @@ func (m *CommentModel) Insert(comment Comment) error {
 
 	return nil
 }
+
+func (m *CommentModel) GetByDateForUser(date time.Time, userID int) (Comment, error) {
+	stmt := `
+	select comment, created_at, updated_at
+	from comments
+	where date = $1
+	and user_id = $2
+	`
+
+	row := m.DB.QueryRow(stmt, date, userID)
+
+	c := Comment{}
+	row.Scan(
+		&c.Comment,
+		&c.CreatedAt,
+		&c.UpdatedAt,
+	)
+
+	return c, row.Err()
+}
