@@ -77,20 +77,20 @@ func (m *ActivityModel) GetActivityDays(userID int) ([]ActivityDay, error) {
 	const stmt = `
 WITH
 per_day_product AS (
-  SELECT c.user_id,
-         c.date,
-         p.id AS product_id,
-         p.name AS product_name,
-         p.code AS product_code,
-         sum(c.quantity) AS quantity,
-         c.unit_price AS unit_price,
-         pc.name AS pricecat,
-         sum(c.total_price) AS line_total
-    FROM consumptions c
-    JOIN products p ON p.id = c.product_id
-    JOIN price_categories pc ON pc.id = c.pricecat_id
-   WHERE c.user_id = $1
-GROUP BY c.user_id, c.date, p.id, p.name, c.unit_price, pricecat
+   SELECT c.user_id,
+          c.date,
+          p.id AS product_id,
+          p.name AS product_name,
+          p.code AS product_code,
+          sum(c.quantity) AS quantity,
+          c.unit_price AS unit_price,
+          pc.name AS pricecat,
+          sum(c.total_price) AS line_total
+     FROM consumptions c
+     JOIN products p ON p.id = c.product_id
+LEFT JOIN price_categories pc ON pc.id = c.pricecat_id
+    WHERE c.user_id = $1
+ GROUP BY c.user_id, c.date, p.id, p.name, c.unit_price, pricecat
 ),
 jsonagg AS (
   SELECT date,
