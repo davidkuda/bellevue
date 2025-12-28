@@ -160,19 +160,19 @@ LEFT JOIN comments c
 
 func (m *ActivityModel) GetActivityDayForUser(t time.Time, userID int) (*ActivityDay, error) {
 	const stmt = `
-	select p.id,
-	       p.name,
-	       p.code,
-	       pc.name,
-	       c.unit_price,
-	       c.quantity
-	  from consumptions c
-	  join products p
-	    on p.id = c.product_id
-	  join price_categories pc
-	    on pc.id = c.pricecat_id
-	 where date = $1
-	   and user_id = $2;
+   select p.id,
+          p.name,
+          p.code,
+          pc.name,
+          c.unit_price,
+          c.quantity
+     from consumptions c
+     join products p
+       on p.id = c.product_id
+left join price_categories pc
+       on pc.id = c.pricecat_id
+    where date = $1
+      and user_id = $2;
 	`
 
 	rows, err := m.DB.Query(stmt, t, userID)
@@ -185,17 +185,25 @@ func (m *ActivityModel) GetActivityDayForUser(t time.Time, userID int) (*Activit
 	day.Date = t
 	day.Items = make([]LineItem, 0)
 
+	var priceCatName sql.NullString
+
 	for rows.Next() {
 		li := LineItem{}
 		if err := rows.Scan(
 			&li.ProductID,
 			&li.Name,
 			&li.Code,
-			&li.PriceCategory,
+			&priceCatName,
 			&li.UnitPrice,
 			&li.Quantity,
 		); err != nil {
 			return nil, err
+		}
+
+		if priceCatName.Valid {
+			li.PriceCategory = priceCatName.String
+		} else {
+			li.PriceCategory = ""
 		}
 
 		day.Items = append(day.Items, li)
