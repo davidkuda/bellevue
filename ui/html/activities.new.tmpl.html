@@ -47,7 +47,9 @@
       {{- end -}}
       <label>
         <strong>Comment:</strong>
-      <textarea name="comment" rows="2" aria-label="comment">{{ .ActivityDay.Comment }}</textarea>
+        <textarea name="comment" rows="2" aria-label="comment">
+{{ .ActivityDay.Comment }}</textarea
+        >
       </label>
       <button type="submit" class="stack-exception-large">
         {{- if .Edit -}}Edit{{ else }}Add{{ end }}
