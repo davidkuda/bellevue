@@ -6,10 +6,10 @@
       type="number"
       min="0"
       step="0.01"
-      {{ if eq .CountOrAmount 0 }}
+      {{ if eq .Amount 0 }}
         value="0"
       {{ else }}
-        value="{{ .CountOrAmount | fmtCHF }}"
+        value="{{ .Amount | fmtCHF }}"
       {{ end }}
     />
   </label>

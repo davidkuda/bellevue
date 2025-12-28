@@ -70,7 +70,11 @@ func (app *application) getActivitiesEdit(w http.ResponseWriter, r *http.Request
 	var userID int
 	userID = app.contextGetUser(r).ID
 
-	activityDay, _ := app.models.Activities.GetActivityDayForUser(tm, userID)
+	activityDay, err := app.models.Activities.GetActivityDayForUser(tm, userID)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
 
 	t := app.newTemplateData(r)
 	t.Title = "Edit Bellevue Activity"

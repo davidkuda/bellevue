@@ -25,9 +25,11 @@ type ProductFormConfig struct {
 	Specs  []ProductFormSpec
 }
 
-// clones struct (nested map and slices needs recreation, otherwise, updates app.productFormConfig)
-// and updates values, e.g. instead of 0 lunch, use 2 lunches, regular.
-// intended to be called when editing an ActivityDay.
+// clones struct (nested map and slices needs recreation, otherwise,
+// updates app.productFormConfig)
+// and updates values, e.g. instead of 0 lunch, use 2 lunches, surplus.
+// intended to be called when editing an ActivityDay, i.e., UI form to edit
+// an existing submission.
 func (c ProductFormConfig) WithValues(ad *ActivityDay) ProductFormConfig {
 
 	clone := ProductFormConfig{
@@ -54,7 +56,8 @@ func (c ProductFormConfig) WithValues(ad *ActivityDay) ProductFormConfig {
 	for i, spec := range clone.Specs {
 		for _, a := range ad.Items {
 			if spec.Code == a.Code {
-				clone.Specs[i].CountOrAmount = a.Quantity
+				clone.Specs[i].Count = a.Quantity
+				clone.Specs[i].Amount = a.UnitPrice
 				for ipc, pc := range clone.Specs[i].PriceCategories {
 					clone.Specs[i].PriceCategories[ipc].Checked = false
 					if pc.Name == a.PriceCategory {
@@ -71,7 +74,8 @@ func (c ProductFormConfig) WithValues(ad *ActivityDay) ProductFormConfig {
 type ProductFormSpec struct {
 	Label           string
 	Code            string
-	CountOrAmount   int
+	Count           int
+	Amount          int
 	HasCategories   bool
 	IsCustomAmount  bool
 	PriceCategories []PriceCategoryOption
