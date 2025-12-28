@@ -51,7 +51,6 @@ services:
     - OIDC_ISSUER
     - OIDC_CLIENT_ID
     - OIDC_CLIENT_SECRET
-    - OIDC_ISSUER
     - OIDC_REDIRECT_URL
     ports:
       - 8875:8875
