@@ -10,7 +10,6 @@ type CommentModel struct {
 	DB *sql.DB
 }
 
-
 type Comment struct {
 	ID        int
 	UserID    int

@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-
 )
 
 func (app *application) renderClientError(w http.ResponseWriter, r *http.Request, errorCode int) {
@@ -17,7 +16,7 @@ func (app *application) renderClientError(w http.ResponseWriter, r *http.Request
 		app.serverError(w, r, err)
 		return
 	}
-	
+
 	buf := bytes.Buffer{}
 
 	data := app.newTemplateData(r)

@@ -59,10 +59,10 @@ func (app *application) postSignup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	form := userSignupForm{
-		firstName:    r.PostForm.Get("first-name"),
-		lastName:    r.PostForm.Get("last-name"),
-		email:    r.PostForm.Get("email"),
-		password: r.PostForm.Get("password"),
+		firstName: r.PostForm.Get("first-name"),
+		lastName:  r.PostForm.Get("last-name"),
+		email:     r.PostForm.Get("email"),
+		password:  r.PostForm.Get("password"),
 	}
 
 	// TODO: use captcha
@@ -71,8 +71,8 @@ func (app *application) postSignup(w http.ResponseWriter, r *http.Request) {
 
 	user := models.User{
 		FirstName: form.firstName,
-		LastName: form.lastName,
-		Email: form.email,
+		LastName:  form.lastName,
+		Email:     form.email,
 	}
 
 	userID, err := app.models.Users.InsertPassword(user, form.password)

@@ -12,11 +12,11 @@ import (
 	"github.com/davidkuda/bellevue/internal/envcfg"
 	"github.com/davidkuda/bellevue/internal/models"
 
+	"github.com/alexedwards/scs/postgresstore"
+	"github.com/alexedwards/scs/v2"
 	"github.com/coreos/go-oidc/v3/oidc"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"golang.org/x/oauth2"
-	"github.com/alexedwards/scs/postgresstore"
-	"github.com/alexedwards/scs/v2"
 )
 
 type application struct {

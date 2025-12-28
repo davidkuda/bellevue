@@ -24,7 +24,6 @@ func (app *application) getSettingsProducts(w http.ResponseWriter, r *http.Reque
 		"fmtCHF":              formatCurrency,
 	}
 
-
 	t, err := template.New("base").Funcs(funcs).ParseGlob("./ui/html/pages/*.html")
 	if err != nil {
 		fmt.Errorf("Error parsing template files: %s", err.Error())
