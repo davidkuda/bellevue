@@ -159,7 +159,8 @@ LEFT JOIN comments c
 }
 
 func (m *ActivityModel) GetActivityDayForUser(t time.Time, userID int) (*ActivityDay, error) {
-	const stmt = `
+	var stmt string
+	stmt = `
    select p.id,
           p.name,
           p.code,
@@ -210,7 +211,15 @@ left join price_categories pc
 		day.TotalPrice += li.Quantity * li.UnitPrice
 	}
 
-	// TODO: get comment if exists into day
+	stmt = `
+	select comment
+	from comments
+	where date = $1
+	and user_id = $2
+	`
+
+	row := m.DB.QueryRow(stmt, t, userID)
+	row.Scan(&day.Comment)
 
 	return &day, nil
 }
