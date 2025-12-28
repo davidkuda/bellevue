@@ -182,6 +182,7 @@ func (m *ActivityModel) GetActivityDayForUser(t time.Time, userID int) (*Activit
 	defer rows.Close()
 
 	var day ActivityDay
+	day.Date = t
 	day.Items = make([]LineItem, 0)
 
 	for rows.Next() {
