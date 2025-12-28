@@ -48,7 +48,8 @@
       <label>
         <strong>Comment:</strong>
         <textarea name="comment" rows="2" aria-label="comment">
-{{ .ActivityDay.Comment }}</textarea
+        {{- if .ActivityDay -}}{{- .ActivityDay.Comment -}}{{- end -}}
+      </textarea
         >
       </label>
       <button type="submit" class="stack-exception-large">
