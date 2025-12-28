@@ -42,8 +42,8 @@ func (m *ConsumptionModel) InsertMany(
 
 	deleteQuery := `
 	delete from consumptions
-	where user_id = $1
-	  and date = $2
+	 where user_id = $1
+	   and date = $2
 	`
 	if _, err := tx.ExecContext(ctx, deleteQuery, userID, date); err != nil {
 		return fmt.Errorf("failed deleting consumptions: %s", err)
