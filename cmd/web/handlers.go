@@ -35,6 +35,16 @@ func (app *application) getActivities(w http.ResponseWriter, r *http.Request) {
 
 // GET /activities/new
 func (app *application) getActivitiesNew(w http.ResponseWriter, r *http.Request) {
+	var userID int
+	userID = app.contextGetUser(r).ID
+	today := time.Now()
+	data, _ := app.models.Activities.GetActivityDayForUser(today, userID)
+	if len(data.Items) > 0 {
+		endpoint := "/activities/edit?date=" + formatDateFormInput(today)
+		http.Redirect(w, r, endpoint, http.StatusSeeOther)
+		return
+	}
+
 	t := app.newTemplateData(r)
 	t.Title = "New Bellevue Activity"
 	t.Form = productForm{}
@@ -43,22 +53,31 @@ func (app *application) getActivitiesNew(w http.ResponseWriter, r *http.Request)
 
 // GET /activities/edit?date=2025-11-26
 func (app *application) getActivitiesEdit(w http.ResponseWriter, r *http.Request) {
+	var err error
+
+	var tm time.Time
 	dateStr := r.URL.Query().Get("date")
-	t, err := time.Parse("2006-01-02", dateStr)
-	if err != nil {
-		app.renderClientError(w, r, http.StatusBadRequest)
-		return
+	if dateStr != "" {
+		tm, err = time.Parse("2006-01-02", dateStr)
+		if err != nil {
+			app.renderClientError(w, r, http.StatusBadRequest)
+			return
+		}
+	} else {
+		tm = time.Now()
 	}
 
 	var userID int
 	userID = app.contextGetUser(r).ID
 
-	data, err := app.models.Activities.GetActivityDayForUser(t, userID)
-	if err != nil {
-		app.serverError(w, r, fmt.Errorf("could not get activity day for user with day=%v and userID=%d: %s", t, userID, err))
-	}
+	activityDay, _ := app.models.Activities.GetActivityDayForUser(tm, userID)
 
-	fmt.Println(data)
+	t := app.newTemplateData(r)
+	t.Title = "Edit Bellevue Activity"
+	t.ActivityDay = activityDay
+	t.ProductFormConfig = app.productFormConfig.WithValues(activityDay)
+	t.Form = productForm{}
+	app.render(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
 }
 
 // HTMX: GET /activities/{ID}/edit

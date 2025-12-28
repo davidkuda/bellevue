@@ -6,7 +6,11 @@
       type="number"
       min="0"
       step="0.01"
-      value="0"
+      {{ if eq .CountOrAmount 0 }}
+        value="0"
+      {{ else }}
+        value="{{ .CountOrAmount | fmtCHF }}"
+      {{ end }}
     />
   </label>
 {{ end }}

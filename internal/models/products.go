@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"maps"
 )
 
 type ProductIDMap map[string]int
@@ -24,9 +25,53 @@ type ProductFormConfig struct {
 	Specs  []ProductFormSpec
 }
 
+// clones struct (nested map and slices needs recreation, otherwise, updates app.productFormConfig)
+// and updates values, e.g. instead of 0 lunch, use 2 lunches, regular.
+// intended to be called when editing an ActivityDay.
+func (c ProductFormConfig) WithValues(ad *ActivityDay) ProductFormConfig {
+
+	clone := ProductFormConfig{
+		Prices: make(map[string]int, len(c.Prices)),
+		Specs:  make([]ProductFormSpec, len(c.Specs)),
+	}
+
+	// copy map, this is maybe not necessary (yet?)
+	maps.Copy(clone.Prices, c.Prices)
+
+	// copy specs + nested slices
+	for i, spec := range c.Specs {
+		clone.Specs[i] = spec
+
+		if len(spec.PriceCategories) > 0 {
+			clone.Specs[i].PriceCategories = make(
+				[]PriceCategoryOption,
+				len(spec.PriceCategories),
+			)
+			copy(clone.Specs[i].PriceCategories, spec.PriceCategories)
+		}
+	}
+
+	for i, spec := range clone.Specs {
+		for _, a := range ad.Items {
+			if spec.Code == a.Code {
+				clone.Specs[i].CountOrAmount = a.Quantity
+				for ipc, pc := range clone.Specs[i].PriceCategories {
+					clone.Specs[i].PriceCategories[ipc].Checked = false
+					if pc.Name == a.PriceCategory {
+						clone.Specs[i].PriceCategories[ipc].Checked = true
+					}
+				}
+			}
+		}
+	}
+
+	return clone
+}
+
 type ProductFormSpec struct {
 	Label           string
 	Code            string
+	CountOrAmount   int
 	HasCategories   bool
 	IsCustomAmount  bool
 	PriceCategories []PriceCategoryOption
@@ -60,7 +105,7 @@ func (m *ProductModel) GetProductIDMap() (ProductIDMap, error) {
 		if p.PriceCategory.Valid {
 			pricecat = "/" + p.PriceCategory.String
 		}
-		pidm[p.Code + pricecat] = p.ID
+		pidm[p.Code+pricecat] = p.ID
 	}
 
 	return pidm, nil
@@ -132,7 +177,7 @@ order by sort_order nulls last, code
 		spec.PriceCategories = categories
 		pfc.Specs = append(pfc.Specs, spec)
 		for _, category := range categories {
-			pfc.Prices[spec.Code + "/" + category.Name] = category.Price
+			pfc.Prices[spec.Code+"/"+category.Name] = category.Price
 		}
 	}
 

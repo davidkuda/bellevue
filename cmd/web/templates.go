@@ -22,6 +22,7 @@ type templateData struct {
 	RootPath          string
 	HTML              template.HTML
 	Today             time.Time
+	ActivityDay       *models.ActivityDay
 	ActivityMonths    []models.ActivityMonth
 	BellevueInvoices  []models.Invoice
 	ProductFormConfig models.ProductFormConfig
