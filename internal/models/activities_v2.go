@@ -93,22 +93,24 @@ LEFT JOIN price_categories pc ON pc.id = c.pricecat_id
  GROUP BY c.user_id, c.date, p.id, p.name, c.unit_price, pricecat
 ),
 jsonagg AS (
-  SELECT date,
-         SUM(line_total) AS total_price,
-         jsonb_agg(
-             jsonb_build_object(
-                 'product_id', product_id,
-                 'name', product_name,
-                 'code', product_code,
-                 'unit_price', unit_price,
-                 'quantity', quantity,
-                 'price_category', pricecat
-             )
-             ORDER BY product_name
-         ) AS items
-    FROM per_day_product p
-GROUP BY p.date
-ORDER BY p.date DESC
+   SELECT date,
+          SUM(line_total) AS total_price,
+          jsonb_agg(
+              jsonb_build_object(
+                  'product_id', product_id,
+                  'name', product_name,
+                  'code', product_code,
+                  'unit_price', unit_price,
+                  'quantity', quantity,
+                  'price_category', pricecat
+              )
+              ORDER BY pfo.sort_order, product_name
+          ) AS items
+     FROM per_day_product p
+LEFT JOIN product_form_order pfo
+       ON pfo.code = product_code
+ GROUP BY p.date
+ ORDER BY p.date DESC
 )
    SELECT p.date,
           c.comment,
@@ -172,8 +174,11 @@ func (m *ActivityModel) GetActivityDayForUser(t time.Time, userID int) (*Activit
        on p.id = c.product_id
 left join price_categories pc
        on pc.id = c.pricecat_id
+left join product_form_order pfo
+       on pfo.code = p.code
     where date = $1
-      and user_id = $2;
+      and user_id = $2
+	order by pfo.sort_order;
 	`
 
 	rows, err := m.DB.Query(stmt, t, userID)
