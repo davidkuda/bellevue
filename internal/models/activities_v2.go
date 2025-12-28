@@ -31,6 +31,7 @@ type ActivityDay struct {
 type LineItem struct {
 	ProductID     int    `json:"product_id"`
 	Name          string `json:"name"`
+	Code          string `json:"code"`
 	UnitPrice     int    `json:"unit_price"` // rappen
 	Quantity      int    `json:"quantity"`
 	PriceCategory string `json:"price_category"`
@@ -80,6 +81,7 @@ per_day_product AS (
          c.date,
          p.id AS product_id,
          p.name AS product_name,
+         p.code AS product_code,
          sum(c.quantity) AS quantity,
          c.unit_price AS unit_price,
          pc.name AS pricecat,
@@ -97,6 +99,7 @@ jsonagg AS (
              jsonb_build_object(
                  'product_id', product_id,
                  'name', product_name,
+                 'code', product_code,
                  'unit_price', unit_price,
                  'quantity', quantity,
                  'price_category', pricecat
@@ -157,7 +160,12 @@ LEFT JOIN comments c
 
 func (m *ActivityModel) GetActivityDayForUser(t time.Time, userID int) (*ActivityDay, error) {
 	const stmt = `
-	select p.id, p.code, pc.name, c.unit_price, c.quantity
+	select p.id,
+	       p.name,
+	       p.code,
+	       pc.name,
+	       c.unit_price,
+	       c.quantity
 	  from consumptions c
 	  join products p
 	    on p.id = c.product_id
@@ -181,6 +189,7 @@ func (m *ActivityModel) GetActivityDayForUser(t time.Time, userID int) (*Activit
 		if err := rows.Scan(
 			&li.ProductID,
 			&li.Name,
+			&li.Code,
 			&li.PriceCategory,
 			&li.UnitPrice,
 			&li.Quantity,
