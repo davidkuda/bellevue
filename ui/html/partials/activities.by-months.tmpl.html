@@ -17,9 +17,12 @@
           <td class="stack-exception-xs stack-xs min-width-max-content">
             {{ range .Items }}
               <span class="bellevue-activity no-wrap">
-                {{ .Quantity }}
-                {{ .Name }}
-                for {{ .UnitPrice | fmtCHF }} CHF ({{ .PriceCategory }})
+                {{ if ne .PriceCategory "" }}
+                  {{ .Quantity }} {{ .Name }} for {{ .UnitPrice | fmtCHF }} CHF
+                  ({{ .PriceCategory }})
+                {{ else }}
+                  {{ .Name }} for {{ .UnitPrice | fmtCHF }} CHF
+                {{ end }}
               </span>
             {{ end }}
             <span class="bellevue-activity stack-exception-medium">
