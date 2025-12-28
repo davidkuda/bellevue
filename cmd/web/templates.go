@@ -103,6 +103,7 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 		Sidebars:          true,
 		RenderTotalsTable: renderTotalsTable,
 		Today:             time.Now(),
+		ProductFormConfig: app.productFormConfig,
 	}
 }
 

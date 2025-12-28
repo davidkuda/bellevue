@@ -37,7 +37,6 @@ func (app *application) getActivities(w http.ResponseWriter, r *http.Request) {
 func (app *application) getActivitiesNew(w http.ResponseWriter, r *http.Request) {
 	t := app.newTemplateData(r)
 	t.Title = "New Bellevue Activity"
-	t.ProductFormConfig = app.productFormConfig
 	t.Form = productForm{}
 	app.render(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
 }
