@@ -22,7 +22,6 @@ COMMIT;
 
 BEGIN;
 
--- TODO: comments
 
 -----------------------------------------------------------------------
 -- bellevue_origin counts to consumptions:
@@ -238,5 +237,31 @@ select
     created_at
 from bellevue_origins
 where snacks_chf > 0;
+
+commit;
+
+
+-----------------------------------------------------------------------
+-- bellevue_origin comments to comments:
+
+begin;
+
+INSERT INTO bellevue.comments (
+    user_id,
+    date,
+    comment,
+    created_at,
+    updated_at
+)
+SELECT
+    user_id,
+    activity_date,
+    string_agg(comment, E'; ' ORDER BY id) AS comment,
+    MIN(created_at) AS created_at,
+    MAX(created_at) AS updated_at
+FROM bellevue.bellevue_origins
+WHERE comment IS NOT NULL
+  AND comment <> ''
+GROUP BY user_id, activity_date;
 
 commit;
