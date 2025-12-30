@@ -16,6 +16,9 @@ SET search_path = bellevue, public;
 --------------------------------------------------------------------
 -- Roles: Groups: Developer ----------------------------------------
 -- A developer can CREATE ON SCHEMA, an app can only USAGE. --------
+-- what we don't do: grant create on database bellevue to developer;
+-- developer can't create new schemas.
+
 
 create role developer with nologin;
 
