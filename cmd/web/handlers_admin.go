@@ -4,10 +4,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/davidkuda/bellevue/internal/models"
-	"github.com/pascaldekloe/jwt"
 )
 
 // GET /login
@@ -109,35 +107,15 @@ func (app *application) postLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var claims jwt.Claims
-	claims.Subject = form.email
-	claims.Issued = jwt.NewNumericTime(time.Now())
-	claims.NotBefore = jwt.NewNumericTime(time.Now())
-	claims.Expires = jwt.NewNumericTime(time.Now().Add(24 * time.Hour))
-	claims.Issuer = app.JWT.Issuer
-	claims.Audiences = []string{app.JWT.Audience}
-
-	jwtBytes, err := claims.HMACSign(jwt.HS256, []byte(app.JWT.Secret))
+	u, err := app.models.Users.GetUserByEmail(form.email)
 	if err != nil {
-		log.Printf("error signing jwt: %v\n", err)
-		w.Write([]byte("Login failed, incorrect credentials. Please try again."))
+		app.serverError(w, r, fmt.Errorf("could not get userID by email=%s: %s", form.email, err))
 		return
 	}
+	userID := u.ID
 
-	http.SetCookie(w, &http.Cookie{
-		Name:     "id",
-		Value:    string(jwtBytes),
-		Domain:   app.CookieDomain,
-		Expires:  time.Now().Add(10 * 24 * time.Hour),
-		Secure:   true,
-		HttpOnly: true,
-		Path:     "/",
-		SameSite: http.SameSiteStrictMode,
-	})
-
+	app.sessionManager.Put(r.Context(), "UserID", userID)
 	w.Header().Set("HX-Redirect", "/activities")
-	w.WriteHeader(http.StatusOK)
-
 }
 
 // GET /logout
