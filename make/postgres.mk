@@ -1,4 +1,16 @@
-db/backup/songs:
+db/date:
+	date +%Y-%m-%d
+	date +%F
+	echo today is $$(date +%F) ok
+
+db/backup/bellevue/sudo:
+	sudo -u postgres \
+	pg_dump bellevue \
+	--data-only  \
+	--schema bellevue \
+	--column-inserts > pg-backup.bellevue.$$(date +%F).sql
+
+db/backup/bellevue:
 	pg_dump \
 	--data-only \
 	--column-inserts \
@@ -22,8 +34,11 @@ db/init:
 db/drop:
 	dropdb kuda_ai
 
+# -X => --no-psqlrc
 db/restore:
-	psql -X kuda_ai --single-transaction < ./data/postgres/dumpfile--data-only
+	psql -X bellevue \
+	--single-transaction \
+	--file ${file}
 
 psql/davidkuda:
 	psql \
