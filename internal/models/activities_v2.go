@@ -110,7 +110,6 @@ jsonagg AS (
 LEFT JOIN product_form_order pfo
        ON pfo.code = product_code
  GROUP BY p.date
- ORDER BY p.date DESC
 )
    SELECT p.date,
           c.comment,
@@ -119,7 +118,8 @@ LEFT JOIN product_form_order pfo
      FROM jsonagg p
 LEFT JOIN comments c
        ON c.date = p.date
-      AND c.user_id = $1;
+      AND c.user_id = $1
+ ORDER BY p.date DESC;
 `
 
 	rows, err := m.DB.Query(stmt, userID)
