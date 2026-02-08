@@ -94,6 +94,10 @@ func (app *application) oidcCallbackHandler(w http.ResponseWriter, r *http.Reque
 				app.serverError(w, r, fmt.Errorf("failed inserting new user: %s", err))
 				return
 			}
+
+			// TODO: make this dirty fix hack nicer...
+			userID, _ = app.models.Users.GetUserIDBySUB(c.SUB)
+
 		} else {
 			app.serverError(w, r, fmt.Errorf("failed getting id with sub=%s: %T: %s", c.SUB, err, err))
 			return
