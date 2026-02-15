@@ -162,20 +162,17 @@ create table bellevue.comments (
 );
 
 
--- TODO: how should I invoice consumptions?
 create table bellevue.invoices_v2 (
 	id          serial primary key,
 	user_id     int not null references bellevue.users(id),
-	period_from date not null,
-	period_to   date not null,
 	status      text not null default 'draft'
 	            check (status in ('draft', 'sent', 'paid', 'cancelled')),
 
 	created_at  timestamptz not null default now(),
-	updated_at  timestamptz not null default now(),
-
-	unique (user_id, period_from, period_to)
+	updated_at  timestamptz not null default now()
 );
+
+drop table bellevue.invoices_v2;
 
 
 -- NOTE: most the foreign keys are available in product, too,
