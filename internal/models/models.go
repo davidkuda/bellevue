@@ -5,6 +5,7 @@ import "database/sql"
 type Models struct {
 	Users           UserModel
 	Invoices        InvoiceModel
+	InvoicesV2      InvoiceV2Model
 	Products        ProductModel
 	PriceCategories PriceCategoryModel
 	Consumptions    ConsumptionModel
@@ -16,6 +17,7 @@ func New(db *sql.DB) Models {
 	return Models{
 		Users:           UserModel{DB: db},
 		Invoices:        InvoiceModel{DB: db},
+		InvoicesV2:      InvoiceV2Model{DB: db},
 		Products:        ProductModel{DB: db},
 		PriceCategories: PriceCategoryModel{DB: db},
 		Consumptions:    ConsumptionModel{DB: db},
