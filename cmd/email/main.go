@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bytes"
+	// "bytes"
 	"crypto/tls"
 	"fmt"
 	"log"
@@ -33,12 +33,13 @@ type TemplateData struct {
 	Recipient     BankAccount
 	Zahlungszweck string
 
-	User       models.User
-	Invoice    models.Invoice
-	Activities models.BellevueActivities
+	User    models.User
+	Invoice models.Invoice
+	// Activities models.BellevueActivities
 }
 
 func main() {
+	log.Println("starting invoice and email flow")
 
 	cfg := loadConfigFromEnv()
 
@@ -67,55 +68,56 @@ func main() {
 	}
 
 	for _, user := range users {
-		fmt.Println("sending invoice to", user.Email)
-
-		invoice, err := m.Invoices.GetInvoiceOfLastMonth(user)
-		if err != nil {
-			log.Printf("failed getting invoices of user %d: %v\n", user.ID, err)
+		if user.Email != cfg.TestEmail {
 			continue
 		}
 
-		activities, err := m.BellevueActivities.GetActivitiesOfPreviousMonth(user.ID)
+		log.Printf("starting invoicing flow for user id=%d email=%s\n", user.ID, user.Email)
+
+		numOfConsumptions, err := m.Consumptions.CountOpenConsumptionsForUser(user.ID)
 		if err != nil {
-			// TODO: Don't fatal, but exit the loop, try next candidate
-			log.Fatalf("failed getting activites of last month: %v", err)
+			log.Fatalf("could not count consumptions: %s\n", err)
+		}
+		if numOfConsumptions == 0 {
+			// TODO: maybe I can send a reminder here to advertise for this app?
+			log.Println("no consumptions, skipping")
+			continue
 		}
 
-		data := TemplateData{
-			Subject:       "Deine Rechnung für den letzten Monat im Bellevue",
-			To:            user.Email,
-			From:          cfg.SMTP.User,
-			Date:          time.Now().Format(time.RFC1123Z),
-			SenderName:    cfg.SenderName,
-			SenderEmail:   cfg.SenderEmail,
-			Recipient:     cfg.Recipient,
-			Zahlungszweck: zahlungszweck(invoice, user),
-			User:          user,
-			Invoice:       invoice,
-			Activities:    activities,
+		log.Printf("sending invoice with %d consumptions to %s (userID=%d)\n", numOfConsumptions, user.Email, user.ID)
+
+		// TODO: the next few calls should probably all be in a transaction...
+		invoice, err := m.InvoicesV2.NewInvoice(user.ID)
+		if err != nil {
+			log.Fatalf("could not create a new invoice user.ID=%d: %s\n", user.ID, err)
 		}
 
-		var buf bytes.Buffer
-		if err := tmpl.Execute(&buf, data); err != nil {
-			log.Fatal(err)
+		numOfAffectedConsumptions, err := m.InvoicesV2.AssignAllOpenConsumptionsToInvoice(user.ID, invoice.ID)
+		if err != nil {
+			log.Fatalf("could not assign consumptions to invoice user.ID=%d invoice.ID=%d: %s\n", user.ID, invoice.ID, err)
+		}
+		log.Printf("number of invoiced consumptions for %s: %d\n", user.Email, numOfConsumptions)
+		if numOfAffectedConsumptions == 0 {
+			log.Println("no consumptions, skipping")
+			continue
 		}
 
-		em := email{
-			from:    cfg.SMTP.User,
-			to:      []string{user.Email},
-			subject: data.Subject,
-			// body:    normalizeCRLF(buf.Bytes()),
-			body: buf.Bytes(),
+		priceCats, err := m.InvoicesV2.CalculatePriceCategoriesByInvoiceID(invoice.ID)
+		if err != nil {
+			log.Fatalf("failed retrieving price cat sums: %s\n", err)
 		}
 
-		if err := sendViaImplicitTLS(cfg, em); err != nil {
-			log.Fatal(err)
+		for _, p := range priceCats {
+			fmt.Println(p)
 		}
 
-		// fmt.Println(&em.from)
-		// fmt.Println(string(em.body))
+		// send email
+		// email must have price cat sums and all consumptions
 
-		log.Printf("Sent invoice with total sum of %v CHF to %s via implicit TLS SMTP.\n", formatCurrency(data.Invoice.TotalPrice), user.Email)
+		// set status to sent
+
+		fmt.Println(invoice)
+		fmt.Println(tmpl)
 	}
 }
 

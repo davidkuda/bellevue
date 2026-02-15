@@ -12,6 +12,8 @@ type config struct {
 	SenderEmail string
 
 	Recipient BankAccount
+
+	TestEmail string
 }
 
 type SMTPConfig struct {
@@ -44,6 +46,8 @@ func loadConfigFromEnv() config {
 			Street: os.Getenv("RECIPIENT_STREET"),
 			PLZOrt: os.Getenv("RECIPIENT_PLZ_ORT"),
 		},
+
+		TestEmail: os.Getenv("TEST_EMAIL"),
 	}
 
 	var fail bool
