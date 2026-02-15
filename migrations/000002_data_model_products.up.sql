@@ -9,7 +9,7 @@ create table bellevue.users (
 	    id              SERIAL primary key,
 	    first_name      TEXT not null,
 	    last_name       TEXT not null,
-	    email           TEXT not null unique,
+	    email           TEXT not null,
 	    method          TEXT not null,
 
 		-- email / password logins:
@@ -29,7 +29,9 @@ create table bellevue.users (
 
 			else false -- reject unknown methods
 		end
-	)
+	),
+
+	unique(email, method)
 );
 
 -- https://pkg.go.dev/github.com/alexedwards/scs/postgresstore#section-readme
