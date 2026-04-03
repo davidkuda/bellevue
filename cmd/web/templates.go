@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/davidkuda/bellevue/internal/models"
+	"github.com/davidkuda/bellevue/internal/viewmodels"
 )
 
 type templateData struct {
@@ -33,6 +34,10 @@ type templateData struct {
 	Sidebars          bool
 	HighlightJS       bool
 	Error             Error
+
+	ViewModels struct {
+		UninvoicedActivities *viewmodels.UninvoicedActivities
+	}
 
 	// Feature Flags
 	RenderTotalsTable bool

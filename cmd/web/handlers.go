@@ -25,9 +25,21 @@ func (app *application) getActivities(w http.ResponseWriter, r *http.Request) {
 
 	t := app.newTemplateData(r)
 
-	t.ActivityMonths, err = app.models.Activities.GetActivityMonths(t.User.ID)
+	// GetActivitiesByInvoice
+	// invoice: id
+	// activities: []activity
+	// render table by invoice_id => templates struct
+	// render past invoices underneath
+	// implement an invoices page
+	// template activities.tmpl.html if .UninvoicedActivities or .Invoices
+	t.ViewModels.UninvoicedActivities, err = app.viewmodels.Activities.GetUninvoicedActivitiesForUser(t.User.ID)
+	fmt.Println()
+	for _, act := range t.ViewModels.UninvoicedActivities.Activities {
+		fmt.Println(act)
+	}
+	fmt.Println()
 	if err != nil {
-		app.serverError(w, r, fmt.Errorf("could not get activity months: %e", err))
+		app.serverError(w, r, fmt.Errorf("could not get uninvoiced activities: %v", err))
 		return
 	}
 

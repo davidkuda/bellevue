@@ -11,6 +11,7 @@ import (
 
 	"github.com/davidkuda/bellevue/internal/envcfg"
 	"github.com/davidkuda/bellevue/internal/models"
+	"github.com/davidkuda/bellevue/internal/viewmodels"
 
 	"github.com/alexedwards/scs/postgresstore"
 	"github.com/alexedwards/scs/v2"
@@ -22,7 +23,8 @@ import (
 type application struct {
 	sessionManager *scs.SessionManager
 
-	models models.Models
+	models     models.Models
+	viewmodels viewmodels.Models
 
 	productFormConfig  models.ProductFormConfig
 	priceCategoryIDMap models.PriceCategoryIDMap
@@ -98,6 +100,7 @@ func main() {
 	app.sessionManager.Store = postgresstore.New(db)
 
 	app.models = models.New(db)
+	app.viewmodels = viewmodels.New(db)
 
 	app.productFormConfig, err = app.models.Products.GetProductFormConfig()
 	if err != nil {

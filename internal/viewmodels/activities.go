@@ -16,6 +16,11 @@ type Invoice struct {
 	Activities []Activity
 }
 
+type UninvoicedActivities struct {
+	TotalPrice int
+	Activities []Activity
+}
+
 type Activity struct {
 	Date         time.Time
 	Consumptions []Consumption
@@ -24,17 +29,18 @@ type Activity struct {
 }
 
 type Consumption struct {
-	ProductName  string
-	PriceCatName string
-	Quantity     int
-	UnitPrice    int
-	TotalPrice   int
+	ProductName   string
+	PriceCategory string
+	Quantity      int
+	UnitPrice     int
+	TotalPrice    int
 }
 
 // intermediate representation of query results
 type activityConsumptions struct {
 	activityID   int
 	date         time.Time
+	comment      string
 	productName  string
 	pricecatName string
 	quantity     int
@@ -44,41 +50,68 @@ type activityConsumptions struct {
 
 // TODO: comments: maybe with map date=>comment
 
-func (m *ActivityViewModel) GetUninvoicedActivitiesForUser(userID int) ([]Activity, error) {
+func (m *ActivityViewModel) GetUninvoicedActivitiesForUser(userID int) (*UninvoicedActivities, error) {
 	acs, err := m.getUninvoicedActivityConsumptionsForUser(userID)
 	// TODO: should we return err on no rows found?
 	if err != nil {
 		return nil, fmt.Errorf("m.getUninvoicedActivityConsumptionsForUser(%d): %s", userID, err)
 	}
 
+	// TODO: should we return if len(acs) == 0?
+	// should we return an error?
+	// how to deal with this template wise / business wise?
+	if len(acs) == 0 {
+		return nil, nil
+	}
+
 	activities := make([]Activity, 0)
 
-	// TODO: should we return if len(acs) == 0?
+	groupID := acs[0].activityID
+	activity := Activity{
+		Date:         acs[0].date,
+		Consumptions: make([]Consumption, 0),
+		TotalPrice:   0,
+		Comment:      acs[0].comment,
+	}
 
-	// groupIndex := acs[0].activityID
-	groupIndex := 0
-	var activity Activity
 	for _, ac := range acs {
-		if ac.activityID != groupIndex {
+		if ac.activityID != groupID {
 			activities = append(activities, activity)
-			groupIndex = ac.activityID
-			activity = Activity{}
-			activity.Date = ac.date
+
+			groupID = ac.activityID
+			activity = Activity{
+				Date:         ac.date,
+				Consumptions: make([]Consumption, 0),
+				TotalPrice:   0,
+				Comment: ac.comment,
+			}
 		}
 
 		consumption := Consumption{
-			ProductName: ac.productName,
-			PriceCatName: ac.pricecatName,
-			Quantity: ac.quantity,
-			UnitPrice: ac.unit_price,
-			TotalPrice: ac.total_price,
+			ProductName:   ac.productName,
+			PriceCategory: ac.pricecatName,
+			Quantity:      ac.quantity,
+			UnitPrice:     ac.unit_price,
+			TotalPrice:    ac.total_price,
 		}
 
-		activity.TotalPrice = activity.TotalPrice + consumption.TotalPrice
+		activity.TotalPrice += consumption.TotalPrice
 		activity.Consumptions = append(activity.Consumptions, consumption)
 	}
 
-	return activities, nil
+	activities = append(activities, activity)
+
+	totalPrice := 0
+	for i := range activities {
+		totalPrice = totalPrice + activities[i].TotalPrice
+	}
+
+	uninvoicedActivities := UninvoicedActivities{
+		TotalPrice: totalPrice,
+		Activities: activities,
+	}
+
+	return &uninvoicedActivities, nil
 }
 
 func (m *ActivityViewModel) getUninvoicedActivityConsumptionsForUser(userID int) ([]activityConsumptions, error) {
@@ -87,6 +120,7 @@ func (m *ActivityViewModel) getUninvoicedActivityConsumptionsForUser(userID int)
 	stmt := `
 	   SELECT a.id,
 	          a.date,
+	          coalesce(a.comment, ''),
 	          p.name as product_name,
 	          case
 	             when p.pricing_mode = 'custom' then 'free_amount'
@@ -122,6 +156,7 @@ func (m *ActivityViewModel) getUninvoicedActivityConsumptionsForUser(userID int)
 		err = rows.Scan(
 			&r.activityID,
 			&r.date,
+			&r.comment,
 			&r.productName,
 			&r.pricecatName,
 			&r.quantity,
