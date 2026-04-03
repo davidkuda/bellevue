@@ -1,5 +1,7 @@
 begin;
 
+set role developer;
+
 /**
  * restore:
  * - consumptions.user_id
@@ -8,6 +10,7 @@ begin;
  */
 alter table consumptions
 add column user_id int references users(id),
+add column invoice_id int references invoices_v2(id),
 add column "date" date;
 
 UPDATE bellevue.consumptions c

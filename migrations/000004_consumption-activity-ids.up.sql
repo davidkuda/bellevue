@@ -45,6 +45,8 @@ SELECT * FROM bellevue.consumptions_backup;
 
 begin;
 
+set role developer;
+
 alter table consumptions
 add column activity_id int;
 
