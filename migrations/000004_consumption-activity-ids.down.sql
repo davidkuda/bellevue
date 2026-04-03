@@ -1,5 +1,11 @@
 begin;
 
+/**
+ * restore:
+ * - consumptions.user_id
+ * - consumptions.date
+ * - consumptions.invoice_id
+ */
 alter table consumptions
 add column user_id int references users(id),
 add column "date" date;
@@ -7,13 +13,17 @@ add column "date" date;
 UPDATE bellevue.consumptions c
 SET
   user_id = a.user_id,
-  "date" = a."date"
+  "date" = a."date",
+  invoice_id = a.invoice_id
 FROM bellevue.activities a
 WHERE c.activity_id = a.id;
 
 alter table consumptions
 drop column activity_id;
 
+/**
+ * restore: table comments
+ */
 create table bellevue.comments (
 	user_id    INT  not null references bellevue.users(id),
 	date       DATE not null,
