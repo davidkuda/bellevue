@@ -51,7 +51,9 @@ add column activity_id int;
 
 with ranked as (
   select id,
-         dense_rank() over (order by "date", user_id) as activity_rank
+         dense_rank() over (order by "date", user_id) as activity_rank,
+         date,
+         user_id
     from consumptions
 )
 update consumptions t
@@ -66,18 +68,28 @@ create table bellevue.activities (
           primary key,
   user_id int
           references users(id),
-  "date"  date not null
+  "date"  date not null,
+  comment text,
+
+  created_at TIMESTAMPTZ default now() not null,
+  updated_at TIMESTAMPTZ default now() not null
 );
 
-with activity_ids as (
-    select distinct activity_id,
-           user_id,
-           date
-      from consumptions
+
+with activities_view as (
+	  select activity_id,
+	         user_id,
+	         date,
+	         max(created_at) as created_at
+	    from consumptions
+	group by activity_id, user_id, date
+	order by activity_id
 )
-insert into activities (id, user_id, date)
-select activity_id, user_id, date
-from activity_ids;
+insert into activities (
+  id, user_id, date, created_at, updated_at
+)
+select activity_id, user_id, date, av.created_at, av.created_at
+from activities_view av;
 
 
 select setval(
@@ -86,6 +98,13 @@ select setval(
   true
 );
 
+update activities a
+   set comment = c.comment
+  from comments c
+ where a.user_id = c.user_id
+   and a.date = c.date;
+
+drop table comments;
 
 alter table bellevue.consumptions
 add constraint consumptions_activity_id_fkey
