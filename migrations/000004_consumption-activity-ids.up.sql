@@ -114,7 +114,8 @@ references bellevue.activities(id);
 
 alter table consumptions
 drop column user_id,
-drop column "date";
+drop column "date",
+drop column invoice_id;
 
 /**
  * populate: activities.comment
