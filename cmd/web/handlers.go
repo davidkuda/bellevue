@@ -28,6 +28,7 @@ func (app *application) getActivities(w http.ResponseWriter, r *http.Request) {
 	t.ActivityMonths, err = app.models.Activities.GetActivityMonths(t.User.ID)
 	if err != nil {
 		app.serverError(w, r, fmt.Errorf("could not get activity months: %e", err))
+		return
 	}
 
 	app.render(w, r, http.StatusOK, "activities.tmpl.html", &t)
