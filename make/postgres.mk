@@ -1,3 +1,9 @@
+psql/developer:
+	@psql ${PG_DSN_DEVELOPER}
+
+psql/application:
+	@psql ${PG_DSN}
+
 db/date:
 	date +%Y-%m-%d
 	date +%F
@@ -39,18 +45,3 @@ db/restore:
 	psql -X bellevue \
 	--single-transaction \
 	--file ${file}
-
-psql/davidkuda:
-	psql \
-	--host localhost \
-	--username davidkuda \
-	--port 5432 \
-	--dbname kuda_ai
-
-user ?= dev
-psql/dev:
-	psql \
-	--host localhost \
-	--username ${user} \
-	--port 5432 \
-	--dbname kuda_ai
