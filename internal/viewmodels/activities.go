@@ -4,12 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"time"
-
-	"github.com/davidkuda/bellevue/internal/models"
 )
 
 type ActivityViewModel struct {
-	DBModels models.Models
+	// DBModels models.Models
 	DB       *sql.DB
 }
 
@@ -34,22 +32,45 @@ type Consumption struct {
 	TotalPrice   int
 }
 
+// intermediate representation of query results
+type activityConsumptions struct {
+	activityID  int
+	date        time.Time
+	name        string
+	pricecat    string
+	quantity    int
+	unit_price  int
+	total_price int
+}
+
+// TODO: comments: maybe with map date=>comment
+
 func (m *ActivityViewModel) GetUninvoicedActivitiesForUser(userID int) ([]Activity, error) {
-	type queryResult struct {
-		activityID  int
-		date        time.Time
-		name        string
-		pricecat    string
-		quantity    int
-		unit_price  int
-		total_price int
+	acs, err := m.getUninvoicedActivityConsumptionsForUser(userID)
+	if err != nil {
+		return nil, fmt.Errorf("m.getUninvoicedActivityConsumptionsForUser(%d): %s", userID, err)
 	}
 
+	activities := make([]Activity, 0)
+
+	for _, ac := range acs {
+		fmt.Println(ac)
+	}
+
+	return activities, nil
+}
+
+func (m *ActivityViewModel) getUninvoicedActivityConsumptionsForUser(userID int) ([]activityConsumptions, error) {
+	// NOTE: case when ... would be redundant if price_categories had a category "free_amount"
+	// product.price_category_id can be null...
 	stmt := `
 	   SELECT a.id,
 	          a.date,
 	          p.name,
-	          pc.name,
+	          case
+	             when p.pricing_mode = 'custom' then 'free_amount'
+	             else pc.name
+	          end as pricecatname,
 	          c.quantity,
 	          c.unit_price,
 	          c.total_price
@@ -66,8 +87,6 @@ func (m *ActivityViewModel) GetUninvoicedActivitiesForUser(userID int) ([]Activi
 	;
 	`
 
-	// TODO: comments: maybe with map date=>comment
-
 	rows, err := m.DB.Query(stmt, userID)
 	if err != nil {
 		return nil, fmt.Errorf("DB.Query(stmt): %v", err)
@@ -75,10 +94,10 @@ func (m *ActivityViewModel) GetUninvoicedActivitiesForUser(userID int) ([]Activi
 
 	defer rows.Close()
 
-	var res []queryResult
+	var res []activityConsumptions
 
 	for rows.Next() {
-		var r queryResult
+		var r activityConsumptions
 		err = rows.Scan(
 			&r.activityID,
 			&r.date,
