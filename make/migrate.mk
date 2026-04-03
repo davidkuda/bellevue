@@ -12,7 +12,7 @@ migrate/up-all:
 	up
 
 migrate/version:
-	migrate \
+	@migrate \
 	-path=./migrations/ \
 	-database=${PG_DSN_DEVELOPER} \
 	version
