@@ -58,39 +58,6 @@ func (app *application) getActivitiesNew(w http.ResponseWriter, r *http.Request)
 	app.render(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
 }
 
-// GET /activities/edit?date=2025-11-26
-func (app *application) getActivitiesEdit(w http.ResponseWriter, r *http.Request) {
-	var err error
-
-	var tm time.Time
-	dateStr := r.URL.Query().Get("date")
-	if dateStr != "" {
-		tm, err = time.Parse("2006-01-02", dateStr)
-		if err != nil {
-			app.renderClientError(w, r, http.StatusBadRequest)
-			return
-		}
-	} else {
-		tm = time.Now()
-	}
-
-	var userID int
-	userID = app.contextGetUser(r).ID
-
-	activityDay, err := app.models.Activities.GetActivityDayForUser(tm, userID)
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-	}
-
-	t := app.newTemplateData(r)
-	t.Title = "Edit Bellevue Activity"
-	t.ActivityDay = activityDay
-	t.ProductFormConfig = app.productFormConfig.WithValues(activityDay)
-	t.Form = productForm{}
-	app.render(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
-}
-
 // HTMX: GET /activities/{ID}/edit
 func (app *application) getActivitiesIDEdit(w http.ResponseWriter, r *http.Request) {
 	// get activity ID:
