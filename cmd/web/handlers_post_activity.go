@@ -94,6 +94,61 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 	return
 }
 
+// PUT /activities/{id}
+func (app *application) putActivitiesID(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		log.Printf("Failed parsing form: %v", err)
+		app.renderClientError(w, r, http.StatusBadRequest)
+		return
+	}
+
+	activityIDString := r.PathValue("id")
+	activityID, err := strconv.Atoi(activityIDString)
+	if err != nil {
+		app.serverError(w, r, fmt.Errorf("invalid activityID in path, could not parse: %v", err))
+		return
+	}
+
+	// TODO: define one way to get this and remove the TODO comments ...
+	user := app.contextGetUser(r)
+	userID := user.ID
+
+	productForm := app.parseProductForm(r)
+	productForm.UserID = userID
+
+	// TODO: if ValidationErrors, return form with errors
+	if len(productForm.FieldErrors) > 0 {
+		t := app.newTemplateData(r)
+		app.render(w, r, http.StatusUnprocessableEntity, "activities.new.tmpl.html", &t)
+		return
+	}
+
+	ctx := context.TODO()
+	tx, err := app.db.BeginTx(ctx, nil)
+	if err != nil {
+		app.serverError(w, r, fmt.Errorf("failed starting transaction: %e", err))
+		return
+	}
+	defer tx.Rollback()
+
+	consumptions := productForm.toConsumptions(activityID, app.productIDMap)
+	err = app.models.Consumptions.InsertManyWithTransaction(activityID, consumptions, tx)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	if err := tx.Commit(); err != nil {
+		app.serverError(w, r, fmt.Errorf("failed committing transaction: %s", err))
+		return
+	}
+
+	// TODO: send some notification (Toast) to the UI (successfully submitted)
+	http.Redirect(w, r, "/activities", http.StatusSeeOther)
+	return
+}
+
 func (app *application) parseProductForm(r *http.Request) productForm {
 	form := productForm{}
 	form.FieldErrors = map[string]string{}

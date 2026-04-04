@@ -4,11 +4,16 @@
       <a href="/activities">Go back to activities overview</a>
     </p>
     <form
-      action="/activities"
-      method="post"
       class="stack"
+      {{ if .ViewModels.Activity -}}
+      hx-put="/activities/{{ .ViewModels.Activity.ID }}"
       hx-target="main"
       hx-swap="outerHTML show:html:top"
+      {{- else -}}
+      hx-post="/activities"
+      hx-target="main"
+      hx-swap="outerHTML show:html:top"
+      {{- end }}
     >
       <h2>
         {{- if .ViewModels.Activity -}}Edit{{ else }}New{{ end }} Bellevue Activity
