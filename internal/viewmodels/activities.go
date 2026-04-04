@@ -30,6 +30,7 @@ type Activity struct {
 }
 
 type Consumption struct {
+	ProductCode   string
 	ProductName   string
 	PriceCategory string
 	Quantity      int
@@ -42,6 +43,7 @@ type activityConsumptions struct {
 	activityID   int
 	date         time.Time
 	comment      string
+	productCode  string
 	productName  string
 	pricecatName string
 	quantity     int
@@ -90,6 +92,7 @@ func (m *ActivityViewModel) GetUninvoicedActivitiesForUser(userID int) (*Uninvoi
 		}
 
 		consumption := Consumption{
+			ProductCode:   ac.productCode,
 			ProductName:   ac.productName,
 			PriceCategory: ac.pricecatName,
 			Quantity:      ac.quantity,
@@ -123,6 +126,7 @@ func (m *ActivityViewModel) getUninvoicedActivityConsumptionsForUser(userID int)
 	   SELECT a.id,
 	          a.date,
 	          coalesce(a.comment, ''),
+	          p.code as product_code,
 	          p.name as product_name,
 	          case
 	             when p.pricing_mode = 'custom' then 'free_amount'
@@ -159,6 +163,7 @@ func (m *ActivityViewModel) getUninvoicedActivityConsumptionsForUser(userID int)
 			&r.activityID,
 			&r.date,
 			&r.comment,
+			&r.productCode,
 			&r.productName,
 			&r.pricecatName,
 			&r.quantity,
