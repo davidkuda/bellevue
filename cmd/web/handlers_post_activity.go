@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -56,6 +57,37 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	// we will do the following in a transaction:
+	// - insert activity
+	// - delete all previous consumptions, if any (for edits)
+	//   (form upload is state of truth, remove everything else)
+	// - insert all consumptions based on the form
+	ctx := context.TODO()
+	tx, err := app.db.BeginTx(ctx, nil)
+	if err != nil {
+		app.serverError(w, r, fmt.Errorf("failed starting transaction: %e", err))
+		return
+	}
+	defer tx.Rollback()
+
+	var comm sql.NullString
+	if formNew.Comment == "" {
+		comm = sql.NullString{Valid: false}
+	} else {
+		comm = sql.NullString{String: formNew.Comment, Valid: true}
+	}
+	activity := &models.Activity{
+		UserID: userID,
+		Date: formNew.Date,
+		Comment: comm,
+	}
+
+	activityID, err := app.models.Activities.InsertWithTransaction(activity, tx)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
 	var consumptions models.Consumptions
 	for _, p := range formNew.Products {
 		var pricecat string
@@ -68,43 +100,24 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 			price = p.AmountCHF
 		}
 
-		var pricecatID sql.NullInt64
-		pricecatIDInt := app.priceCategoryIDMap[p.PriceCategory]
-		if pricecatIDInt == 0 {
-			pricecatID = sql.NullInt64{Valid: false}
-		} else {
-			pricecatID = sql.NullInt64{Int64: int64(pricecatIDInt), Valid: true}
-		}
-
 		consumption := models.Consumption{
-			UserID:     userID,
+			ActivityID: activityID,
 			ProductID:  app.productIDMap[p.Code+pricecat],
-			TaxID:      0,
-			PriceCatID: pricecatID,
-			Date:       formNew.Date,
 			UnitPrice:  price,
 			Quantity:   p.Quantity,
 		}
 		consumptions = append(consumptions, consumption)
 	}
 
-	err = app.models.Consumptions.InsertMany(userID, formNew.Date, consumptions)
+	err = app.models.Consumptions.InsertManyWithTransaction(activityID, consumptions, tx)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
 
-	if formNew.Comment != "" {
-		c := models.Comment{
-			UserID:  userID,
-			Date:    formNew.Date,
-			Comment: formNew.Comment,
-		}
-		err = app.models.Comments.Insert(c)
-		if err != nil {
-			app.serverError(w, r, err)
-			return
-		}
+	if err := tx.Commit(); err != nil {
+		app.serverError(w,r, fmt.Errorf("failed committing transaction: %s", err))
+		return
 	}
 
 	// TODO: send some notification (Toast) to the UI (successfully submitted)
