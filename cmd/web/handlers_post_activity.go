@@ -90,8 +90,8 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 	}
 
 	// TODO: send some notification (Toast) to the UI (successfully submitted)
-	http.Redirect(w, r, "/activities", http.StatusSeeOther)
-	return
+
+	app.getActivities(w, r)
 }
 
 // PUT /activities/{id}
@@ -132,6 +132,14 @@ func (app *application) putActivitiesID(w http.ResponseWriter, r *http.Request) 
 	}
 	defer tx.Rollback()
 
+	activity := productForm.toActivity(userID)
+	activity.ID = activityID
+	err = app.models.Activities.UpdateDateAndCommentTx(activity, tx)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
 	consumptions := productForm.toConsumptions(activityID, app.productIDMap)
 	err = app.models.Consumptions.InsertManyWithTransaction(activityID, consumptions, tx)
 	if err != nil {
@@ -145,8 +153,10 @@ func (app *application) putActivitiesID(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// TODO: send some notification (Toast) to the UI (successfully submitted)
-	http.Redirect(w, r, "/activities", http.StatusSeeOther)
-	return
+	// Akshually, what I would prefer is to highlight the consumption that
+	// was just created or updated and make sure it's in the viewport.
+
+	app.getActivities(w, r)
 }
 
 func (app *application) parseProductForm(r *http.Request) productForm {

@@ -13,6 +13,7 @@ type ActivityModel2 struct {
 type Activity struct {
 	ID        int
 	UserID    int
+	InvoiceID sql.NullInt32
 	Date      time.Time
 	Comment   sql.NullString
 	CreatedAt time.Time
@@ -42,6 +43,29 @@ func (m *ActivityModel2) InsertWithTransaction(activity *Activity, tx *sql.Tx) (
 	}
 
 	return activityID, nil
+}
+
+func (m *ActivityModel2) UpdateDateAndCommentTx(activity *Activity, tx *sql.Tx) error {
+	var err error
+
+	stmt := `
+	UPDATE activities
+	   SET date = $2,
+	       comment = $3,
+	       updated_at = NOW()
+	 WHERE id = $1;`
+
+	_, err = tx.Exec(
+		stmt,
+		activity.ID,
+		activity.Date,
+		activity.Comment,
+	)
+	if err != nil {
+		return fmt.Errorf("failed inserting activity: %v", err)
+	}
+
+	return nil
 }
 
 func (m *ActivityModel2) GetActivitiesOfInvoiceForUser(invoiceID int, userID int) ([]Activity, error) {
