@@ -25,16 +25,7 @@
         <input
           name="date"
           type="date"
-          {{ if .ActivityDay }}
-            value="{{- .ActivityDay.Date | formatDateFormInput -}}"
-          {{- else -}}
-            value="{{- .Today | formatDateFormInput -}}"
-          {{- end }}
-          hx-trigger="change"
-          hx-get="/activities/edit"
-          hx-push-url="true"
-          hx-target="closest main"
-          hx-swap="outerHTML"
+          value="{{- .Today | formatDateFormInput -}}"
         />
       </label>
       {{- range .ProductFormConfig.Specs -}}
