@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
-	"time"
 )
 
 // GET /
@@ -42,16 +40,6 @@ func (app *application) getActivities(w http.ResponseWriter, r *http.Request) {
 
 // GET /activities/new
 func (app *application) getActivitiesNew(w http.ResponseWriter, r *http.Request) {
-	var userID int
-	userID = app.contextGetUser(r).ID
-	today := time.Now()
-	data, _ := app.models.Activities.GetActivityDayForUser(today, userID)
-	if len(data.Items) > 0 {
-		endpoint := "/activities/edit?date=" + formatDateFormInput(today)
-		http.Redirect(w, r, endpoint, http.StatusSeeOther)
-		return
-	}
-
 	t := app.newTemplateData(r)
 	t.Title = "New Bellevue Activity"
 	t.Form = productForm{}
