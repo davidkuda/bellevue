@@ -30,7 +30,7 @@
             </span>
             <div class="buttons stack-exception-small">
               <button
-                hx-get="/activities/edit?date={{ .Date | formatDateFormInput }}"
+                hx-get="/activities/{{ .ID }}/edit"
                 hx-target="main"
                 hx-push-url="true"
                 type="button"
