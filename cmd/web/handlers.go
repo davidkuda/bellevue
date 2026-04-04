@@ -60,15 +60,8 @@ func (app *application) getActivitiesNew(w http.ResponseWriter, r *http.Request)
 
 // HTMX: GET /activities/{ID}/edit
 func (app *application) getActivitiesIDEdit(w http.ResponseWriter, r *http.Request) {
-	// get activity ID:
-	parts := strings.Split(r.URL.Path, "/")
-
-	// We expect: ["", "bellevue-activities", "{ID}", "edit"]
-	if len(parts) != 4 {
-		log.Println("failed splitting request URL")
-		app.renderClientError(w, r, http.StatusBadRequest)
-		return
-	}
+	activityID := r.PathValue("id")
+	fmt.Println(activityID)
 
 	t := app.newTemplateData(r)
 	t.Edit = true
@@ -94,35 +87,3 @@ func (app *application) bellevueActivityDelete(w http.ResponseWriter, r *http.Re
 	// w.Header().Add("HX-Trigger-After-Settle", `{"refresh-table": {"reason":"item-deleted"}}"`)
 	w.Header().Add("HX-Trigger-After-Settle", "refresh-table")
 }
-
-// PATCH /invoices/{id}?set-state={state}
-func (app *application) patchInvoicesIDState(w http.ResponseWriter, r *http.Request) {
-	// get ID from request URL:
-	path := strings.TrimPrefix(r.URL.Path, "/invoices/")
-	id, err := strconv.Atoi(path)
-	if err != nil {
-		// TODO: Should I send error to app.renderClientError for logging? or log in an err block?
-		log.Printf("failed converting path to id (int); path=%s:, %v\n", path, err)
-		app.renderClientError(w, r, http.StatusBadRequest)
-		return
-	}
-
-	// Query param: set-state
-	state := r.URL.Query().Get("set-state")
-	log.Println("state:", state)
-
-	// TODO: get enum from postgres, maybe put it in a map[string]bool and check with if _, ok := map[state]; !ok {}
-	if state != "unpaid" && state != "paid" {
-		log.Printf("received invalid state: state=%s\n", state)
-		app.renderClientError(w, r, http.StatusBadRequest)
-		return
-	}
-
-	// TODO: check if user has permission to change state
-
-	// TODO: update state in postgres
-
-	log.Printf("id=%s, state=%s", id, state)
-}
-
-// for HTMX: GET /activities?month="2025-05"
