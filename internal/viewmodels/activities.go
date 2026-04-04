@@ -2,6 +2,7 @@ package viewmodels
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 )
@@ -39,7 +40,8 @@ type Consumption struct {
 }
 
 // intermediate representation of query results
-type activityConsumptions struct {
+type activityConsumptions []activityConsumption
+type activityConsumption struct {
 	activityID   int
 	date         time.Time
 	comment      string
@@ -51,8 +53,6 @@ type activityConsumptions struct {
 	total_price  int
 }
 
-// TODO: comments: maybe with map date=>comment
-
 func (m *ActivityViewModel) GetUninvoicedActivitiesForUser(userID int) (*UninvoicedActivities, error) {
 	acs, err := m.getUninvoicedActivityConsumptionsForUser(userID)
 	// TODO: should we return err on no rows found?
@@ -60,13 +60,180 @@ func (m *ActivityViewModel) GetUninvoicedActivitiesForUser(userID int) (*Uninvoi
 		return nil, fmt.Errorf("m.getUninvoicedActivityConsumptionsForUser(%d): %s", userID, err)
 	}
 
-	// TODO: should we return if len(acs) == 0?
-	// should we return an error?
+	// TODO: what should we return if len(acs) == 0? should we return an error?
 	// how to deal with this template wise / business wise?
 	if len(acs) == 0 {
 		return nil, nil
 	}
 
+	activities := acs.toViewModel()
+
+	totalPrice := 0
+	for i := range activities {
+		totalPrice = totalPrice + activities[i].TotalPrice
+	}
+
+	uninvoicedActivities := UninvoicedActivities{
+		TotalPrice: totalPrice,
+		Activities: activities,
+	}
+
+	return &uninvoicedActivities, nil
+}
+
+func (m *ActivityViewModel) GetActivityByIDForUser(activityID, userID int) (*Activity, error) {
+	acs, err := m.getActivityByIDForUser(activityID, userID)
+	if err != nil {
+		return nil, fmt.Errorf("m.getActivityByIDForUser(%d): %s", userID, err)
+	}
+
+	if len(acs) == 0 {
+		return nil, errors.New("NoActivityFoundError")
+	}
+
+	// we expect exactly 1 activity in this slice:
+	activities := acs.toViewModel()
+	if len(activities) != 1 {
+		return nil, errors.New("MoreThanOneActivityFoundError")
+	}
+
+	return &activities[0], nil
+}
+
+
+func (m *ActivityViewModel) getUninvoicedActivityConsumptionsForUser(userID int) (activityConsumptions, error) {
+	// NOTE: case when ... would be redundant if price_categories had a category "free_amount"
+	// product.price_category_id can be null...
+	stmt := `
+	   SELECT a.id,
+	          a.date,
+	          coalesce(a.comment, ''),
+	          p.code as product_code,
+	          p.name as product_name,
+	          case
+	             when p.pricing_mode = 'custom' then 'free_amount'
+	             else pc.name
+	          end as pricecat_name,
+	          c.quantity,
+	          c.unit_price,
+	          c.total_price
+	     FROM consumptions c
+	LEFT JOIN activities a
+	       ON a.id = c.activity_id
+	LEFT JOIN products p
+	       ON p.id = c.product_id
+	LEFT JOIN price_categories pc
+	       ON pc.id = p.price_category_id
+	    WHERE a.invoice_id is null
+	      AND user_id = $1
+	 ORDER BY a.date DESC, a.id
+	;
+	`
+
+	rows, err := m.DB.Query(stmt, userID)
+	if err != nil {
+		return nil, fmt.Errorf("DB.Query(stmt): %v", err)
+	}
+
+	defer rows.Close()
+
+	var res []activityConsumption
+
+	for rows.Next() {
+		var r activityConsumption
+		err = rows.Scan(
+			&r.activityID,
+			&r.date,
+			&r.comment,
+			&r.productCode,
+			&r.productName,
+			&r.pricecatName,
+			&r.quantity,
+			&r.unit_price,
+			&r.total_price,
+		)
+
+		if err != nil {
+			return nil, fmt.Errorf("for rows.Next(): %v", err)
+		}
+
+		res = append(res, r)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows.Err(): %v", err)
+	}
+
+	return res, nil
+}
+
+func (m *ActivityViewModel) getActivityByIDForUser( activityID int, userID int) (activityConsumptions, error) {
+	// TODO: the only difference in this fn to the previous is the WHERE statment (and the parameters / signature)
+	// it feels kinda verbose to keep two such big functions...
+	stmt := `
+	   SELECT a.id,
+	          a.date,
+	          coalesce(a.comment, ''),
+	          p.code as product_code,
+	          p.name as product_name,
+	          case
+	             when p.pricing_mode = 'custom' then 'free_amount'
+	             else pc.name
+	          end as pricecat_name,
+	          c.quantity,
+	          c.unit_price,
+	          c.total_price
+	     FROM consumptions c
+	LEFT JOIN activities a
+	       ON a.id = c.activity_id
+	LEFT JOIN products p
+	       ON p.id = c.product_id
+	LEFT JOIN price_categories pc
+	       ON pc.id = p.price_category_id
+	    WHERE a.id = $1
+	      AND user_id = $2
+	 ORDER BY a.date DESC, a.id
+	;
+	`
+
+	rows, err := m.DB.Query(stmt, activityID, userID)
+	if err != nil {
+		return nil, fmt.Errorf("DB.Query(stmt): %v", err)
+	}
+
+	defer rows.Close()
+
+	var res []activityConsumption
+
+	for rows.Next() {
+		var r activityConsumption
+		err = rows.Scan(
+			&r.activityID,
+			&r.date,
+			&r.comment,
+			&r.productCode,
+			&r.productName,
+			&r.pricecatName,
+			&r.quantity,
+			&r.unit_price,
+			&r.total_price,
+		)
+
+		if err != nil {
+			return nil, fmt.Errorf("for rows.Next(): %v", err)
+		}
+
+		res = append(res, r)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows.Err(): %v", err)
+	}
+
+	return res, nil
+}
+
+func (acs activityConsumptions) toViewModel() []Activity {
 	activities := make([]Activity, 0)
 
 	groupID := acs[0].activityID
@@ -106,81 +273,5 @@ func (m *ActivityViewModel) GetUninvoicedActivitiesForUser(userID int) (*Uninvoi
 
 	activities = append(activities, activity)
 
-	totalPrice := 0
-	for i := range activities {
-		totalPrice = totalPrice + activities[i].TotalPrice
-	}
-
-	uninvoicedActivities := UninvoicedActivities{
-		TotalPrice: totalPrice,
-		Activities: activities,
-	}
-
-	return &uninvoicedActivities, nil
-}
-
-func (m *ActivityViewModel) getUninvoicedActivityConsumptionsForUser(userID int) ([]activityConsumptions, error) {
-	// NOTE: case when ... would be redundant if price_categories had a category "free_amount"
-	// product.price_category_id can be null...
-	stmt := `
-	   SELECT a.id,
-	          a.date,
-	          coalesce(a.comment, ''),
-	          p.code as product_code,
-	          p.name as product_name,
-	          case
-	             when p.pricing_mode = 'custom' then 'free_amount'
-	             else pc.name
-	          end as pricecat_name,
-	          c.quantity,
-	          c.unit_price,
-	          c.total_price
-	     FROM consumptions c
-	LEFT JOIN activities a
-	       ON a.id = c.activity_id
-	LEFT JOIN products p
-	       ON p.id = c.product_id
-	LEFT JOIN price_categories pc
-	       ON pc.id = p.price_category_id
-	    WHERE a.invoice_id is null
-	      AND user_id = $1
-	 ORDER BY a.date DESC, a.id
-	;
-	`
-
-	rows, err := m.DB.Query(stmt, userID)
-	if err != nil {
-		return nil, fmt.Errorf("DB.Query(stmt): %v", err)
-	}
-
-	defer rows.Close()
-
-	var res []activityConsumptions
-
-	for rows.Next() {
-		var r activityConsumptions
-		err = rows.Scan(
-			&r.activityID,
-			&r.date,
-			&r.comment,
-			&r.productCode,
-			&r.productName,
-			&r.pricecatName,
-			&r.quantity,
-			&r.unit_price,
-			&r.total_price,
-		)
-
-		if err != nil {
-			return nil, fmt.Errorf("for rows.Next(): %v", err)
-		}
-
-		res = append(res, r)
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("rows.Err(): %v", err)
-	}
-
-	return res, nil
+	return activities
 }

@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"maps"
+
+	"github.com/davidkuda/bellevue/internal/viewmodels"
 )
 
 type ProductIDMap map[string]int
@@ -30,7 +32,7 @@ type ProductFormConfig struct {
 // and updates values, e.g. instead of 0 lunch, use 2 lunches, surplus.
 // intended to be called when editing an ActivityDay, i.e., UI form to edit
 // an existing submission.
-func (c ProductFormConfig) WithValues(ad *ActivityDay) ProductFormConfig {
+func (c ProductFormConfig) WithValues(activity *viewmodels.Activity) ProductFormConfig {
 
 	clone := ProductFormConfig{
 		Prices: make(map[string]int, len(c.Prices)),
@@ -54,13 +56,13 @@ func (c ProductFormConfig) WithValues(ad *ActivityDay) ProductFormConfig {
 	}
 
 	for i, spec := range clone.Specs {
-		for _, a := range ad.Items {
-			if spec.Code == a.Code {
-				clone.Specs[i].Count = a.Quantity
-				clone.Specs[i].Amount = a.UnitPrice
+		for _, consumption := range activity.Consumptions {
+			if spec.Code == consumption.ProductCode {
+				clone.Specs[i].Count = consumption.Quantity
+				clone.Specs[i].Amount = consumption.UnitPrice
 				for ipc, pc := range clone.Specs[i].PriceCategories {
 					clone.Specs[i].PriceCategories[ipc].Checked = false
-					if pc.Name == a.PriceCategory {
+					if pc.Name == consumption.PriceCategory {
 						clone.Specs[i].PriceCategories[ipc].Checked = true
 					}
 				}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -48,12 +49,24 @@ func (app *application) getActivitiesNew(w http.ResponseWriter, r *http.Request)
 
 // HTMX: GET /activities/{ID}/edit
 func (app *application) getActivitiesIDEdit(w http.ResponseWriter, r *http.Request) {
-	activityID := r.PathValue("id")
-	fmt.Println(activityID)
+	activityIDString := r.PathValue("id")
+	activityID, err := strconv.Atoi(activityIDString)
+	if err != nil {
+		app.serverError(w, r, fmt.Errorf("invalid activityID in path, could not parse: %v", err))
+		return
+	}
 
 	t := app.newTemplateData(r)
+
+	viewActivity, err := app.viewmodels.Activities.GetActivityByIDForUser(activityID, t.User.ID)
+	if err != nil {
+		app.serverError(w, r, fmt.Errorf("could not get uninvoiced activities: %v", err))
+		return
+	}
+
 	t.Edit = true
 	t.Title = "New Bellevue Activity"
+	t.ProductFormConfig = app.productFormConfig.WithValues(viewActivity)
 	t.Form = productForm{}
 
 	app.render(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
