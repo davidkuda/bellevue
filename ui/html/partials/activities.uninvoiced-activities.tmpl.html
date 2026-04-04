@@ -41,7 +41,7 @@
               </button>
               <span></span>
               <button
-                hx-delete="/activities?date={{ .Date | formatDateFormInput }}"
+                hx-delete="/activities/{{ .ID }}"
                 hx-target="closest tr"
                 hx-confirm="are you sure that you want to delete this activity?"
                 hx-swap="delete swap:400ms"

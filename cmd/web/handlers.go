@@ -1,11 +1,10 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
 // GET /
@@ -66,19 +65,30 @@ func (app *application) getActivitiesIDEdit(w http.ResponseWriter, r *http.Reque
 	app.render(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
 }
 
-// DELETE /bellevue-activity/:id
+// DELETE /activities/{id}
 func (app *application) bellevueActivityDelete(w http.ResponseWriter, r *http.Request) {
-
-	// get ID from URL:
-	parts := strings.Split(r.URL.Path, "/")
-
-	// We expect: ["", "bellevue-activities", "{ID}"]
-	if len(parts) != 3 {
-		log.Println("failed splitting request URL")
-		app.renderClientError(w, r, http.StatusBadRequest)
+	activityIDString := r.PathValue("id")
+	activityID, err := strconv.Atoi(activityIDString)
+	if err != nil {
+		app.serverError(w, r, fmt.Errorf("invalid activityID in path, could not parse: %v", err))
 		return
 	}
 
-	// w.Header().Add("HX-Trigger-After-Settle", `{"refresh-table": {"reason":"item-deleted"}}"`)
-	w.Header().Add("HX-Trigger-After-Settle", "refresh-table")
+	ctx := context.TODO()
+	tx, err := app.db.BeginTx(ctx, nil)
+	if err != nil {
+		app.serverError(w, r, fmt.Errorf("failed starting transaction: %e", err))
+		return
+	}
+	defer tx.Rollback()
+
+	// NOTE: If there was a cascade delete, I wouldn't need a transaction and two funcs.
+	// however, I don't want ease at deleting consumptions.
+	app.models.Consumptions.DeleteByActivityID(activityID, tx)
+	app.models.Activities.Delete(activityID, tx)
+
+	if err := tx.Commit(); err != nil {
+		app.serverError(w, r, fmt.Errorf("failed committing transaction: %s", err))
+		return
+	}
 }

@@ -68,6 +68,21 @@ func (m *ActivityModel2) UpdateDateAndCommentTx(activity *Activity, tx *sql.Tx) 
 	return nil
 }
 
+func (m *ActivityModel2) Delete(activityID int, tx *sql.Tx) error {
+	var err error
+
+	stmt := `
+	DELETE FROM activities
+	WHERE id = $1;`
+
+	_, err = tx.Exec(stmt, activityID)
+	if err != nil {
+		return fmt.Errorf("failed inserting activity: %v", err)
+	}
+
+	return nil
+}
+
 func (m *ActivityModel2) GetActivitiesOfInvoiceForUser(invoiceID int, userID int) ([]Activity, error) {
 	stmt := `
 	SELECT id,

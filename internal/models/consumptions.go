@@ -87,3 +87,26 @@ func (m *ConsumptionModel) CountOpenConsumptionsForUser(userID int) (int, error)
 
 	return count, nil
 }
+
+// TODO: Maybe reuse this in the inserts instead of writing the statement.
+func (m *ConsumptionModel) DeleteByActivityID(activityID int, tx *sql.Tx) error {
+	var err error
+
+	// We NEVER want to delete consumptions when they have an invoice ID.
+	// therefore, check here first:
+	stmt := `
+	DELETE FROM consumptions
+	WHERE activity_id = $1
+	  AND activity_id IN (
+		SELECT id
+		  FROM activities
+		 WHERE id = $1
+		   AND invoice_id IS NULL
+	  );
+	`
+	if _, err = tx.Exec(stmt, activityID); err != nil {
+		return fmt.Errorf("failed deleting consumptions: %s", err)
+	}
+
+	return nil
+}
