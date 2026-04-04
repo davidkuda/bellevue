@@ -126,7 +126,7 @@ func (m *ActivityViewModel) getUninvoicedActivityConsumptionsForUser(userID int)
 	       ON pc.id = p.price_category_id
 	    WHERE a.invoice_id is null
 	      AND user_id = $1
-	 ORDER BY a.date DESC, a.id
+	 ORDER BY a.date DESC, a.created_at DESC
 	;
 	`
 
