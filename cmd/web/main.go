@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"flag"
 	"fmt"
 	"html/template"
@@ -23,6 +24,12 @@ import (
 type application struct {
 	sessionManager *scs.SessionManager
 
+	// in some cases, we need to create the transaction outside of the models
+	// therefore, we need app.db.
+	db *sql.DB
+
+	// in most cases, however, we will use the models abstraction to
+	// interact with the database.
 	models     models.Models
 	viewmodels viewmodels.Models
 
@@ -95,12 +102,14 @@ func main() {
 	}
 	defer db.Close()
 
-	// https://pkg.go.dev/github.com/alexedwards/scs/postgresstore#section-readme
-	app.sessionManager = scs.New()
-	app.sessionManager.Store = postgresstore.New(db)
+	app.db = db
 
 	app.models = models.New(db)
 	app.viewmodels = viewmodels.New(db)
+
+	// https://pkg.go.dev/github.com/alexedwards/scs/postgresstore#section-readme
+	app.sessionManager = scs.New()
+	app.sessionManager.Store = postgresstore.New(db)
 
 	app.productFormConfig, err = app.models.Products.GetProductFormConfig()
 	if err != nil {

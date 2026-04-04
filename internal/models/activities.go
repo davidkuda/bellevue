@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type ActivityModel struct {
+type ActivityModel2 struct {
 	DB *sql.DB
 }
 
@@ -14,12 +14,37 @@ type Activity struct {
 	ID        int
 	UserID    int
 	Date      time.Time
-	Comment   string
+	Comment   sql.NullString
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
-func (m *ActivityModel) GetActivitiesOfInvoiceForUser(invoiceID int, userID int) ([]Activity, error) {
+func (m *ActivityModel2) InsertWithTransaction(activity *Activity, tx *sql.Tx) (int, error) {
+	var err error
+
+	stmt := `
+	INSERT INTO activities (
+		user_id, date, comment
+	) VALUES (
+		$1,      $2,   $3
+	)
+	RETURNING id;`
+	row := tx.QueryRow(
+		stmt,
+		activity.UserID,
+		activity.Date,
+		activity.Comment,
+	)
+	var activityID int
+	err = row.Scan(&activityID)
+	if err != nil {
+		return 0, fmt.Errorf("failed inserting activity: %v", err)
+	}
+
+	return activityID, nil
+}
+
+func (m *ActivityModel2) GetActivitiesOfInvoiceForUser(invoiceID int, userID int) ([]Activity, error) {
 	stmt := `
 	SELECT id,
 	       user_id,
@@ -68,7 +93,7 @@ func (m *ActivityModel) GetActivitiesOfInvoiceForUser(invoiceID int, userID int)
 
 // activities can have a null on invoice_id, which means that the activity was
 // not invoiced yet or that we haven't created yet an invoice for the user.
-func (m *ActivityModel) GetUninvoicedActivitiesForUser(userID int) (
+func (m *ActivityModel2) GetUninvoicedActivitiesForUser(userID int) (
 	[]Activity,
 	error,
 ) {
