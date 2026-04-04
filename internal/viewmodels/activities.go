@@ -22,6 +22,7 @@ type UninvoicedActivities struct {
 }
 
 type Activity struct {
+	ID           int
 	Date         time.Time
 	Consumptions []Consumption
 	TotalPrice   int
@@ -80,10 +81,11 @@ func (m *ActivityViewModel) GetUninvoicedActivitiesForUser(userID int) (*Uninvoi
 
 			groupID = ac.activityID
 			activity = Activity{
+				ID:           ac.activityID,
 				Date:         ac.date,
 				Consumptions: make([]Consumption, 0),
 				TotalPrice:   0,
-				Comment: ac.comment,
+				Comment:      ac.comment,
 			}
 		}
 
