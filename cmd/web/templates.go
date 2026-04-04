@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/davidkuda/bellevue/internal/models"
@@ -36,6 +35,7 @@ type templateData struct {
 	Error             Error
 
 	ViewModels struct {
+		Activity             *viewmodels.Activity
 		UninvoicedActivities *viewmodels.UninvoicedActivities
 	}
 
@@ -83,13 +83,12 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 		}
 	}
 
-	var rootPath, title string
+	var rootPath string
 	i := 1
 	for i < len(r.URL.Path) && r.URL.Path[i] != '/' {
 		i++
 	}
 	rootPath = r.URL.Path[0:i]
-	title = strings.ToTitle(r.URL.Path[1:i])
 
 	var renderTotalsTable bool
 	renderTotalsTableEnv := os.Getenv("FEATURE_FLAG__RENDER_TOTALS_TABLE")
@@ -103,7 +102,7 @@ func (app *application) newTemplateData(r *http.Request) templateData {
 		LoggedIn:          isAuthenticated,
 		User:              user,
 		IsAdmin:           isAdmin,
-		Title:             title,
+		Title:             "Amden Bellevue Team Activities",
 		RootPath:          rootPath,
 		Path:              r.URL.Path,
 		Sidebars:          true,

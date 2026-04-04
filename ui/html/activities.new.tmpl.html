@@ -1,4 +1,3 @@
-{{- define "title" -}}New Bellevue Activity{{ end }}
 {{- define "main" -}}
   <main class="center stack-large">
     <p class="margin-top margin-bottom text-center">
@@ -12,20 +11,24 @@
       hx-swap="outerHTML show:html:top"
     >
       <h2>
-        {{- if .ActivityDay -}}Edit{{ else }}New{{ end }} Bellevue Activity
+        {{- if .ViewModels.Activity -}}Edit{{ else }}New{{ end }} Bellevue Activity
       </h2>
       {{- with .Form.FieldErrors.negatives -}}
         <label class="error">{{- . -}}</label>
       {{- end -}}
       {{- with .Form.FieldErrors.zeroes -}}
         <label class="error">{{- . -}}</label>
-      {{- end -}}
+      {{- end }}
       <label>
         <strong>Date:</strong>
         <input
           name="date"
           type="date"
+          {{ if .ViewModels.Activity -}}
+          value="{{- .ViewModels.Activity.Date | formatDateFormInput -}}"
+          {{- else -}}
           value="{{- .Today | formatDateFormInput -}}"
+          {{- end }}
         />
       </label>
       {{- range .ProductFormConfig.Specs -}}
@@ -39,7 +42,7 @@
       <label>
         <strong>Comment:</strong>
         <textarea name="comment" rows="2" aria-label="comment">
-        {{- if .ActivityDay -}}{{- .ActivityDay.Comment -}}{{- end -}}
+        {{- if .ViewModels.Activity -}}{{- .ViewModels.Activity.Comment -}}{{- end -}}
       </textarea
         >
       </label>

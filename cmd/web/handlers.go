@@ -24,13 +24,6 @@ func (app *application) getActivities(w http.ResponseWriter, r *http.Request) {
 
 	t := app.newTemplateData(r)
 
-	// GetActivitiesByInvoice
-	// invoice: id
-	// activities: []activity
-	// render table by invoice_id => templates struct
-	// render past invoices underneath
-	// implement an invoices page
-	// template activities.tmpl.html if .UninvoicedActivities or .Invoices
 	t.ViewModels.UninvoicedActivities, err = app.viewmodels.Activities.GetUninvoicedActivitiesForUser(t.User.ID)
 	if err != nil {
 		app.serverError(w, r, fmt.Errorf("could not get uninvoiced activities: %v", err))
@@ -64,8 +57,9 @@ func (app *application) getActivitiesIDEdit(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	t.ViewModels.Activity = viewActivity
 	t.Edit = true
-	t.Title = "New Bellevue Activity"
+	t.Title = "Edit Bellevue Activity"
 	t.ProductFormConfig = app.productFormConfig.WithValues(viewActivity)
 	t.Form = productForm{}
 
