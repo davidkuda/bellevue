@@ -33,16 +33,10 @@ func (app *application) getActivities(w http.ResponseWriter, r *http.Request) {
 	// implement an invoices page
 	// template activities.tmpl.html if .UninvoicedActivities or .Invoices
 	t.ViewModels.UninvoicedActivities, err = app.viewmodels.Activities.GetUninvoicedActivitiesForUser(t.User.ID)
-	fmt.Println()
-	for _, act := range t.ViewModels.UninvoicedActivities.Activities {
-		fmt.Println(act)
-	}
-	fmt.Println()
 	if err != nil {
 		app.serverError(w, r, fmt.Errorf("could not get uninvoiced activities: %v", err))
 		return
 	}
-
 	app.render(w, r, http.StatusOK, "activities.tmpl.html", &t)
 }
 
