@@ -35,7 +35,7 @@ type parsedProduct struct {
 	AmountCHF     int // for snacks
 }
 
-// POST /activity
+// POST /activities
 func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
@@ -70,45 +70,14 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 	}
 	defer tx.Rollback()
 
-	var comm sql.NullString
-	if formNew.Comment == "" {
-		comm = sql.NullString{Valid: false}
-	} else {
-		comm = sql.NullString{String: formNew.Comment, Valid: true}
-	}
-	activity := &models.Activity{
-		UserID: userID,
-		Date: formNew.Date,
-		Comment: comm,
-	}
-
+	activity := formNew.toActivity(userID)
 	activityID, err := app.models.Activities.InsertWithTransaction(activity, tx)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
 
-	var consumptions models.Consumptions
-	for _, p := range formNew.Products {
-		var pricecat string
-		if p.PriceCategory != "" {
-			pricecat = "/" + p.PriceCategory
-		}
-
-		price := p.Price
-		if price == 0 {
-			price = p.AmountCHF
-		}
-
-		consumption := models.Consumption{
-			ActivityID: activityID,
-			ProductID:  app.productIDMap[p.Code+pricecat],
-			UnitPrice:  price,
-			Quantity:   p.Quantity,
-		}
-		consumptions = append(consumptions, consumption)
-	}
-
+	consumptions := formNew.toConsumptions(activityID, app.productIDMap)
 	err = app.models.Consumptions.InsertManyWithTransaction(activityID, consumptions, tx)
 	if err != nil {
 		app.serverError(w, r, err)
@@ -116,7 +85,7 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 	}
 
 	if err := tx.Commit(); err != nil {
-		app.serverError(w,r, fmt.Errorf("failed committing transaction: %s", err))
+		app.serverError(w, r, fmt.Errorf("failed committing transaction: %s", err))
 		return
 	}
 
@@ -202,4 +171,43 @@ func (app *application) parseProductForm(r *http.Request) productForm {
 	form.Comment = r.PostForm.Get("comment")
 
 	return form
+}
+
+func (p *productForm) toActivity(userID int) *models.Activity {
+	var comm sql.NullString
+	if p.Comment == "" {
+		comm = sql.NullString{Valid: false}
+	} else {
+		comm = sql.NullString{String: p.Comment, Valid: true}
+	}
+	return &models.Activity{
+		UserID:  userID,
+		Date:    p.Date,
+		Comment: comm,
+	}
+}
+
+func (pf *productForm) toConsumptions(activityID int, productIDMap map[string]int) []models.Consumption {
+	var consumptions models.Consumptions
+	for _, p := range pf.Products {
+		var pricecat string
+		if p.PriceCategory != "" {
+			pricecat = "/" + p.PriceCategory
+		}
+
+		price := p.Price
+		if price == 0 {
+			price = p.AmountCHF
+		}
+
+		consumption := models.Consumption{
+			ActivityID: activityID,
+			ProductID:  productIDMap[p.Code+pricecat],
+			UnitPrice:  price,
+			Quantity:   p.Quantity,
+		}
+		consumptions = append(consumptions, consumption)
+	}
+
+	return consumptions
 }
