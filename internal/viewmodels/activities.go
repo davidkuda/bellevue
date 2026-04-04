@@ -238,6 +238,7 @@ func (acs activityConsumptions) toViewModel() []Activity {
 
 	groupID := acs[0].activityID
 	activity := Activity{
+		ID:           acs[0].activityID,
 		Date:         acs[0].date,
 		Consumptions: make([]Consumption, 0),
 		TotalPrice:   0,
