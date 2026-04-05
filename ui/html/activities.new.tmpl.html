@@ -1,7 +1,12 @@
 {{- define "main" -}}
   <main class="center stack-large">
     <p class="margin-top margin-bottom text-center">
-      <a href="/activities">Go back to activities overview</a>
+      <a
+        hx-get="/activities"
+        hx-target="main"
+        hx-swap="outerHTML show:html:top"
+        hx-push-url="true"
+      >Go back to activities overview</a>
     </p>
     <form
       class="stack"
