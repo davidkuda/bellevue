@@ -60,7 +60,7 @@
           <span class="bold block">Total Price {{ .TotalPrice | fmtCHF }} CHF</span>
           <ul class="stack-exception-xs">
           {{ range .Categories }}
-          <li>{{ .ShortName }}: {{ .TotalPrice | fmtCHF }} CHF</li>
+          <li>{{ .Name }}: {{ .TotalPrice | fmtCHF }} CHF</li>
           {{ end }}
           </ul>
         </td>

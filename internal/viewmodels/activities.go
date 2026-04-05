@@ -21,8 +21,7 @@ type Invoice struct {
 
 // e.g. food, lecture, etc.
 type Category struct {
-	LongName   string
-	ShortName  string
+	Name       string
 	TotalPrice int
 }
 
@@ -65,8 +64,7 @@ type activityConsumption struct {
 // Current Invoice == invoice_id is null
 func (m *ActivityViewModel) GetUninvoicedCategoriesForUser(userID int) ([]Category, error) {
 	stmt := `
-	  SELECT fa.name,
-	         fa.description,
+	  SELECT fa.view_name,
 	         sum(total_price) AS total_price
 	    FROM consumptions c
 	    JOIN activities a
@@ -77,7 +75,7 @@ func (m *ActivityViewModel) GetUninvoicedCategoriesForUser(userID int) ([]Catego
 	      ON p.financial_account_id = fa.id
 	   WHERE a.invoice_id is null
 	     AND a.user_id = $1
-	GROUP BY fa.name, fa.description
+	GROUP BY fa.view_name
 	ORDER BY total_price DESC
 	;
 	`
@@ -94,8 +92,7 @@ func (m *ActivityViewModel) GetUninvoicedCategoriesForUser(userID int) ([]Catego
 	for rows.Next() {
 		var r Category
 		err = rows.Scan(
-			&r.LongName,
-			&r.ShortName,
+			&r.Name,
 			&r.TotalPrice,
 		)
 
