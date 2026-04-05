@@ -15,6 +15,15 @@ type ActivityViewModel struct {
 type Invoice struct {
 	ID         int
 	Activities []Activity
+	TotalPrice int
+	Categories []Category
+}
+
+// e.g. food, lecture, etc.
+type Category struct {
+	LongName   string
+	ShortName  string
+	TotalPrice int
 }
 
 type UninvoicedActivities struct {
@@ -53,7 +62,58 @@ type activityConsumption struct {
 	total_price  int
 }
 
-func (m *ActivityViewModel) GetUninvoicedActivitiesForUser(userID int) (*UninvoicedActivities, error) {
+// Current Invoice == invoice_id is null
+func (m *ActivityViewModel) GetUninvoicedCategoriesForUser(userID int) ([]Category, error) {
+	stmt := `
+	  SELECT fa.name,
+	         fa.description,
+	         sum(total_price) AS total_price
+	    FROM consumptions c
+	    JOIN activities a
+	      ON c.activity_id = a.id
+	    JOIN products p
+	      ON c.product_id = p.id
+	    JOIN financial_accounts fa
+	      ON p.financial_account_id = fa.id
+	   WHERE a.invoice_id is null
+	     AND a.user_id = $1
+	GROUP BY fa.name, fa.description
+	ORDER BY total_price DESC
+	;
+	`
+
+	rows, err := m.DB.Query(stmt, userID)
+	if err != nil {
+		return nil, fmt.Errorf("DB.Query(stmt): %v", err)
+	}
+
+	defer rows.Close()
+
+	var res []Category
+
+	for rows.Next() {
+		var r Category
+		err = rows.Scan(
+			&r.LongName,
+			&r.ShortName,
+			&r.TotalPrice,
+		)
+
+		if err != nil {
+			return nil, fmt.Errorf("for rows.Next(): %v", err)
+		}
+
+		res = append(res, r)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows.Err(): %v", err)
+	}
+
+	return res, nil
+}
+
+func (m *ActivityViewModel) GetUninvoicedActivitiesForUser(userID int) (*Invoice, error) {
 	acs, err := m.getUninvoicedActivityConsumptionsForUser(userID)
 	// TODO: should we return err on no rows found?
 	if err != nil {
@@ -73,10 +133,16 @@ func (m *ActivityViewModel) GetUninvoicedActivitiesForUser(userID int) (*Uninvoi
 		totalPrice = totalPrice + activities[i].TotalPrice
 	}
 
-	uninvoicedActivities := UninvoicedActivities{
+	uninvoicedActivities := Invoice{
 		TotalPrice: totalPrice,
 		Activities: activities,
 	}
+
+	cats, err := m.GetUninvoicedCategoriesForUser(userID)
+	if err != nil {
+		return nil, fmt.Errorf("could not get uninvoiced categories for user: %v", err)
+	}
+	uninvoicedActivities.Categories = cats
 
 	return &uninvoicedActivities, nil
 }
@@ -99,7 +165,6 @@ func (m *ActivityViewModel) GetActivityByIDForUser(activityID, userID int) (*Act
 
 	return &activities[0], nil
 }
-
 
 func (m *ActivityViewModel) getUninvoicedActivityConsumptionsForUser(userID int) (activityConsumptions, error) {
 	// NOTE: case when ... would be redundant if price_categories had a category "free_amount"
@@ -167,7 +232,7 @@ func (m *ActivityViewModel) getUninvoicedActivityConsumptionsForUser(userID int)
 	return res, nil
 }
 
-func (m *ActivityViewModel) getActivityByIDForUser( activityID int, userID int) (activityConsumptions, error) {
+func (m *ActivityViewModel) getActivityByIDForUser(activityID int, userID int) (activityConsumptions, error) {
 	// TODO: the only difference in this fn to the previous is the WHERE statment (and the parameters / signature)
 	// it feels kinda verbose to keep two such big functions...
 	stmt := `
