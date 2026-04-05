@@ -1,43 +1,41 @@
-PG_DSN = postgres://davidkuda:@${DB_ADDRESS}/${DB_NAME}?sslmode=disable
-
-db/migrate/newsql:
+migrate/newsql:
 	@migrate create \
 	-seq \
 	-ext=.sql \
 	-dir=./migrations \
 	${name}
 
-db/migrate/up-all:
+migrate/up-all:
 	@migrate \
 	-path=./migrations \
-	-database=${PG_DSN} \
+	-database=${PG_DSN_DEVELOPER} \
 	up
 
-db/migrate/version:
-	migrate \
+migrate/version:
+	@migrate \
 	-path=./migrations/ \
-	-database=${PG_DSN} \
+	-database=${PG_DSN_DEVELOPER} \
 	version
 
 # force V: Set version V but don't run migration (ignores dirty state)
-db/migrate/force:
+migrate/force:
 	@migrate \
 	-path=./migrations/ \
-	-database=${PG_DSN} \
+	-database=${PG_DSN_DEVELOPER} \
 	force ${version}
 
 # migrate down one step
-db/migrate/down-1:
+migrate/down-1:
 	@migrate \
 	-path=./migrations/ \
-	-database=${PG_DSN} \
+	-database=${PG_DSN_DEVELOPER} \
 	down 1
 
 # migrate up one step
-db/migrate/up-1:
+migrate/up-1:
 	@migrate \
 	-verbose \
 	-path=./migrations/ \
-	-database=${PG_DSN} \
+	-database=${PG_DSN_DEVELOPER} \
 	up 1
 

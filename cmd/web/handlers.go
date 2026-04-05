@@ -1,12 +1,10 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
-	"strings"
-	"time"
 )
 
 // GET /
@@ -25,130 +23,72 @@ func (app *application) getActivities(w http.ResponseWriter, r *http.Request) {
 
 	t := app.newTemplateData(r)
 
-	t.ActivityMonths, err = app.models.Activities.GetActivityMonths(t.User.ID)
+	t.ViewModels.UninvoicedActivities, err = app.viewmodels.Activities.GetUninvoicedActivitiesForUser(t.User.ID)
 	if err != nil {
-		app.serverError(w, r, fmt.Errorf("could not get activity months: %e", err))
+		app.serverError(w, r, fmt.Errorf("could not get uninvoiced activities: %v", err))
+		return
 	}
-
 	app.render(w, r, http.StatusOK, "activities.tmpl.html", &t)
 }
 
 // GET /activities/new
 func (app *application) getActivitiesNew(w http.ResponseWriter, r *http.Request) {
-	var userID int
-	userID = app.contextGetUser(r).ID
-	today := time.Now()
-	data, _ := app.models.Activities.GetActivityDayForUser(today, userID)
-	if len(data.Items) > 0 {
-		endpoint := "/activities/edit?date=" + formatDateFormInput(today)
-		http.Redirect(w, r, endpoint, http.StatusSeeOther)
-		return
-	}
-
 	t := app.newTemplateData(r)
 	t.Title = "New Bellevue Activity"
-	t.Form = productForm{}
-	app.render(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
-}
-
-// GET /activities/edit?date=2025-11-26
-func (app *application) getActivitiesEdit(w http.ResponseWriter, r *http.Request) {
-	var err error
-
-	var tm time.Time
-	dateStr := r.URL.Query().Get("date")
-	if dateStr != "" {
-		tm, err = time.Parse("2006-01-02", dateStr)
-		if err != nil {
-			app.renderClientError(w, r, http.StatusBadRequest)
-			return
-		}
-	} else {
-		tm = time.Now()
-	}
-
-	var userID int
-	userID = app.contextGetUser(r).ID
-
-	activityDay, err := app.models.Activities.GetActivityDayForUser(tm, userID)
-	if err != nil {
-		app.serverError(w, r, err)
-		return
-	}
-
-	t := app.newTemplateData(r)
-	t.Title = "Edit Bellevue Activity"
-	t.ActivityDay = activityDay
-	t.ProductFormConfig = app.productFormConfig.WithValues(activityDay)
 	t.Form = productForm{}
 	app.render(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
 }
 
 // HTMX: GET /activities/{ID}/edit
 func (app *application) getActivitiesIDEdit(w http.ResponseWriter, r *http.Request) {
-	// get activity ID:
-	parts := strings.Split(r.URL.Path, "/")
-
-	// We expect: ["", "bellevue-activities", "{ID}", "edit"]
-	if len(parts) != 4 {
-		log.Println("failed splitting request URL")
-		app.renderClientError(w, r, http.StatusBadRequest)
+	activityIDString := r.PathValue("id")
+	activityID, err := strconv.Atoi(activityIDString)
+	if err != nil {
+		app.serverError(w, r, fmt.Errorf("invalid activityID in path, could not parse: %v", err))
 		return
 	}
 
 	t := app.newTemplateData(r)
+
+	viewActivity, err := app.viewmodels.Activities.GetActivityByIDForUser(activityID, t.User.ID)
+	if err != nil {
+		app.serverError(w, r, fmt.Errorf("could not get uninvoiced activities: %v", err))
+		return
+	}
+
+	t.ViewModels.Activity = viewActivity
 	t.Edit = true
-	t.Title = "New Bellevue Activity"
+	t.Title = "Edit Bellevue Activity"
+	t.ProductFormConfig = app.productFormConfig.WithValues(viewActivity)
 	t.Form = productForm{}
 
 	app.render(w, r, http.StatusOK, "activities.new.tmpl.html", &t)
 }
 
-// DELETE /bellevue-activity/:id
+// DELETE /activities/{id}
 func (app *application) bellevueActivityDelete(w http.ResponseWriter, r *http.Request) {
-
-	// get ID from URL:
-	parts := strings.Split(r.URL.Path, "/")
-
-	// We expect: ["", "bellevue-activities", "{ID}"]
-	if len(parts) != 3 {
-		log.Println("failed splitting request URL")
-		app.renderClientError(w, r, http.StatusBadRequest)
-		return
-	}
-
-	// w.Header().Add("HX-Trigger-After-Settle", `{"refresh-table": {"reason":"item-deleted"}}"`)
-	w.Header().Add("HX-Trigger-After-Settle", "refresh-table")
-}
-
-// PATCH /invoices/{id}?set-state={state}
-func (app *application) patchInvoicesIDState(w http.ResponseWriter, r *http.Request) {
-	// get ID from request URL:
-	path := strings.TrimPrefix(r.URL.Path, "/invoices/")
-	id, err := strconv.Atoi(path)
+	activityIDString := r.PathValue("id")
+	activityID, err := strconv.Atoi(activityIDString)
 	if err != nil {
-		// TODO: Should I send error to app.renderClientError for logging? or log in an err block?
-		log.Printf("failed converting path to id (int); path=%s:, %v\n", path, err)
-		app.renderClientError(w, r, http.StatusBadRequest)
+		app.serverError(w, r, fmt.Errorf("invalid activityID in path, could not parse: %v", err))
 		return
 	}
 
-	// Query param: set-state
-	state := r.URL.Query().Get("set-state")
-	log.Println("state:", state)
-
-	// TODO: get enum from postgres, maybe put it in a map[string]bool and check with if _, ok := map[state]; !ok {}
-	if state != "unpaid" && state != "paid" {
-		log.Printf("received invalid state: state=%s\n", state)
-		app.renderClientError(w, r, http.StatusBadRequest)
+	ctx := context.TODO()
+	tx, err := app.db.BeginTx(ctx, nil)
+	if err != nil {
+		app.serverError(w, r, fmt.Errorf("failed starting transaction: %e", err))
 		return
 	}
+	defer tx.Rollback()
 
-	// TODO: check if user has permission to change state
+	// NOTE: If there was a cascade delete, I wouldn't need a transaction and two funcs.
+	// however, I don't want ease at deleting consumptions.
+	app.models.Consumptions.DeleteByActivityID(activityID, tx)
+	app.models.Activities.Delete(activityID, tx)
 
-	// TODO: update state in postgres
-
-	log.Printf("id=%s, state=%s", id, state)
+	if err := tx.Commit(); err != nil {
+		app.serverError(w, r, fmt.Errorf("failed committing transaction: %s", err))
+		return
+	}
 }
-
-// for HTMX: GET /activities?month="2025-05"

@@ -1,7 +1,6 @@
 package models
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"time"
@@ -11,11 +10,8 @@ type Consumptions []Consumption
 
 type Consumption struct {
 	ID         int
-	UserID     int
+	ActivityID int
 	ProductID  int
-	TaxID      int
-	PriceCatID sql.NullInt64
-	Date       time.Time
 	UnitPrice  int
 	Quantity   int
 	TotalPrice int
@@ -26,26 +22,18 @@ type ConsumptionModel struct {
 	DB *sql.DB
 }
 
-func (m *ConsumptionModel) InsertMany(
-	userID int,
-	date time.Time,
-	consumptions Consumptions,
+func (m *ConsumptionModel) InsertManyWithTransaction(
+	activityID int,
+	consumptions []Consumption,
+	tx *sql.Tx,
 ) error {
 	var err error
 
-	ctx := context.TODO()
-	tx, err := m.DB.BeginTx(ctx, nil)
-	if err != nil {
-		return fmt.Errorf("failed starting transaction: %e", err)
-	}
-	defer tx.Rollback()
-
 	deleteQuery := `
 	delete from consumptions
-	 where user_id = $1
-	   and date = $2
+	 where activity_id = $1
 	`
-	if _, err := tx.ExecContext(ctx, deleteQuery, userID, date); err != nil {
+	if _, err = tx.Exec(deleteQuery, activityID); err != nil {
 		return fmt.Errorf("failed deleting consumptions: %s", err)
 	}
 
@@ -53,31 +41,22 @@ func (m *ConsumptionModel) InsertMany(
 	for _, c := range consumptions {
 		ins := `
         insert into consumptions (
-			user_id,
+			activity_id,
 			product_id,
-			tax_id,
-			pricecat_id,
-			date,
 			unit_price,
 			quantity
 		)
         values (
 			$1,
 			$2,
-			(select tax_id from products where id = $2),
 			$3,
-			$4,
-			$5,
-			$6
+			$4
 		);
     `
-		if _, err := tx.ExecContext(
-			ctx,
+		if _, err = tx.Exec(
 			ins,
-			c.UserID,
+			c.ActivityID,
 			c.ProductID,
-			c.PriceCatID,
-			c.Date,
 			c.UnitPrice,
 			c.Quantity,
 		); err != nil {
@@ -85,13 +64,8 @@ func (m *ConsumptionModel) InsertMany(
 		}
 	}
 
-	if err := tx.Commit(); err != nil {
-		return fmt.Errorf("failed committing transaction: %s", err)
-	}
-
 	return nil
 }
-
 
 func (m *ConsumptionModel) CountOpenConsumptionsForUser(userID int) (int, error) {
 	var count int
@@ -112,4 +86,27 @@ func (m *ConsumptionModel) CountOpenConsumptionsForUser(userID int) (int, error)
 	}
 
 	return count, nil
+}
+
+// TODO: Maybe reuse this in the inserts instead of writing the statement.
+func (m *ConsumptionModel) DeleteByActivityID(activityID int, tx *sql.Tx) error {
+	var err error
+
+	// We NEVER want to delete consumptions when they have an invoice ID.
+	// therefore, check here first:
+	stmt := `
+	DELETE FROM consumptions
+	WHERE activity_id = $1
+	  AND activity_id IN (
+		SELECT id
+		  FROM activities
+		 WHERE id = $1
+		   AND invoice_id IS NULL
+	  );
+	`
+	if _, err = tx.Exec(stmt, activityID); err != nil {
+		return fmt.Errorf("failed deleting consumptions: %s", err)
+	}
+
+	return nil
 }

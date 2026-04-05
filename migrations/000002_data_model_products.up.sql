@@ -172,8 +172,6 @@ create table bellevue.invoices_v2 (
 	updated_at  timestamptz not null default now()
 );
 
-drop table bellevue.invoices_v2;
-
 
 -- NOTE: most the foreign keys are available in product, too,
 -- but I assume that this ledger style unmutable fact style

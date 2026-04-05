@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -34,7 +35,7 @@ type parsedProduct struct {
 	AmountCHF     int // for snacks
 }
 
-// POST /activity
+// POST /activities
 func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {
@@ -56,60 +57,106 @@ func (app *application) bellevueActivityPost(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	var consumptions models.Consumptions
-	for _, p := range formNew.Products {
-		var pricecat string
-		if p.PriceCategory != "" {
-			pricecat = "/" + p.PriceCategory
-		}
-
-		price := p.Price
-		if price == 0 {
-			price = p.AmountCHF
-		}
-
-		var pricecatID sql.NullInt64
-		pricecatIDInt := app.priceCategoryIDMap[p.PriceCategory]
-		if pricecatIDInt == 0 {
-			pricecatID = sql.NullInt64{Valid: false}
-		} else {
-			pricecatID = sql.NullInt64{Int64: int64(pricecatIDInt), Valid: true}
-		}
-
-		consumption := models.Consumption{
-			UserID:     userID,
-			ProductID:  app.productIDMap[p.Code+pricecat],
-			TaxID:      0,
-			PriceCatID: pricecatID,
-			Date:       formNew.Date,
-			UnitPrice:  price,
-			Quantity:   p.Quantity,
-		}
-		consumptions = append(consumptions, consumption)
+	// we will do the following in a transaction:
+	// - insert activity
+	// - delete all previous consumptions, if any (for edits)
+	//   (form upload is state of truth, remove everything else)
+	// - insert all consumptions based on the form
+	ctx := context.TODO()
+	tx, err := app.db.BeginTx(ctx, nil)
+	if err != nil {
+		app.serverError(w, r, fmt.Errorf("failed starting transaction: %e", err))
+		return
 	}
+	defer tx.Rollback()
 
-	err = app.models.Consumptions.InsertMany(userID, formNew.Date, consumptions)
+	activity := formNew.toActivity(userID)
+	activityID, err := app.models.Activities.InsertWithTransaction(activity, tx)
 	if err != nil {
 		app.serverError(w, r, err)
 		return
 	}
 
-	if formNew.Comment != "" {
-		c := models.Comment{
-			UserID:  userID,
-			Date:    formNew.Date,
-			Comment: formNew.Comment,
-		}
-		err = app.models.Comments.Insert(c)
-		if err != nil {
-			app.serverError(w, r, err)
-			return
-		}
+	consumptions := formNew.toConsumptions(activityID, app.productIDMap)
+	err = app.models.Consumptions.InsertManyWithTransaction(activityID, consumptions, tx)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	if err := tx.Commit(); err != nil {
+		app.serverError(w, r, fmt.Errorf("failed committing transaction: %s", err))
+		return
 	}
 
 	// TODO: send some notification (Toast) to the UI (successfully submitted)
-	http.Redirect(w, r, "/activities", http.StatusSeeOther)
-	return
+
+	app.getActivities(w, r)
+}
+
+// PUT /activities/{id}
+func (app *application) putActivitiesID(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		log.Printf("Failed parsing form: %v", err)
+		app.renderClientError(w, r, http.StatusBadRequest)
+		return
+	}
+
+	activityIDString := r.PathValue("id")
+	activityID, err := strconv.Atoi(activityIDString)
+	if err != nil {
+		app.serverError(w, r, fmt.Errorf("invalid activityID in path, could not parse: %v", err))
+		return
+	}
+
+	// TODO: define one way to get this and remove the TODO comments ...
+	user := app.contextGetUser(r)
+	userID := user.ID
+
+	productForm := app.parseProductForm(r)
+	productForm.UserID = userID
+
+	// TODO: if ValidationErrors, return form with errors
+	if len(productForm.FieldErrors) > 0 {
+		t := app.newTemplateData(r)
+		app.render(w, r, http.StatusUnprocessableEntity, "activities.new.tmpl.html", &t)
+		return
+	}
+
+	ctx := context.TODO()
+	tx, err := app.db.BeginTx(ctx, nil)
+	if err != nil {
+		app.serverError(w, r, fmt.Errorf("failed starting transaction: %e", err))
+		return
+	}
+	defer tx.Rollback()
+
+	activity := productForm.toActivity(userID)
+	activity.ID = activityID
+	err = app.models.Activities.UpdateDateAndCommentTx(activity, tx)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	consumptions := productForm.toConsumptions(activityID, app.productIDMap)
+	err = app.models.Consumptions.InsertManyWithTransaction(activityID, consumptions, tx)
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	if err := tx.Commit(); err != nil {
+		app.serverError(w, r, fmt.Errorf("failed committing transaction: %s", err))
+		return
+	}
+
+	// TODO: send some notification (Toast) to the UI (successfully submitted)
+	// Akshually, what I would prefer is to highlight the consumption that
+	// was just created or updated and make sure it's in the viewport.
+
+	app.getActivities(w, r)
 }
 
 func (app *application) parseProductForm(r *http.Request) productForm {
@@ -189,4 +236,43 @@ func (app *application) parseProductForm(r *http.Request) productForm {
 	form.Comment = r.PostForm.Get("comment")
 
 	return form
+}
+
+func (p *productForm) toActivity(userID int) *models.Activity {
+	var comm sql.NullString
+	if p.Comment == "" {
+		comm = sql.NullString{Valid: false}
+	} else {
+		comm = sql.NullString{String: p.Comment, Valid: true}
+	}
+	return &models.Activity{
+		UserID:  userID,
+		Date:    p.Date,
+		Comment: comm,
+	}
+}
+
+func (pf *productForm) toConsumptions(activityID int, productIDMap map[string]int) []models.Consumption {
+	var consumptions models.Consumptions
+	for _, p := range pf.Products {
+		var pricecat string
+		if p.PriceCategory != "" {
+			pricecat = "/" + p.PriceCategory
+		}
+
+		price := p.Price
+		if price == 0 {
+			price = p.AmountCHF
+		}
+
+		consumption := models.Consumption{
+			ActivityID: activityID,
+			ProductID:  productIDMap[p.Code+pricecat],
+			UnitPrice:  price,
+			Quantity:   p.Quantity,
+		}
+		consumptions = append(consumptions, consumption)
+	}
+
+	return consumptions
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"flag"
 	"fmt"
 	"html/template"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/davidkuda/bellevue/internal/envcfg"
 	"github.com/davidkuda/bellevue/internal/models"
+	"github.com/davidkuda/bellevue/internal/viewmodels"
 
 	"github.com/alexedwards/scs/postgresstore"
 	"github.com/alexedwards/scs/v2"
@@ -22,7 +24,14 @@ import (
 type application struct {
 	sessionManager *scs.SessionManager
 
-	models models.Models
+	// in some cases, we need to create the transaction outside of the models
+	// therefore, we need app.db.
+	db *sql.DB
+
+	// in most cases, however, we will use the models abstraction to
+	// interact with the database.
+	models     models.Models
+	viewmodels viewmodels.Models
 
 	productFormConfig  models.ProductFormConfig
 	priceCategoryIDMap models.PriceCategoryIDMap
@@ -93,11 +102,14 @@ func main() {
 	}
 	defer db.Close()
 
+	app.db = db
+
+	app.models = models.New(db)
+	app.viewmodels = viewmodels.New(db)
+
 	// https://pkg.go.dev/github.com/alexedwards/scs/postgresstore#section-readme
 	app.sessionManager = scs.New()
 	app.sessionManager.Store = postgresstore.New(db)
-
-	app.models = models.New(db)
 
 	app.productFormConfig, err = app.models.Products.GetProductFormConfig()
 	if err != nil {

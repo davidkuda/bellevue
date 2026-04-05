@@ -1,6 +1,7 @@
 {{ define "title" }}Bellevue Activities{{ end }}
 {{ define "main" }}
-  {{ if .ActivityMonths }}
+  {{ with .ViewModels }}
+  {{ if .UninvoicedActivities }}
     <main class="center stack-xl">
       <button
         class="individual"
@@ -11,9 +12,7 @@
       >
         Add a new activity
       </button>
-      {{ range .ActivityMonths }}
-        {{ template "activities--by-month" . }}
-      {{ end }}
+      {{ template "uninvoiced-activities" .UninvoicedActivities }}
     </main>
   {{ else }}
     <main class="center stack">
@@ -42,5 +41,6 @@
         Add your first activity
       </button>
     </main>
+  {{ end }}
   {{ end }}
 {{ end }}

@@ -1,5 +1,5 @@
 include ./make/bundle.mk
-include ./make/migrations.mk
+include ./make/migrate.mk
 include ./make/postgres.mk
 
 .PHONY: fmt/ui

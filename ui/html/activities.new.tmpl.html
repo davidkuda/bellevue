@@ -1,40 +1,39 @@
-{{- define "title" -}}New Bellevue Activity{{ end }}
 {{- define "main" -}}
   <main class="center stack-large">
     <p class="margin-top margin-bottom text-center">
       <a href="/activities">Go back to activities overview</a>
     </p>
     <form
-      action="/activities"
-      method="post"
       class="stack"
+      {{ if .ViewModels.Activity -}}
+      hx-put="/activities/{{ .ViewModels.Activity.ID }}"
       hx-target="main"
       hx-swap="outerHTML show:html:top"
+      {{- else -}}
+      hx-post="/activities"
+      hx-target="main"
+      hx-swap="outerHTML show:html:top"
+      {{- end }}
     >
       <h2>
-        {{- if .ActivityDay -}}Edit{{ else }}New{{ end }} Bellevue Activity
+        {{- if .ViewModels.Activity -}}Edit{{ else }}New{{ end }} Bellevue Activity
       </h2>
       {{- with .Form.FieldErrors.negatives -}}
         <label class="error">{{- . -}}</label>
       {{- end -}}
       {{- with .Form.FieldErrors.zeroes -}}
         <label class="error">{{- . -}}</label>
-      {{- end -}}
+      {{- end }}
       <label>
         <strong>Date:</strong>
         <input
           name="date"
           type="date"
-          {{ if .ActivityDay }}
-            value="{{- .ActivityDay.Date | formatDateFormInput -}}"
+          {{ if .ViewModels.Activity -}}
+          value="{{- .ViewModels.Activity.Date | formatDateFormInput -}}"
           {{- else -}}
-            value="{{- .Today | formatDateFormInput -}}"
+          value="{{- .Today | formatDateFormInput -}}"
           {{- end }}
-          hx-trigger="change"
-          hx-get="/activities/edit"
-          hx-push-url="true"
-          hx-target="closest main"
-          hx-swap="outerHTML"
         />
       </label>
       {{- range .ProductFormConfig.Specs -}}
@@ -48,7 +47,7 @@
       <label>
         <strong>Comment:</strong>
         <textarea name="comment" rows="2" aria-label="comment">
-        {{- if .ActivityDay -}}{{- .ActivityDay.Comment -}}{{- end -}}
+        {{- if .ViewModels.Activity -}}{{- .ViewModels.Activity.Comment -}}{{- end -}}
       </textarea
         >
       </label>

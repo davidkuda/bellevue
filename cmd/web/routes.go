@@ -24,10 +24,8 @@ func (app *application) routes() http.Handler {
 	mux.Handle("GET /activities/new", usersOnly.ThenFunc(app.getActivitiesNew))
 	mux.Handle("POST /activities", usersOnly.ThenFunc(app.bellevueActivityPost))
 	mux.Handle("GET /activities/{id}/edit", usersOnly.ThenFunc(app.getActivitiesIDEdit))
-	mux.Handle("GET /activities/edit", usersOnly.ThenFunc(app.getActivitiesEdit))
+	mux.Handle("PUT /activities/{id}", usersOnly.ThenFunc(app.putActivitiesID))
 	mux.Handle("DELETE /activities/{id}", usersOnly.ThenFunc(app.bellevueActivityDelete))
-
-	mux.Handle("PATCH /invoices/{id}", usersOnly.ThenFunc(app.patchInvoicesIDState))
 
 	mux.HandleFunc("GET /login", app.getLogin)
 	mux.HandleFunc("GET /login/email", app.getLoginEmail)
