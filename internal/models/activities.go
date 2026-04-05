@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type ActivityModel2 struct {
+type ActivityModel struct {
 	DB *sql.DB
 }
 
@@ -20,7 +20,7 @@ type Activity struct {
 	UpdatedAt time.Time
 }
 
-func (m *ActivityModel2) InsertWithTransaction(activity *Activity, tx *sql.Tx) (int, error) {
+func (m *ActivityModel) InsertWithTransaction(activity *Activity, tx *sql.Tx) (int, error) {
 	var err error
 
 	stmt := `
@@ -45,7 +45,7 @@ func (m *ActivityModel2) InsertWithTransaction(activity *Activity, tx *sql.Tx) (
 	return activityID, nil
 }
 
-func (m *ActivityModel2) UpdateDateAndCommentTx(activity *Activity, tx *sql.Tx) error {
+func (m *ActivityModel) UpdateDateAndCommentTx(activity *Activity, tx *sql.Tx) error {
 	var err error
 
 	stmt := `
@@ -68,7 +68,7 @@ func (m *ActivityModel2) UpdateDateAndCommentTx(activity *Activity, tx *sql.Tx) 
 	return nil
 }
 
-func (m *ActivityModel2) Delete(activityID int, tx *sql.Tx) error {
+func (m *ActivityModel) Delete(activityID int, tx *sql.Tx) error {
 	var err error
 
 	stmt := `
@@ -83,7 +83,7 @@ func (m *ActivityModel2) Delete(activityID int, tx *sql.Tx) error {
 	return nil
 }
 
-func (m *ActivityModel2) GetActivitiesOfInvoiceForUser(invoiceID int, userID int) ([]Activity, error) {
+func (m *ActivityModel) GetActivitiesOfInvoiceForUser(invoiceID int, userID int) ([]Activity, error) {
 	stmt := `
 	SELECT id,
 	       user_id,
@@ -132,7 +132,7 @@ func (m *ActivityModel2) GetActivitiesOfInvoiceForUser(invoiceID int, userID int
 
 // activities can have a null on invoice_id, which means that the activity was
 // not invoiced yet or that we haven't created yet an invoice for the user.
-func (m *ActivityModel2) GetUninvoicedActivitiesForUser(userID int) (
+func (m *ActivityModel) GetUninvoicedActivitiesForUser(userID int) (
 	[]Activity,
 	error,
 ) {
