@@ -35,6 +35,7 @@ type templateData struct {
 	ViewModels struct {
 		Activity             *viewmodels.Activity
 		UninvoicedActivities *viewmodels.Invoice
+		SentInvoices         []*viewmodels.Invoice
 	}
 
 	// Feature Flags

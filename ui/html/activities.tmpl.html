@@ -12,7 +12,10 @@
       >
         Add a new activity
       </button>
-      {{ template "uninvoiced-activities" .UninvoicedActivities }}
+      {{ template "invoice" .UninvoicedActivities }}
+      {{ range .SentInvoices }}
+        {{ template "invoice" . }}
+      {{ end }}
     </main>
   {{ else }}
     <main class="center stack">

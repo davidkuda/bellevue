@@ -28,6 +28,13 @@ func (app *application) getActivities(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, r, fmt.Errorf("could not get uninvoiced activities: %v", err))
 		return
 	}
+
+	t.ViewModels.SentInvoices, err = app.viewmodels.Activities.GetAllInvoicesForUser(t.User.ID)
+	if err != nil {
+		app.serverError(w, r, fmt.Errorf("could not get sent invoices: %v", err))
+		return
+	}
+
 	app.render(w, r, http.StatusOK, "activities.tmpl.html", &t)
 }
 

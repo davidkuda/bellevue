@@ -1,5 +1,9 @@
-{{ define "uninvoiced-activities" }}
+{{ define "invoice" }}
+  {{ if $.Sent }}
+<h3 class="text-center stack-exception-xl">Rechnung {{ .ID }} vom {{ .Date | fmtDateNiceRead }}</h3>
+  {{ else }}
   <h3 class="text-center stack-exception-xl">Offene Konsumationen</h3>
+  {{ end }}
   <div class="table-container stack-exception">
     <table>
       <tr>
@@ -28,6 +32,7 @@
             <span class="bellevue-activity stack-exception-medium">
               <small class="comment">{{ .Comment }}</small>
             </span>
+        {{ if not $.Sent }}
             <div class="buttons stack-exception-small">
               <button
                 hx-get="/activities/{{ .ID }}/edit"
@@ -51,6 +56,7 @@
                 delete
               </button>
             </div>
+        {{ end }}
           </td>
         </tr>
       {{ end }}

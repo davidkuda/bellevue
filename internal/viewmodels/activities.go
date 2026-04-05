@@ -14,15 +14,11 @@ type ActivityViewModel struct {
 
 type Invoice struct {
 	ID         int
+	Sent       bool
+	Date       time.Time
 	Activities []Activity
 	TotalPrice int
 	Categories []Category
-}
-
-// e.g. food, lecture, etc.
-type Category struct {
-	Name       string
-	TotalPrice int
 }
 
 type UninvoicedActivities struct {
@@ -61,55 +57,6 @@ type activityConsumption struct {
 	total_price  int
 }
 
-// Current Invoice == invoice_id is null
-func (m *ActivityViewModel) GetUninvoicedCategoriesForUser(userID int) ([]Category, error) {
-	stmt := `
-	  SELECT fa.view_name,
-	         sum(total_price) AS total_price
-	    FROM consumptions c
-	    JOIN activities a
-	      ON c.activity_id = a.id
-	    JOIN products p
-	      ON c.product_id = p.id
-	    JOIN financial_accounts fa
-	      ON p.financial_account_id = fa.id
-	   WHERE a.invoice_id is null
-	     AND a.user_id = $1
-	GROUP BY fa.view_name
-	ORDER BY total_price DESC
-	;
-	`
-
-	rows, err := m.DB.Query(stmt, userID)
-	if err != nil {
-		return nil, fmt.Errorf("DB.Query(stmt): %v", err)
-	}
-
-	defer rows.Close()
-
-	var res []Category
-
-	for rows.Next() {
-		var r Category
-		err = rows.Scan(
-			&r.Name,
-			&r.TotalPrice,
-		)
-
-		if err != nil {
-			return nil, fmt.Errorf("for rows.Next(): %v", err)
-		}
-
-		res = append(res, r)
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, fmt.Errorf("rows.Err(): %v", err)
-	}
-
-	return res, nil
-}
-
 func (m *ActivityViewModel) GetUninvoicedActivitiesForUser(userID int) (*Invoice, error) {
 	acs, err := m.getUninvoicedActivityConsumptionsForUser(userID)
 	// TODO: should we return err on no rows found?
@@ -141,7 +88,79 @@ func (m *ActivityViewModel) GetUninvoicedActivitiesForUser(userID int) (*Invoice
 	}
 	uninvoicedActivities.Categories = cats
 
+	uninvoicedActivities.Sent = false
+
 	return &uninvoicedActivities, nil
+}
+
+func (m *ActivityViewModel) GetAllInvoicesForUser(userID int) ([]*Invoice, error) {
+	type inv struct {
+		id   int
+		date time.Time
+	}
+	stmt := "select id, created_at from invoices_v2 where user_id = $1;"
+	rows, err := m.DB.Query(stmt, userID)
+	if err != nil {
+		return nil, fmt.Errorf("could not get all invoice ids: %v", err)
+	}
+	defer rows.Close()
+
+	var invs []inv
+
+	for rows.Next() {
+		var in inv
+		err = rows.Scan(&in.id, &in.date)
+		if err != nil {
+			return nil, fmt.Errorf("for rows.Next(): %v", err)
+		}
+		invs = append(invs, in)
+	}
+
+	var sentInvoices []*Invoice
+	for _, in := range invs {
+		invoice, err := m.GetSentInvoiceForUser(in.id, userID)
+		if err != nil {
+			return nil, fmt.Errorf("could not get sent invoice invoiceID=%d userID=%d: %v", userID, in.id, err)
+		}
+		invoice.Date = in.date
+		sentInvoices = append(sentInvoices, invoice)
+	}
+
+	return sentInvoices, nil
+}
+
+func (m *ActivityViewModel) GetSentInvoiceForUser(invoiceID, userID int) (*Invoice, error) {
+	acs, err := m.getActivityConsumptionsByInvoiceForUser(invoiceID, userID)
+	if err != nil {
+		return nil, fmt.Errorf("could not get activityConsumptions userID=%d: %s", userID, err)
+	}
+
+	if len(acs) == 0 {
+		return nil, nil
+	}
+
+	activities := acs.toViewModel()
+
+	totalPrice := 0
+	for i := range activities {
+		totalPrice = totalPrice + activities[i].TotalPrice
+	}
+
+	invoice := Invoice{
+		TotalPrice: totalPrice,
+		Activities: activities,
+	}
+
+	cats, err := m.GetCategoriesByInvoiceIDForUser(invoiceID, userID)
+	if err != nil {
+		return nil, fmt.Errorf("could not get uninvoiced categories for user: %v", err)
+	}
+	invoice.Categories = cats
+
+	invoice.ID = invoiceID
+	invoice.Sent = true
+
+	return &invoice, nil
 }
 
 func (m *ActivityViewModel) GetActivityByIDForUser(activityID, userID int) (*Activity, error) {
@@ -193,6 +212,72 @@ func (m *ActivityViewModel) getUninvoicedActivityConsumptionsForUser(userID int)
 	`
 
 	rows, err := m.DB.Query(stmt, userID)
+	if err != nil {
+		return nil, fmt.Errorf("DB.Query(stmt): %v", err)
+	}
+
+	defer rows.Close()
+
+	var res []activityConsumption
+
+	for rows.Next() {
+		var r activityConsumption
+		err = rows.Scan(
+			&r.activityID,
+			&r.date,
+			&r.comment,
+			&r.productCode,
+			&r.productName,
+			&r.pricecatName,
+			&r.quantity,
+			&r.unit_price,
+			&r.total_price,
+		)
+
+		if err != nil {
+			return nil, fmt.Errorf("for rows.Next(): %v", err)
+		}
+
+		res = append(res, r)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows.Err(): %v", err)
+	}
+
+	return res, nil
+}
+
+func (m *ActivityViewModel) getActivityConsumptionsByInvoiceForUser(invoiceID, userID int) (activityConsumptions, error) {
+	// NOTE: case when ... would be redundant if price_categories had a category "free_amount"
+	// product.price_category_id can be null...
+	stmt := `
+	   SELECT a.id,
+	          a.date,
+	          coalesce(a.comment, ''),
+	          p.code as product_code,
+	          p.name as product_name,
+	          case
+	             when p.pricing_mode = 'custom' then 'free_amount'
+	             else pc.name
+	          end as pricecat_name,
+	          c.quantity,
+	          c.unit_price,
+	          c.total_price
+	     FROM consumptions c
+	LEFT JOIN activities a
+	       ON a.id = c.activity_id
+	LEFT JOIN products p
+	       ON p.id = c.product_id
+	LEFT JOIN price_categories pc
+	       ON pc.id = p.price_category_id
+	    WHERE a.invoice_id = $1
+	      AND user_id = $2
+	 ORDER BY a.date DESC, a.created_at DESC
+	;
+	`
+
+	rows, err := m.DB.Query(stmt, invoiceID, userID)
 	if err != nil {
 		return nil, fmt.Errorf("DB.Query(stmt): %v", err)
 	}
