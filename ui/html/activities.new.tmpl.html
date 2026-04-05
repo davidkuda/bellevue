@@ -10,6 +10,7 @@
     </p>
     <form
       class="stack"
+      hx-push-url="/activities"
       {{ if .ViewModels.Activity -}}
       hx-put="/activities/{{ .ViewModels.Activity.ID }}"
       hx-target="main"
