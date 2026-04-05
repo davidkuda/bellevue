@@ -98,7 +98,11 @@ func (m *ActivityViewModel) GetAllInvoicesForUser(userID int) ([]*Invoice, error
 		id   int
 		date time.Time
 	}
-	stmt := "select id, created_at from invoices_v2 where user_id = $1;"
+	stmt := `
+	select id, created_at
+	from invoices_v2
+	where user_id = $1
+	order by created_at desc;`
 	rows, err := m.DB.Query(stmt, userID)
 	if err != nil {
 		return nil, fmt.Errorf("could not get all invoice ids: %v", err)
