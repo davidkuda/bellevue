@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"log"
@@ -9,13 +10,15 @@ import (
 
 	"github.com/davidkuda/bellevue/internal/envcfg"
 	"github.com/davidkuda/bellevue/internal/models"
+	"github.com/davidkuda/bellevue/internal/viewmodels"
 )
 
 type application struct {
-	db        *sql.DB
-	models    models.Models
-	templates *template.Template
-	config    config
+	db         *sql.DB
+	models     models.Models
+	viewmodels viewmodels.Models
+	templates  *template.Template
+	config     config
 }
 
 func main() {
@@ -33,57 +36,69 @@ func main() {
 		fmt.Println(user.Email)
 	}
 
-	return
-
 	for _, user := range users {
 
-		if user.Email != app.config.TestEmail {
-			continue
+		if app.config.TestEmail != "" {
+			if user.Email != app.config.TestEmail {
+				continue
+			}
 		}
 
 		log.Printf("starting invoicing flow for user id=%d email=%s\n", user.ID, user.Email)
 
-		numOfConsumptions, err := app.models.Consumptions.CountOpenConsumptionsForUser(user.ID)
+		numUninvoicedActivities, err := app.models.Activities.CountUninvoicedActivitiesForUser(user.ID)
 		if err != nil {
-			log.Fatalf("could not count consumptions: %s\n", err)
+			log.Fatalf("could not count activities: %s\n", err)
 		}
-		if numOfConsumptions == 0 {
+		if numUninvoicedActivities == 0 {
 			// TODO: maybe I can send a reminder here to advertise for this app?
 			log.Println("no consumptions, skipping")
 			continue
 		}
 
-		log.Printf("sending invoice with %d consumptions to %s (userID=%d)\n", numOfConsumptions, user.Email, user.ID)
+		log.Printf("sending invoice with %d activities to %s (userID=%d)\n", numUninvoicedActivities, user.Email, user.ID)
 
-		// TODO: the next few calls should probably all be in a transaction...
-		invoice, err := app.models.InvoicesV2.NewInvoice(user.ID)
+		ctx := context.TODO()
+		tx, err := app.db.BeginTx(ctx, nil)
+		if err != nil {
+			log.Fatalf("failed starting transaction: %v\n", err)
+			return
+		}
+		defer tx.Rollback()
+
+		invoice, err := app.models.InvoicesV2.NewInvoiceTx(user.ID, tx)
 		if err != nil {
 			log.Fatalf("could not create a new invoice user.ID=%d: %s\n", user.ID, err)
 		}
 
-		// TODO: assign open consumptions by date
-		numOfAffectedConsumptions, err := app.models.InvoicesV2.AssignAllOpenConsumptionsToInvoice(user.ID, invoice.ID)
+		MONTH := time.Date(2026, time.February, 1, 0, 0, 0, 0, time.UTC)
+		N, err := app.models.InvoicesV2.AssignOpenActivitiesByMonthToInvoiceForUserTx(
+			MONTH, user.ID, invoice.ID, tx,
+		)
 		if err != nil {
-			log.Fatalf("could not assign consumptions to invoice user.ID=%d invoice.ID=%d: %s\n", user.ID, invoice.ID, err)
-		}
-		log.Printf("number of invoiced consumptions for %s: %d\n", user.Email, numOfConsumptions)
-		if numOfAffectedConsumptions == 0 {
-			log.Println("no consumptions, skipping")
-			continue
+			log.Fatalf("could not assign activities to invoice user.ID=%d invoice.ID=%d: %s\n", user.ID, invoice.ID, err)
 		}
 
-		// TODO: reimplement, also the email template...
-		// priceCats, err := app.models.InvoicesV2.CalculatePriceCategoriesByInvoiceID(invoice.ID)
-		// if err != nil {
-		// 	log.Fatalf("failed retrieving price cat sums: %s\n", err)
-		// }
+		log.Printf("number of invoiced activities for %s: %d\n", user.Email, N)
+		if N == 0 {
+			log.Fatalln("no activities, skipping")
+			// log.Println("no activities, skipping")
+			// continue
+		}
+
+		// TODO: uncomment once ready
+		// tx.Commit()
+		tx.Rollback()
+
+		// TODO: rename function to GetInvoiceForUser, drop word Sent
+		viewInvoice, err := app.viewmodels.Activities.GetSentInvoiceForUser(invoice.ID, user.ID)
+		fmt.Println(viewInvoice)
 
 		// send email
 		// email must have price cat sums and all consumptions
 
 		// set status to sent
 
-		fmt.Println(invoice)
 	}
 }
 
@@ -101,6 +116,9 @@ func newApplication() application {
 
 	m := models.New(db)
 	app.models = m
+
+	vm := viewmodels.New(db)
+	app.viewmodels = vm
 
 	funcs := template.FuncMap{
 		"fmtCHF":  formatCurrency,
