@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"fmt"
@@ -95,7 +96,25 @@ func main() {
 		fmt.Println(viewInvoice)
 
 		// send email
-		// email must have price cat sums and all consumptions
+		data := newTemplateData(
+			app.config, &user, &invoice, viewInvoice,
+		)
+		var buf bytes.Buffer
+		if err := app.templates.Execute(&buf, data); err != nil {
+			log.Fatal(err)
+		}
+
+		em := email{
+			from:    app.config.SMTP.User,
+			to:      []string{user.Email},
+			subject: data.Subject,
+			body:    buf.Bytes(),
+			// body:    normalizeCRLF(buf.Bytes()),
+		}
+
+		if err := sendViaImplicitTLS(app.config, em); err != nil {
+			log.Fatal(err)
+		}
 
 		// set status to sent
 

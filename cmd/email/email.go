@@ -6,8 +6,10 @@ import (
 	"log"
 	"net"
 	"net/smtp"
+	"time"
 
 	"github.com/davidkuda/bellevue/internal/models"
+	"github.com/davidkuda/bellevue/internal/viewmodels"
 )
 
 type email struct {
@@ -16,6 +18,8 @@ type email struct {
 	subject string
 	body    []byte
 }
+
+func newEmail() {}
 
 type TemplateData struct {
 	Subject     string
@@ -29,32 +33,45 @@ type TemplateData struct {
 	Recipient     BankAccount
 	Zahlungszweck string
 
-	User    models.User
-	Invoice models.Invoice
-	// Activities models.BellevueActivities
+	User        *models.User
+	Invoice     *models.InvoiceV2
+	ViewInvoice *viewmodels.Invoice
 }
 
-func zahlungszweck(invoice models.Invoice, user models.User) string {
+func newTemplateData(
+	cfg config,
+	user *models.User,
+	invoice *models.InvoiceV2,
+	viewInvoice *viewmodels.Invoice,
+) *TemplateData {
+	data := TemplateData{
+		Subject:       "Deine Rechnung für den Februar 2026 im Bellevue",
+		To:            user.Email,
+		From:          cfg.SMTP.User,
+		Date:          time.Now().Format(time.RFC1123Z),
+		SenderName:    cfg.SenderName,
+		SenderEmail:   cfg.SenderEmail,
+		Recipient:     cfg.Recipient,
+		Zahlungszweck: zahlungszweck(viewInvoice, user),
+		User:          user,
+		Invoice:       invoice,
+		ViewInvoice:   viewInvoice,
+	}
+	return &data
+}
+
+func zahlungszweck(invoice *viewmodels.Invoice, user *models.User) string {
 	var positions string
-	if invoice.TotalEating > 0 {
-		positions += fmt.Sprintf("Essen %s, ", formatCurrency(invoice.TotalEating))
-	}
-	if invoice.TotalLectures > 0 {
-		positions += fmt.Sprintf("Vorträge %s, ", formatCurrency(invoice.TotalLectures))
-	}
-	if invoice.TotalCoffees > 0 {
-		positions += fmt.Sprintf("Kaffee %s, ", formatCurrency(invoice.TotalCoffees))
-	}
-	if invoice.TotalSaunas > 0 {
-		positions += fmt.Sprintf("Sauna %s, ", formatCurrency(invoice.TotalSaunas))
-	}
-	if invoice.TotalKiosk > 0 {
-		positions += fmt.Sprintf("Kiosk %s, ", formatCurrency(invoice.TotalKiosk))
+
+	for _, cat := range invoice.Categories {
+		positions += fmt.Sprintf("%s %s, ", cat.Name, formatCurrency(cat.TotalPrice))
 	}
 
+	// remove trailing comma and space char
 	positions = positions[:len(positions)-2]
 
-	return fmt.Sprintf("%s: %s: %s", user.FirstName, invoice.Period.Format("2006-01"), positions)
+	// TODO: it would be nice to add something like 2026-03 or 2026-Q1
+	return fmt.Sprintf("%s: %s", user.FirstName, positions)
 }
 
 func sendViaImplicitTLS(cfg config, em email) error {

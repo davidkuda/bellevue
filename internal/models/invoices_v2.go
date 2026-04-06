@@ -62,7 +62,7 @@ func (m *InvoiceV2Model) AssignOpenActivitiesByMonthToInvoiceForUserTx(
 	   and invoice_id is null;
 	`
 
-	result, err := tx.Exec(stmt, invoceID, userID)
+	result, err := tx.Exec(stmt, invoceID, userID, month)
 	if err != nil {
 		return 0, err
 	}
