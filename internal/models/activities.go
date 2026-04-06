@@ -181,3 +181,25 @@ func (m *ActivityModel) GetUninvoicedActivitiesForUser(userID int) (
 
 	return activities, nil
 }
+
+func (m *ActivityModel) CountUninvoicedActivitiesForUser(userID int) (int, error) {
+	var count int
+	var err error
+
+	stmt := `
+	select count(*)
+	from activities
+	where user_id = $1
+	and invoice_id is null;
+	`
+
+	row := m.DB.QueryRow(stmt, userID)
+
+	err = row.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
