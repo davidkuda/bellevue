@@ -147,6 +147,7 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		"formatDate":          formatDate,
 		"formatDateFormInput": formatDateFormInput,
 		"fmtDateNiceRead":     formatDateNiceRead,
+		"fmtDateCH":           formatDateCH,
 		"fmtCHF":              formatCurrency,
 		"fmtMonth":            formatMonth,
 	}
@@ -194,6 +195,10 @@ func formatDateFormInput(t time.Time) string {
 
 func formatDateNiceRead(t time.Time) string {
 	return t.Format("Mon 2.01.2006")
+}
+
+func formatDateCH(t time.Time) string {
+	return t.Format("2.01.2006")
 }
 
 func formatMonth(t time.Time) string {

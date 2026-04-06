@@ -1,6 +1,6 @@
 {{ define "invoice" }}
   {{ if .Sent }}
-<h3 class="text-center stack-exception-xl">Rechnung {{ .ID }} vom {{ .Date | fmtDateNiceRead }}</h3>
+  <h3 class="text-center stack-exception-xl">Rechnung Nr. {{ .ID }} vom {{ .Date | fmtDateCH }}</h3>
   {{ else }}
   <h3 class="text-center stack-exception-xl">Offene Konsumationen</h3>
   {{ end }}
