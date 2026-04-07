@@ -1,0 +1,39 @@
+{{ define "email-txt" -}}
+
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+Liebe/r {{.User.FirstName}}
+
+Hier ist Deine Rechnung aus https://team.amden-retreat.ch.
+
+Im letzten Monat hast Du im Bellevue im Wert von {{ .ViewInvoice.TotalPrice | fmtCHF }} CHF konsumiert.
+
+Bitte überweise {{ .ViewInvoice.TotalPrice | fmtCHF }} CHF an das folgende Konto (Zahlungszweck nicht vergessen):
+
+Zahlungszweck: {{ .Zahlungszweck }}
+
+{{ .Recipient.IBAN }}
+{{ .Recipient.Name }}
+{{ .Recipient.Street }}
+{{ .Recipient.PLZOrt }}
+
+Hier ist eine Auflistung Deiner Konsumationen:
+
+{{ range .ViewInvoice.Activities -}}
+{{ .Date | fmtDate }}: {{ .TotalPrice | fmtCHF }} CHF:
+{{- range .Consumptions }}
+{{ if ne .PriceCategory "free_amount" -}}
+  - {{ .Quantity }} {{ .ProductName }} zu {{ .UnitPrice | fmtCHF }} CHF ({{ .PriceCategory }})
+{{- else -}}
+  - {{ .ProductName }} zu {{ .UnitPrice | fmtCHF }} CHF
+{{- end -}}
+{{- end }}
+
+{{- if .Comment }}
+- Kommentar: {{ .Comment }}
+{{- end }}
+
+{{ end -}}
+
+{{- end }}

@@ -70,8 +70,11 @@ func zahlungszweck(invoice *viewmodels.Invoice, user *models.User) string {
 	// remove trailing comma and space char
 	positions = positions[:len(positions)-2]
 
-	// TODO: it would be nice to add something like 2026-03 or 2026-Q1
-	return fmt.Sprintf("%s: %s", user.FirstName, positions)
+	positions = fmt.Sprintf("%s: %s", user.FirstName, positions)
+
+	// TODO: it would be nice to add something like 2026-03 or 2026-Q1 to the string
+
+	return positions
 }
 
 func sendViaImplicitTLS(cfg config, em email) error {

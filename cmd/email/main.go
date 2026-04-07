@@ -72,7 +72,7 @@ func main() {
 			log.Fatalf("could not create a new invoice user.ID=%d: %s\n", user.ID, err)
 		}
 
-		MONTH := time.Date(2026, time.February, 1, 0, 0, 0, 0, time.UTC)
+		MONTH := time.Date(2026, time.April, 1, 0, 0, 0, 0, time.UTC)
 		N, err := app.models.InvoicesV2.AssignOpenActivitiesByMonthToInvoiceForUserTx(
 			MONTH, user.ID, invoice.ID, tx,
 		)
@@ -92,15 +92,18 @@ func main() {
 		tx.Rollback()
 
 		// TODO: rename function to GetInvoiceForUser, drop word Sent
-		viewInvoice, err := app.viewmodels.Activities.GetSentInvoiceForUser(invoice.ID, user.ID)
-		fmt.Println(viewInvoice)
+		// viewInvoice, err := app.viewmodels.Activities.GetSentInvoiceForUser(invoice.ID, user.ID)
+		viewInvoice, err := app.viewmodels.Activities.GetSentInvoiceForUser(23, user.ID)
+		if viewInvoice == nil {
+			log.Fatal("for this to work, you need an invoice...")
+		}
 
 		// send email
 		data := newTemplateData(
 			app.config, &user, &invoice, viewInvoice,
 		)
 		var buf bytes.Buffer
-		if err := app.templates.Execute(&buf, data); err != nil {
+		if err := app.templates.ExecuteTemplate(&buf, "email-txt", data); err != nil {
 			log.Fatal(err)
 		}
 
@@ -112,9 +115,12 @@ func main() {
 			// body:    normalizeCRLF(buf.Bytes()),
 		}
 
-		if err := sendViaImplicitTLS(app.config, em); err != nil {
-			log.Fatal(err)
-		}
+		fmt.Println(em.subject)
+		fmt.Println(buf.String())
+
+		// if err := sendViaImplicitTLS(app.config, em); err != nil {
+		// 	log.Fatal(err)
+		// }
 
 		// set status to sent
 
@@ -145,11 +151,17 @@ func newApplication() application {
 	}
 
 	// Parse template file
-	tmpl, err := template.New("email.tmpl").Funcs(funcs).ParseFiles("email.tmpl")
+	files := []string{
+		"email.tmpl",
+		"email.txt.tmpl",
+		"email.html.tmpl",
+	}
+	tmpl := template.New("email").Funcs(funcs)
+	t, err := tmpl.ParseFiles(files...)
 	if err != nil {
 		log.Fatal(err)
 	}
-	app.templates = tmpl
+	app.templates = t
 
 	return app
 }
@@ -160,5 +172,5 @@ func formatCurrency(value int) string {
 }
 
 func formatDate(t time.Time) string {
-	return t.Format("Mon 2.01.2006")
+	return t.Format("2.01.2006")
 }
