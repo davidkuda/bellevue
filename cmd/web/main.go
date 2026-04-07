@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/davidkuda/bellevue/internal/envcfg"
 	"github.com/davidkuda/bellevue/internal/models"
@@ -110,6 +111,7 @@ func main() {
 	// https://pkg.go.dev/github.com/alexedwards/scs/postgresstore#section-readme
 	app.sessionManager = scs.New()
 	app.sessionManager.Store = postgresstore.New(db)
+	app.sessionManager.Lifetime = 7 * 24 * time.Hour
 
 	app.productFormConfig, err = app.models.Products.GetProductFormConfig()
 	if err != nil {
