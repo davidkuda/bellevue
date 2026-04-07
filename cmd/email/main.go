@@ -103,7 +103,7 @@ func main() {
 			app.config, &user, &invoice, viewInvoice,
 		)
 		var buf bytes.Buffer
-		if err := app.templates.ExecuteTemplate(&buf, "email-txt", data); err != nil {
+		if err := app.templates.ExecuteTemplate(&buf, "email", data); err != nil {
 			log.Fatal(err)
 		}
 
@@ -115,15 +115,12 @@ func main() {
 			// body:    normalizeCRLF(buf.Bytes()),
 		}
 
-		fmt.Println(em.subject)
-		fmt.Println(buf.String())
+		// fmt.Println(em.subject)
+		// fmt.Println(buf.String())
 
-		// if err := sendViaImplicitTLS(app.config, em); err != nil {
-		// 	log.Fatal(err)
-		// }
-
-		// set status to sent
-
+		if err := sendViaImplicitTLS(app.config, em); err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 

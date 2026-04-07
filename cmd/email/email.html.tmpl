@@ -32,15 +32,16 @@ Content-Transfer-Encoding: 8bit
 </p>
 {{ range .ViewInvoice.Activities }}
   <p>
-  <strong>{{ .Date | fmtDate }}: {{ .TotalPrice | fmtCHF }} CHF</strong><br>
-  {{ range .Consumptions -}}
+  <strong>{{ .Date | fmtDate }}: {{ .TotalPrice | fmtCHF }} CHF:</strong><br>
+  {{- range .Consumptions -}}
     {{- if ne .PriceCategory "free_amount" }}
       {{ .Quantity }} {{ .ProductName }} zu {{ .UnitPrice | fmtCHF }} CHF ({{ .PriceCategory }})<br>
-    {{ else }}
+    {{- else }}
       {{ .ProductName }} zu {{ .UnitPrice | fmtCHF }} CHF<br>
     {{ end -}}
   {{- end }}
   {{ .Comment }}
+  </p>
 {{- end }}
 </p>
 <p>
