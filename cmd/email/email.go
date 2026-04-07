@@ -45,8 +45,7 @@ func newTemplateData(
 	viewInvoice *viewmodels.Invoice,
 ) *TemplateData {
 	data := TemplateData{
-		// Subject:       "Deine Rechnung für den Februar 2026 im Bellevue",
-		Subject:       fmt.Sprintf("Deine Rechnung %s", time.Now().String()),
+		Subject:       cfg.EmailSubject,
 		To:            user.Email,
 		From:          cfg.SMTP.User,
 		Date:          time.Now().Format(time.RFC1123Z),

@@ -14,6 +14,9 @@ type config struct {
 	Recipient BankAccount
 
 	TestEmail string
+
+	EmailSubject string
+
 }
 
 type SMTPConfig struct {
@@ -48,6 +51,7 @@ func loadConfigFromEnv() config {
 		},
 
 		TestEmail: os.Getenv("TEST_EMAIL"),
+		EmailSubject: os.Getenv("EMAIL_SUBJECT"),
 	}
 
 	var fail bool
@@ -85,6 +89,10 @@ func loadConfigFromEnv() config {
 	if c.Recipient.IBAN == "" {
 		fail = true
 		log.Print("Could not read env var RECIPIENT_IBAN")
+	}
+
+	if c.EmailSubject == "" {
+		c.EmailSubject = "Deine Rechnung vom Bellevue"
 	}
 
 	if fail {
