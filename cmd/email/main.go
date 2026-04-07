@@ -34,10 +34,6 @@ func main() {
 	}
 
 	for _, user := range users {
-		fmt.Println(user.Email)
-	}
-
-	for _, user := range users {
 
 		if app.config.TestEmail != "" {
 			if user.Email != app.config.TestEmail {
