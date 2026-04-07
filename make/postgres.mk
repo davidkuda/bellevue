@@ -32,7 +32,7 @@ db/backup/full:
 	--column-inserts \
 	--no-privileges \
 	--no-owner \
-	> ./data/postgres/2025-07-20--backup--full
+	> ./data/postgres/backup/2026-04-05
 
 db/init:
 	createdb kuda_ai
