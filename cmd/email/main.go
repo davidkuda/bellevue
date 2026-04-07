@@ -82,7 +82,7 @@ func main() {
 		// Or: Assign activities by range (Q1 2026):
 		start := time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC)
 		end := time.Date(2026, time.April, 1, 0, 0, 0, 0, time.UTC)
-		N, err := app.models.InvoicesV2.AssignOpenActivitiesByRangeToInviceForUserTx(
+		N, err := app.models.InvoicesV2.AssignOpenActivitiesByRangeToInvoiceForUserTx(
 			start, end, user.ID, invoice.ID, tx,
 		)
 

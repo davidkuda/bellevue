@@ -75,7 +75,7 @@ func (m *InvoiceV2Model) AssignOpenActivitiesByMonthToInvoiceForUserTx(
 	return int(n), nil
 }
 
-func (m *InvoiceV2Model) AssignOpenActivitiesByRangeToInviceForUserTx(
+func (m *InvoiceV2Model) AssignOpenActivitiesByRangeToInvoiceForUserTx(
 	start time.Time,
 	end time.Time,
 	userID int,
