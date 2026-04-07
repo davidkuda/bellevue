@@ -72,16 +72,23 @@ func main() {
 			log.Fatalf("could not create a new invoice user.ID=%d: %s\n", user.ID, err)
 		}
 
-		// Comment in/out the next two blocks:
+		// Comment in/out one of the next 3 blocks:
 
 		// Either: Assign all uninvoiced activities:
-		N, err := app.models.InvoicesV2.AssignAllOpenActivitiesToInvoiceTx(user.ID, invoice.ID, tx)
+		// N, err := app.models.InvoicesV2.AssignAllOpenActivitiesToInvoiceTx(user.ID, invoice.ID, tx)
 
 		// Or: Assign activities by month:
 		// MONTH := time.Date(2026, time.April, 1, 0, 0, 0, 0, time.UTC)
 		// N, err := app.models.InvoicesV2.AssignOpenActivitiesByMonthToInvoiceForUserTx(
 		// 	MONTH, user.ID, invoice.ID, tx,
 		// )
+
+		// Or: Assign activities by range (Q1 2026):
+		start := time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC)
+		end := time.Date(2026, time.April, 1, 0, 0, 0, 0, time.UTC)
+		N, err := app.models.InvoicesV2.AssignOpenActivitiesByRangeToInviceForUserTx(
+			start, end, user.ID, invoice.ID, tx,
+		)
 
 		if err != nil {
 			log.Fatalf("could not assign activities to invoice userID=%d invoiceID=%d: %s\n", user.ID, invoice.ID, err)
