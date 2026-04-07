@@ -86,6 +86,8 @@ func main() {
 			start, end, user.ID, invoice.ID, tx,
 		)
 
+		app.config.EmailSubject = "Deine Rechnung für das Q1 2026 im Bellevue"
+
 		if err != nil {
 			log.Fatalf("could not assign activities to invoice userID=%d invoiceID=%d: %s\n", user.ID, invoice.ID, err)
 		}
