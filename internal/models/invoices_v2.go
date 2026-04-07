@@ -75,17 +75,17 @@ func (m *InvoiceV2Model) AssignOpenActivitiesByMonthToInvoiceForUserTx(
 	return int(n), nil
 }
 
-func (m *InvoiceV2Model) AssignAllOpenConsumptionsToInvoice(userID, invoceID int) (int, error) {
+func (m *InvoiceV2Model) AssignAllOpenActivitiesToInvoiceTx(userID, invoceID int, tx *sql.Tx) (int, error) {
 	var err error
 
 	stmt := `
-	update consumptions
+	update activities
 	   set invoice_id = $1
 	 where user_id = $2
 	   and invoice_id is null;
 	`
 
-	result, err := m.DB.Exec(stmt, invoceID, userID)
+	result, err := tx.Exec(stmt, invoceID, userID)
 	if err != nil {
 		return 0, err
 	}

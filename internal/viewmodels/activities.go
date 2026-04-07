@@ -122,7 +122,7 @@ func (m *ActivityViewModel) GetAllInvoicesForUser(userID int) ([]*Invoice, error
 
 	var sentInvoices []*Invoice
 	for _, in := range invs {
-		invoice, err := m.GetSentInvoiceForUser(in.id, userID)
+		invoice, err := m.GetInvoiceForUser(in.id, userID)
 		if err != nil {
 			return nil, fmt.Errorf("could not get sent invoice invoiceID=%d userID=%d: %v", userID, in.id, err)
 		}
@@ -133,7 +133,7 @@ func (m *ActivityViewModel) GetAllInvoicesForUser(userID int) ([]*Invoice, error
 	return sentInvoices, nil
 }
 
-func (m *ActivityViewModel) GetSentInvoiceForUser(invoiceID, userID int) (*Invoice, error) {
+func (m *ActivityViewModel) GetInvoiceForUser(invoiceID, userID int) (*Invoice, error) {
 	acs, err := m.getActivityConsumptionsByInvoiceForUser(invoiceID, userID)
 	if err != nil {
 		return nil, fmt.Errorf("could not get activityConsumptions userID=%d: %s", userID, err)

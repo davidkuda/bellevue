@@ -30,12 +30,12 @@ func TestGetUninvoicedActivitiesForUser(t *testing.T) {
 
 	t.Log(len(acs))
 
-	activities, err := model.GetUninvoicedActivitiesForUser(userID)
+	invoice, err := model.GetUninvoicedActivitiesForUser(userID)
 	if err != nil {
 		t.Fatalf("m.getUninvoicedActivityConsumptionsForUser(%d): %s", userID, err)
 	}
-	if len(activities) <= 0 {
+	if len(invoice.Activities) <= 0 {
 		t.Fatal("something wrong here")
 	}
-	t.Log(activities)
+	t.Log(invoice)
 }

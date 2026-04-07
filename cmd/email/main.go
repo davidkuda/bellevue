@@ -72,12 +72,19 @@ func main() {
 			log.Fatalf("could not create a new invoice user.ID=%d: %s\n", user.ID, err)
 		}
 
-		MONTH := time.Date(2026, time.April, 1, 0, 0, 0, 0, time.UTC)
-		N, err := app.models.InvoicesV2.AssignOpenActivitiesByMonthToInvoiceForUserTx(
-			MONTH, user.ID, invoice.ID, tx,
-		)
+		// Comment in/out the next two blocks:
+
+		// Either: Assign all uninvoiced activities:
+		N, err := app.models.InvoicesV2.AssignAllOpenActivitiesToInvoiceTx(user.ID, invoice.ID, tx)
+
+		// Or: Assign activities by month:
+		// MONTH := time.Date(2026, time.April, 1, 0, 0, 0, 0, time.UTC)
+		// N, err := app.models.InvoicesV2.AssignOpenActivitiesByMonthToInvoiceForUserTx(
+		// 	MONTH, user.ID, invoice.ID, tx,
+		// )
+
 		if err != nil {
-			log.Fatalf("could not assign activities to invoice user.ID=%d invoice.ID=%d: %s\n", user.ID, invoice.ID, err)
+			log.Fatalf("could not assign activities to invoice userID=%d invoiceID=%d: %s\n", user.ID, invoice.ID, err)
 		}
 
 		log.Printf("number of invoiced activities for %s: %d\n", user.Email, N)
@@ -87,18 +94,13 @@ func main() {
 			// continue
 		}
 
-		// TODO: uncomment once ready
-		// tx.Commit()
-		tx.Rollback()
+		tx.Commit()
 
-		// TODO: rename function to GetInvoiceForUser, drop word Sent
-		// viewInvoice, err := app.viewmodels.Activities.GetSentInvoiceForUser(invoice.ID, user.ID)
-		viewInvoice, err := app.viewmodels.Activities.GetSentInvoiceForUser(23, user.ID)
+		viewInvoice, err := app.viewmodels.Activities.GetInvoiceForUser(invoice.ID, user.ID)
 		if viewInvoice == nil {
 			log.Fatal("for this to work, you need an invoice...")
 		}
 
-		// send email
 		data := newTemplateData(
 			app.config, &user, &invoice, viewInvoice,
 		)
@@ -115,7 +117,6 @@ func main() {
 			// body:    normalizeCRLF(buf.Bytes()),
 		}
 
-		// fmt.Println(em.subject)
 		// fmt.Println(buf.String())
 
 		if err := sendViaImplicitTLS(app.config, em); err != nil {
