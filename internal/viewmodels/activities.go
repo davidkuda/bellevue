@@ -15,7 +15,10 @@ type ActivityViewModel struct {
 type Invoice struct {
 	ID         int
 	Sent       bool
+	Status     string
 	Date       time.Time
+	MinDate    time.Time
+	MaxDate    time.Time
 	Activities []Activity
 	TotalPrice int
 	Categories []Category
@@ -81,6 +84,7 @@ func (m *ActivityViewModel) GetUninvoicedActivitiesForUser(userID int) (*Invoice
 		TotalPrice: totalPrice,
 		Activities: activities,
 	}
+	uninvoicedActivities.MinDate, uninvoicedActivities.MaxDate = activityDateRange(activities)
 
 	cats, err := m.GetUninvoicedCategoriesForUser(userID)
 	if err != nil {
@@ -95,11 +99,12 @@ func (m *ActivityViewModel) GetUninvoicedActivitiesForUser(userID int) (*Invoice
 
 func (m *ActivityViewModel) GetAllInvoicesForUser(userID int) ([]*Invoice, error) {
 	type inv struct {
-		id   int
-		date time.Time
+		id     int
+		status string
+		date   time.Time
 	}
 	stmt := `
-	select id, created_at
+	select id, status, created_at
 	from invoices_v2
 	where user_id = $1
 	order by created_at desc;`
@@ -113,7 +118,7 @@ func (m *ActivityViewModel) GetAllInvoicesForUser(userID int) ([]*Invoice, error
 
 	for rows.Next() {
 		var in inv
-		err = rows.Scan(&in.id, &in.date)
+		err = rows.Scan(&in.id, &in.status, &in.date)
 		if err != nil {
 			return nil, fmt.Errorf("for rows.Next(): %v", err)
 		}
@@ -127,6 +132,7 @@ func (m *ActivityViewModel) GetAllInvoicesForUser(userID int) ([]*Invoice, error
 			return nil, fmt.Errorf("could not get sent invoice invoiceID=%d userID=%d: %v", userID, in.id, err)
 		}
 		invoice.Date = in.date
+		invoice.Status = in.status
 		sentInvoices = append(sentInvoices, invoice)
 	}
 
@@ -154,6 +160,7 @@ func (m *ActivityViewModel) GetInvoiceForUser(invoiceID, userID int) (*Invoice, 
 		TotalPrice: totalPrice,
 		Activities: activities,
 	}
+	invoice.MinDate, invoice.MaxDate = activityDateRange(activities)
 
 	cats, err := m.GetCategoriesByInvoiceIDForUser(invoiceID, userID)
 	if err != nil {
@@ -184,6 +191,26 @@ func (m *ActivityViewModel) GetActivityByIDForUser(activityID, userID int) (*Act
 	}
 
 	return &activities[0], nil
+}
+
+func activityDateRange(activities []Activity) (time.Time, time.Time) {
+	if len(activities) == 0 {
+		return time.Time{}, time.Time{}
+	}
+
+	minDate := activities[0].Date
+	maxDate := activities[0].Date
+
+	for i := 1; i < len(activities); i++ {
+		if activities[i].Date.Before(minDate) {
+			minDate = activities[i].Date
+		}
+		if activities[i].Date.After(maxDate) {
+			maxDate = activities[i].Date
+		}
+	}
+
+	return minDate, maxDate
 }
 
 func (m *ActivityViewModel) getUninvoicedActivityConsumptionsForUser(userID int) (activityConsumptions, error) {
