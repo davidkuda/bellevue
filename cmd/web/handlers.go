@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+
+	"github.com/davidkuda/bellevue/internal/email"
 )
 
 // GET /
@@ -98,4 +100,39 @@ func (app *application) bellevueActivityDelete(w http.ResponseWriter, r *http.Re
 		app.serverError(w, r, fmt.Errorf("failed committing transaction: %s", err))
 		return
 	}
+}
+
+// POST /invoices
+func (app *application) invoicePost(w http.ResponseWriter, r *http.Request) {
+	user := app.contextGetUser(r)
+	userID := user.ID
+
+	ctx := context.TODO()
+	tx, err := app.db.BeginTx(ctx, nil)
+	if err != nil {
+		app.serverError(w, r, fmt.Errorf("failed starting transaction: %e", err))
+		return
+	}
+	defer tx.Rollback()
+
+	invoice, err := app.models.InvoicesV2.NewInvoiceTx(userID, tx)
+	if err != nil {
+		err = fmt.Errorf("could not create new invoice: %v", err)
+		app.serverError(w, r, err)
+		return
+	}
+
+	app.models.InvoicesV2.AssignAllOpenActivitiesToInvoiceTx(userID, invoice.ID, tx)
+
+	tx.Commit()
+
+	viewInvoice, err := app.viewmodels.Activities.GetInvoiceForUser(invoice.ID, user.ID)
+	if err != nil {
+		err = fmt.Errorf("could not get invoice invoiceID=%v userID=%v: %v", invoice.ID, user.ID, err)
+		app.serverError(w, r, err)
+		return
+	}
+
+	email.Send(app.EmailConfig, user, &invoice, viewInvoice)
+	w.Header().Set("HX-Redirect", "/activities")
 }

@@ -1,0 +1,57 @@
+{{- define "email-html" -}}
+
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{.Subject}}</title>
+</head>
+<body>
+<p>
+  Liebe/r {{.User.FirstName}}
+</p>
+<p>
+  Hier ist Deine Rechnung aus <a href="https://{{ .Domain }}">{{ .Domain }}</a>.
+</p>
+<p>
+  Im letzten Monat hast Du im Bellevue im Wert von {{.ViewInvoice.TotalPrice | fmtCHF}} CHF konsumiert.
+</p>
+<p>
+  Bitte überweise <strong>{{.ViewInvoice.TotalPrice | fmtCHF}} CHF</strong> an das folgende Konto (Zahlungszweck nicht vergessen):
+</p>
+<p>
+   <strong>Zahlungszweck: </strong>{{ .Zahlungszweck }}
+</p>
+<p>
+<strong>{{ .Recipient.IBAN }}</strong><br>
+{{ .Recipient.Name }}<br>
+{{ .Recipient.Street }}<br>
+{{ .Recipient.PLZOrt }}
+</p>
+<p>
+  Hier ist eine Auflistung Deiner Konsumationen:
+</p>
+{{ range .ViewInvoice.Activities }}
+  <p>
+  <strong>{{ .Date | fmtDate }}: {{ .TotalPrice | fmtCHF }} CHF:</strong><br>
+  {{- range .Consumptions -}}
+    {{- if ne .PriceCategory "free_amount" }}
+      - {{ .Quantity }} {{ .ProductName }} zu {{ .UnitPrice | fmtCHF }} CHF ({{ .PriceCategory }})<br>
+    {{- else }}
+      - {{ .ProductName }} zu {{ .UnitPrice | fmtCHF }} CHF<br>
+    {{ end -}}
+  {{- end }}
+  {{ .Comment }}
+  </p>
+{{- end }}
+</p>
+<p>
+Lieben Gruss<br>
+David
+</p>
+</body>
+</html>
+
+{{- end -}}

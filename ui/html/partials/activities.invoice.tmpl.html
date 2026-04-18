@@ -47,7 +47,12 @@
         {{ template "invoice-body" . }}
 
         <footer class="invoice__footer">
-          <p><button class="button button--secondary invoice__button">Rechnung erstellen</button></p>
+          <p><button
+            hx-post="/invoices"
+            hx-confirm="Bist Du sicher, dass Du alle offenen Konsumationen jetzt verrechnen willst?"
+            hx-swap="none"
+            class="button button--secondary invoice__button"
+        >Jetzt Rechnung erstellen</button></p>
         </footer>
       </div>
     </section>

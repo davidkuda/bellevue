@@ -146,7 +146,7 @@ func (m *ActivityViewModel) GetInvoiceForUser(invoiceID, userID int) (*Invoice, 
 	}
 
 	if len(acs) == 0 {
-		return nil, nil
+		return nil, errors.New("no activities for invoice")
 	}
 
 	activities := acs.toViewModel()

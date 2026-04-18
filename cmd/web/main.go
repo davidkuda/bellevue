@@ -11,6 +11,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/davidkuda/bellevue/internal/email"
 	"github.com/davidkuda/bellevue/internal/envcfg"
 	"github.com/davidkuda/bellevue/internal/models"
 	"github.com/davidkuda/bellevue/internal/viewmodels"
@@ -48,6 +49,8 @@ type application struct {
 		Issuer   string
 		Audience string // TODO: should this be []string?
 	}
+
+	EmailConfig email.EmailConfig
 }
 
 var (
@@ -132,6 +135,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("could not initialise templateCache: %v\n", err)
 	}
+
+	app.EmailConfig = email.LoadConfigFromEnv()
 
 	log.Print(fmt.Sprintf("Starting web server, listening on %s", *addr))
 	mux := app.routes()

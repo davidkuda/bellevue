@@ -1,0 +1,17 @@
+{{- define "email" -}}
+From: {{ .SenderName }} <{{ .SenderEmail }}>
+To: {{.User.FirstName}} {{.User.LastName}} <{{.User.Email}}>
+Subject: {{.Subject}}
+Date: {{.Date}}
+MIME-Version: 1.0
+Content-Type: multipart/alternative; boundary="BOUNDARY"
+
+--BOUNDARY
+
+{{ template "email-txt" . }}
+
+--BOUNDARY
+{{ template "email-html" . }}
+
+--BOUNDARY--
+{{- end -}}
