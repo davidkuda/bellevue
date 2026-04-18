@@ -1,16 +1,18 @@
 {{ define "main" }}
   {{ with .ViewModels }}
   {{ if or .UninvoicedActivities .SentInvoices }}
-    <main class="center stack-xl">
-      <button
-        class="individual"
-        hx-get="/activities/new"
-        hx-push-url="true"
-        hx-target="main"
-        hx-swap="innerHTML show:html:top"
-      >
-        Add a new activity
-      </button>
+    <main class="activities-page">
+      <section class="activities-page__actions">
+        <button
+          class="button button--primary activities-page__primary-action"
+          hx-get="/activities/new"
+          hx-push-url="true"
+          hx-target="main"
+          hx-swap="innerHTML show:html:top"
+        >
+          Add a new activity
+        </button>
+      </section>
       {{ if .UninvoicedActivities }}
         {{ template "invoice" .UninvoicedActivities }}
       {{ end }}

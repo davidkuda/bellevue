@@ -21,7 +21,10 @@ form > fieldset {
 	margin: 0;
 }
 
-form * {
+form label,
+form input,
+form textarea,
+form select {
 	box-sizing: border-box;
 	display: block;
 	overflow: hidden;

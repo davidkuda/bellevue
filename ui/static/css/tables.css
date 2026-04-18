@@ -1,93 +1,335 @@
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-/* MAIN.BellevueActivities - - - - - - - - - - - - - - - - - - - - - - - - */
+/* Activity invoice ledger -------------------------------------------------- */
 
-span.bellevue-activity {
+.activities-page {
+	width: min(100% - 1.25rem, 44rem);
+	margin-inline: auto;
+	padding-block: clamp(1.25rem, 4vw, 2.5rem) 0;
+}
+
+.activities-page > * + * {
+	margin-block-start: clamp(1.25rem, 3vw, 2rem);
+}
+
+.activities-page__actions {
+	display: grid;
+	justify-items: center;
+	margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.button {
+	all: unset;
+	box-sizing: border-box;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 2.55rem;
+	padding: 0.55rem 1.05rem;
+	border-radius: 0.35rem;
+	cursor: pointer;
+	font-weight: 700;
+	letter-spacing: 0.01em;
+}
+
+.button--primary {
+	background: var(--primary);
+	color: var(--button-text);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.button--primary:hover {
+	background: var(--primary-600);
+}
+
+.button--secondary {
+	background: color-mix(in srgb, var(--table-header) 72%, var(--page-background) 28%);
+	color: var(--text);
+	border: 1px solid var(--form-divider);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.button--secondary:hover {
+	background: var(--table-header);
+	border-color: var(--table-border);
+}
+
+.invoice {
+	max-width: 100%;
+}
+
+.invoice--sent {
 	display: block;
+	background: var(--page-background);
+	border: 1px solid var(--table-border);
+	border-radius: 0.35rem;
+	overflow: hidden;
 }
 
-div.table-container {
-	/* overflow-x: scroll; */
-	max-width: 100dvw;
-	-webkit-overflow-scrolling: touch;
-	/* Smooth scrolling on iOS */
+.invoice__panel {
+	background: var(--page-background);
+	border: 1px solid var(--table-border);
+	border-radius: 0.35rem;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+	overflow: hidden;
 }
 
-th,
-td {
-	max-width: max-content;
+.invoice__header {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	grid-template-areas:
+		"copy amount"
+		"categories amount";
+	column-gap: clamp(1.75rem, 6vw, 4rem);
+	row-gap: 0.7rem;
+	align-items: start;
+	padding: clamp(1rem, 2.6vw, 1.35rem) clamp(1.05rem, 2.8vw, 1.45rem);
+	background: var(--page-background);
+	border-bottom: 1px solid var(--table-border);
 	text-align: left;
 }
 
-td.date-price {
-	width: 21ch;
+.invoice--sent > .invoice__header {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	grid-template-areas:
+		"copy side"
+		"categories categories";
+	align-items: start;
+	column-gap: 1.5rem;
+	row-gap: 0.72rem;
+	position: relative;
+	cursor: pointer;
+	border-bottom: 0;
+	background: var(--page-background);
+	padding-block: 0.95rem 1rem;
+	list-style: none;
 }
 
-td small.comment {
-	max-width: 21ch;
-	white-space: normal;
+.invoice__copy {
+	grid-area: copy;
+}
+
+.invoice__copy > * + * {
+	margin-block-start: 0.48rem;
+}
+
+.invoice--sent > .invoice__header > .invoice__copy {
+	grid-area: copy;
+}
+
+.invoice--sent > .invoice__header > .invoice-categories {
+	grid-area: categories;
+	align-self: start;
+	margin-top: 0;
+}
+
+.invoice--sent[open] > .invoice__header {
+	background: var(--page-background);
+	border-bottom: 1px solid var(--table-border);
+}
+
+.invoice--sent > .invoice__header::-webkit-details-marker {
+	display: none;
+}
+
+.invoice__toggle-label {
+	display: none;
+}
+
+.invoice--sent .invoice__toggle-label {
+	content: "anzeigen";
+	display: block;
+	color: var(--subtle);
+	font-size: 0.82rem;
+	line-height: 1.2;
+	text-decoration: underline;
+	text-underline-offset: 0.18em;
+}
+
+.invoice--sent[open] .invoice__toggle-label {
+	content: "schliessen";
+}
+
+.invoice--sent .invoice__toggle-label::before {
+	content: "anzeigen";
+}
+
+.invoice--sent[open] .invoice__toggle-label::before {
+	content: "schliessen";
+}
+
+.invoice--sent .invoice__header h3 {
+	font-size: 1.05rem;
+}
+
+.invoice--sent .invoice__amount {
+	min-width: 8.5rem;
+	font-size: 1.12rem;
+	text-align: right;
+}
+
+.invoice__side {
+	grid-area: side;
+	display: grid;
+	gap: 0.42rem;
+	justify-items: end;
+	align-content: start;
+	text-align: right;
+}
+
+.invoice__side .invoice__amount {
+	grid-area: auto;
+}
+
+.invoice__header h3 {
+	margin: 0;
+	font-size: clamp(1.2rem, 3.4vw, 1.55rem);
+	line-height: 1.15;
+	letter-spacing: -0.02em;
+}
+
+.invoice__eyebrow {
+	display: block;
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--subtle);
+}
+
+.invoice__hint {
+	color: var(--subtle);
+	font-size: 0.86rem;
+	line-height: 1.38;
+}
+
+.invoice__amount {
+	grid-area: amount;
+	margin: 0;
+	text-align: right;
+	white-space: nowrap;
+	font-size: clamp(1.3rem, 4vw, 1.65rem);
+	font-weight: 800;
+	line-height: 1.08;
+	display: flex;
+	flex-direction: column-reverse;
+	gap: 0.2rem;
+}
+
+.invoice__amount span {
+	display: block;
+	margin-top: 0;
+	color: var(--subtle);
+	font-size: 0.78rem;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+}
+
+.invoice__list {
+	background: var(--page-background);
+}
+
+.invoice__details {
+	background: var(--page-background);
+}
+
+.activity-entry {
+	display: grid;
+	grid-template-columns: minmax(8.5rem, 10rem) minmax(0, 1fr);
+	gap: 1.25rem;
+	padding: 0.78rem clamp(1.05rem, 2.8vw, 1.45rem);
+	border-bottom: 1px solid var(--table-border);
+}
+
+.activity-entry:last-child {
+	border-bottom: none;
+}
+
+.activity-entry__heading {
+	display: grid;
+	gap: 0.25rem;
+	align-content: start;
+}
+
+.activity-entry h4 {
+	margin: 0;
+	font-size: 1rem;
+	font-weight: 700;
+	line-height: 1.2;
+	letter-spacing: -0.01em;
+}
+
+.activity-entry__heading strong {
+	white-space: nowrap;
+	font-size: 1rem;
+	font-weight: 400;
+	color: var(--text);
+}
+
+.activity-entry__items {
+	list-style: none;
+	display: grid;
+	gap: 0.55rem;
+	padding: 0;
+	margin: 0;
+}
+
+li.bellevue-activity {
+	display: grid;
+	gap: 0.18rem;
+	font-size: 0.98rem;
 	overflow-wrap: anywhere;
+}
+
+.bellevue-activity__name {
 	min-width: 0;
 }
 
-table {
-	/* optional: ensures scrolling if content is large */
-	width: 100%;
-	border-collapse: collapse;
-	border: none;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	padding: 1rem;
+.bellevue-activity__calculation {
+	color: var(--subtle);
+	font-size: 0.86em;
+	white-space: normal;
 }
 
-@media (max-width: 640px) {
-	td.date-price {
-		width: 15ch;
-	}
+.bellevue-activity__calculation span {
+	margin-left: 0.3rem;
+	color: var(--muted);
 }
 
-th,
-td {
-	padding: 0.8em 1em;
-	vertical-align: top;
-	text-align: left;
+.activity-entry__comment {
+	margin: 0.45rem 0 0;
+	padding: 0;
+	background: transparent;
+	border-radius: 0;
+	color: var(--subtle);
 }
 
-th {
-	font-weight: bold;
-	background-color: var(--table-header);
+.activity-entry__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.85rem;
+	margin-top: 0.72rem;
 }
 
-tr {
-	border: 1px solid var(--table-border);
-}
-
-/* tr:nth-child(even) { */
-/* 	background-color: var(--overlay); */
-/* } */
-
-/* tr:hover:not(:has(th)) { */
-/*     background-color: var(--highlight-med); */
-/* } */
-
-.no-break {
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-table button {
+.activity-entry__actions button {
 	all: unset;
+	box-sizing: border-box;
 	font-family: inherit;
-	font-size: inherit;
+	font-size: 0.88rem;
+	font-weight: 600;
 	cursor: pointer;
-	background-color: inherit;
-	padding: 0.1rem 0.8rem;
-	/* border-radius: 0.5em; */
-	/* border: 1px solid var(--text); */
-	/* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
+	padding: 0.1rem 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	line-height: 1.2;
+	text-decoration: underline;
+	text-decoration-thickness: 6%;
+	text-underline-offset: 0.18em;
 }
 
 button.edit {
-	color: var(--iris);
+	color: var(--subtle);
 }
 
 button.edit:hover {
@@ -102,4 +344,142 @@ button.delete {
 button.delete:hover {
 	color: var(--love);
 	transition: color 0.2s ease-in-out;
+}
+
+.invoice-categories {
+	grid-area: categories;
+	list-style: none;
+	padding: 0;
+	margin: 0.15rem 0 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.48rem;
+}
+
+.invoice-categories li {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.55rem;
+	width: max-content;
+	max-width: 100%;
+	padding: 0.34rem 0.62rem;
+	background: var(--table-header);
+	border-bottom: none;
+	border: 1px solid var(--form-divider);
+	border-radius: 0.28rem;
+	font-size: 0.86rem;
+	line-height: 1.2;
+	color: var(--text);
+}
+
+.invoice-categories strong {
+	font-weight: 600;
+	color: var(--text);
+}
+
+.invoice-categories span {
+	font-weight: 400;
+	white-space: nowrap;
+	color: var(--text);
+}
+
+.invoice__footer {
+	padding: 0.62rem clamp(1.05rem, 2.8vw, 1.45rem);
+	background: var(--page-background);
+	border-top: 1px solid var(--table-border);
+}
+
+.invoice__footer p {
+	display: grid;
+	justify-items: center;
+	margin: 0;
+}
+
+.invoice__button {
+	width: min(100%, 14rem);
+	margin: 0 auto;
+}
+
+.no-break {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+@media (max-width: 520px) {
+	.activities-page {
+		width: min(100% - 1rem, 48rem);
+		padding-block-start: 1rem;
+	}
+
+	.activities-page__primary-action {
+		width: min(100%, 22rem);
+	}
+
+	.invoice__header {
+		display: grid;
+		grid-template-columns: 1fr;
+		grid-template-areas:
+			"copy"
+			"amount"
+			"categories";
+		gap: 0.8rem;
+		padding-left: 1.1rem;
+	}
+
+	.invoice--open .invoice__amount {
+		text-align: left;
+	}
+
+	.invoice--sent > .invoice__header {
+		grid-template-columns: minmax(0, 1fr) auto;
+		grid-template-areas:
+			"copy side"
+			"categories categories";
+		column-gap: 1rem;
+		row-gap: 0.72rem;
+	}
+
+	.invoice__side,
+	.invoice--sent .invoice__amount {
+		min-width: 0;
+		text-align: right;
+	}
+
+	.invoice-categories {
+		margin-top: 0;
+		gap: 0.42rem;
+	}
+
+	.invoice--sent > .invoice__header > .invoice-categories {
+		margin-top: 0;
+	}
+
+	.invoice-categories li {
+		gap: 0.35rem;
+		padding: 0.34rem 0.58rem;
+		font-size: 0.82rem;
+	}
+
+	.activity-entry__heading,
+	li.bellevue-activity {
+		align-items: start;
+	}
+
+	.activity-entry {
+		display: block;
+		padding-block: 0.78rem;
+	}
+
+	.activity-entry__heading {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+		align-items: baseline;
+		margin-bottom: 0.5rem;
+	}
+
+	.invoice__button {
+		width: 100%;
+	}
 }

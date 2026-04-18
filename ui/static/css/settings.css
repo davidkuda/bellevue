@@ -58,7 +58,7 @@ main.with-sidebar {
 	padding: 0.5em 1em;
 }
 
-section {
+.with-sidebar > section {
 	border-radius: 0.4em;
 }
 

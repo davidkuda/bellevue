@@ -1,28 +1,28 @@
 /* ----------------------------------------------------------------------- */
-header {
+.site-header {
 	text-align: center;
 	margin: 1.5rem;
 	display: flex;
 	flex-direction: column;
 }
 
-header > img {
+.site-header > img {
 	align-self: flex-end;
 	margin-top: -0.8em;
 	margin-right: -1.5em;
 	margin-bottom: 1em;
 }
 
-header hgroup > h1 > a {
+.site-header hgroup > h1 > a {
 	text-decoration: none;
 }
 
-header hgroup > h1 > a:hover {
+.site-header hgroup > h1 > a:hover {
 	text-decoration: underline;
 	text-decoration-thickness: 5%;
 }
 
-header > hgroup > div.nav {
+.site-header > hgroup > div.nav {
 	display: flex;
 	justify-content: center;
 	gap: 0.6rem;
@@ -38,7 +38,7 @@ span#themeToggle:hover {
 	cursor: pointer;
 }
 
-header nav a.active {
+.site-header nav a.active {
 	text-decoration: none;
 	font-weight: 600;
 }

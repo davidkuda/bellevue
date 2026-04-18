@@ -12,34 +12,50 @@ fieldset {
 /* --- number picker ---------------------------------- */
 
 fieldset.number-picker {
-	display: flex;
-	max-width: 324px;
+	display: inline-grid;
+	grid-template-columns: 3rem 4rem 3rem;
+	width: max-content;
+	border: 0;
 	border-radius: 0.5rem;
-	overflow: hidden;
+	overflow: clip;
+	box-shadow: none;
 }
 
 .number-picker input {
+	display: block;
 	width: 4rem;
+	height: 3rem;
 	text-align: center;
 	border-radius: 0;
-	border: 1px solid var(--form-number-picker);
+	border: 0;
+	border-inline: 1px solid var(--form-divider);
 	background-color: var(--form-input);
+	padding: 0;
+	font-weight: 600;
 }
 
 fieldset.number-picker button {
+	all: unset;
+	box-sizing: border-box;
+	display: grid;
+	place-items: center;
 	width: 3rem;
+	height: 3rem;
 	background-color: var(--form-number-picker);
-	cursor: pointer;
-	border: 1px solid var(--form-number-picker);
-}
-
-fieldset.number-picker:active {
-	border: 1px solid var(--primary);
-}
-
-.number-picker button {
 	color: var(--text);
+	cursor: pointer;
+	font-size: 1.25rem;
+	font-weight: 700;
+	line-height: 1;
 	touch-action: manipulation;
+}
+
+fieldset.number-picker:focus-within {
+	box-shadow: 0 0 0 2px var(--primary-100);
+}
+
+.number-picker button:hover {
+	background-color: var(--table-header);
 }
 
 /* Rounded left corners */
@@ -69,6 +85,10 @@ fieldset.fixed-price-activity {
 	flex-wrap: wrap;
 	gap: 0.5rem;
 	margin: 0;
+	padding: 0;
+	border: 0;
+	box-shadow: none;
+	background: transparent;
 }
 
 fieldset.fixed-price-activity * + * {
@@ -92,24 +112,35 @@ fieldset.price-categories > ul {
 	flex-direction: row;
 	gap: 0.5rem;
 	padding: 0;
+	margin: 0;
+	list-style: none;
 }
 
 fieldset.price-categories > ul * {
 	margin: 0;
 	padding: 0;
 	text-indent: 0;
-	list-style-type: 0;
 	margin-block-start: 0;
+}
+
+fieldset.price-categories > ul > li {
+	list-style: none;
 }
 
 fieldset.price-categories input[type="radio"] {
 	appearance: none;
+	position: absolute;
+	inline-size: 1px;
+	block-size: 1px;
+	opacity: 0;
+	pointer-events: none;
 }
 
 fieldset.price-categories .price-category__label {
+	display: block;
 	background-color: var(--form-input);
 	padding: 0.5em;
-	border: 1px solid var(--shade-500);
+	border: 1px solid var(--form-divider);
 	border-radius: 0.5em;
 }
 
@@ -117,9 +148,17 @@ fieldset.price-categories .price-category__label {
 	cursor: pointer;
 }
 
-.price-category__label-name {
+fieldset.price-categories .price-category__label-name {
+	display: block;
 	font-size: small;
 	font-weight: 200;
+	line-height: 1.2;
+}
+
+fieldset.price-categories .price-category__label-price {
+	display: block;
+	margin-top: 0.15rem;
+	line-height: 1.2;
 }
 
 input[type="radio"]:checked + .price-category__label {
