@@ -106,6 +106,35 @@ func (m *InvoiceV2Model) AssignOpenActivitiesByRangeToInvoiceForUserTx(
 	return int(n), nil
 }
 
+func (m *InvoiceV2Model) AssignOpenActivitiesBeforeDateToInvoiceForUserTx(
+	date time.Time,
+	userID int,
+	invoceID int,
+	tx *sql.Tx,
+) (int, error) {
+	var err error
+
+	stmt := `
+	update activities
+	   set invoice_id = $1
+	 where user_id = $2
+	   AND date <  date_trunc('month', $3::date)
+	   and invoice_id is null;
+	`
+
+	result, err := tx.Exec(stmt, invoceID, userID, date)
+	if err != nil {
+		return 0, err
+	}
+
+	n, err := result.RowsAffected()
+	if err != nil {
+		return 0, err
+	}
+
+	return int(n), nil
+}
+
 func (m *InvoiceV2Model) AssignAllOpenActivitiesToInvoiceTx(userID, invoceID int, tx *sql.Tx) (int, error) {
 	var err error
 
