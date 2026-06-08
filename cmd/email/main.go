@@ -28,7 +28,7 @@ func main() {
 	app := newApplication()
 	defer app.db.Close()
 
-	users, err := app.models.Users.GetAll()
+	users, err := app.models.Users.GetAllWithUninvoicedActivities()
 	if err != nil {
 		log.Fatalf("failed fetching users from DB: %v", err)
 	}
@@ -68,7 +68,7 @@ func main() {
 			log.Fatalf("could not create a new invoice user.ID=%d: %s\n", user.ID, err)
 		}
 
-		// Comment in/out one of the next 3 blocks:
+		// Comment in/out one of the next blocks:
 
 		// Either: Assign all uninvoiced activities:
 		// N, err := app.models.InvoicesV2.AssignAllOpenActivitiesToInvoiceTx(user.ID, invoice.ID, tx)
@@ -80,13 +80,18 @@ func main() {
 		// )
 
 		// Or: Assign activities by range (Q1 2026):
-		start := time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC)
-		end := time.Date(2026, time.April, 1, 0, 0, 0, 0, time.UTC)
-		N, err := app.models.InvoicesV2.AssignOpenActivitiesByRangeToInvoiceForUserTx(
-			start, end, user.ID, invoice.ID, tx,
+		// start := time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC)
+		// end := time.Date(2026, time.April, 1, 0, 0, 0, 0, time.UTC)
+		// N, err := app.models.InvoicesV2.AssignOpenActivitiesByRangeToInvoiceForUserTx(
+		// 	start, end, user.ID, invoice.ID, tx,
+		// )
+
+		// Or: Assign all open activites prior to current month
+		N, err := app.models.InvoicesV2.AssignOpenActivitiesBeforeCurrentMonthForUserTx(
+			user.ID, invoice.ID, tx,
 		)
 
-		app.config.EmailSubject = "Deine Rechnung für das Q1 2026 im Bellevue"
+		app.config.EmailSubject = "Deine Rechnung für den letzten Monat im Bellevue"
 
 		if err != nil {
 			log.Fatalf("could not assign activities to invoice userID=%d invoiceID=%d: %s\n", user.ID, invoice.ID, err)
