@@ -135,7 +135,24 @@ func (m *UserModel) GetAll() ([]User, error) {
 	SELECT id, first_name, last_name, email
 	FROM users;
 	`
+	return m.getMultiple(stmt)
+}
 
+func (m *UserModel) GetAllWithUninvoicedActivities() ([]User, error) {
+	stmt := `
+	select u.id,
+	       u.first_name,
+	       u.last_name,
+	       u.email
+	  from users u
+	  join activities a
+	    on u.id = a.user_id
+	 where a.invoice_id is null
+	`
+	return m.getMultiple(stmt)
+}
+
+func (m *UserModel) getMultiple(stmt string) ([]User, error) {
 	rows, err := m.DB.Query(stmt)
 	if err != nil {
 		return nil, fmt.Errorf("DB.Query(stmt): %v", err)
@@ -154,7 +171,7 @@ func (m *UserModel) GetAll() ([]User, error) {
 			&user.Email,
 		)
 		if err != nil {
-			return nil, fmt.Errorf("for rows.Next(): %v", err)
+			return nil, fmt.Errorf("rows.Scan: %v", err)
 		}
 		users = append(users, user)
 	}
