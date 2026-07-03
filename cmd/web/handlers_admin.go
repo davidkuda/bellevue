@@ -21,6 +21,9 @@ func (app *application) getLogin(w http.ResponseWriter, r *http.Request) {
 
 // GET /login/email: Partial: Login form that asks for email and password.
 func (app *application) getLoginEmail(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "Signup is no longer available.", http.StatusGone)
+	return
+
 	if app.isAuthenticated(r) {
 		http.Redirect(w, r, "/activities", http.StatusSeeOther)
 		return
@@ -32,6 +35,9 @@ func (app *application) getLoginEmail(w http.ResponseWriter, r *http.Request) {
 
 // GET /signup: Partial: Signup form that asks for name, email and password.
 func (app *application) getLoginSignup(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "Signup is no longer available.", http.StatusGone)
+	return
+
 	if app.isAuthenticated(r) {
 		http.Redirect(w, r, "/activities", http.StatusSeeOther)
 		return
@@ -43,6 +49,9 @@ func (app *application) getLoginSignup(w http.ResponseWriter, r *http.Request) {
 
 // POST /signup
 func (app *application) postSignup(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "Signup is no longer available.", http.StatusGone)
+	return
+
 	var err error
 
 	type userSignupForm struct {
@@ -85,6 +94,9 @@ func (app *application) postSignup(w http.ResponseWriter, r *http.Request) {
 
 // POST /login
 func (app *application) postLogin(w http.ResponseWriter, r *http.Request) {
+	http.Error(w, "Signup is no longer available.", http.StatusGone)
+	return
+
 	type userLoginForm struct {
 		email    string
 		password string
