@@ -130,7 +130,12 @@ with product_form_specs as (
                   'price',   p.price,
                   'checked', (pc.name = 'regular')
                 )
-                order by pc.name
+	            order by case pc.name
+                  when 'team'    then 1
+                  when 'regular' then 2
+                  when 'surplus' then 3
+                  else 4
+                end
                 )
                 filter (where pc.name is not null and p.price is not null)
               as categories_json,
@@ -181,10 +186,10 @@ order by sort_order nulls last, code
 			return ProductFormConfig{}, fmt.Errorf("unmarshal categories for %s: %w", spec.Code, err)
 		}
 
-		// make reduced preselected category if exists:
+		// preselect price category "team" if exists:
 		hasReduced := false
 		for _, category := range categories {
-			if category.Name == "reduced" {
+			if category.Name == "team" {
 				hasReduced = true
 				break
 			}
@@ -194,7 +199,7 @@ order by sort_order nulls last, code
 				categories[i].Checked = false
 			}
 			for i := range categories {
-				if categories[i].Name == "reduced" {
+				if categories[i].Name == "team" {
 					categories[i].Checked = true
 				}
 			}
