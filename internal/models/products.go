@@ -180,7 +180,28 @@ order by sort_order nulls last, code
 		if err := json.Unmarshal(catsJSON, &categories); err != nil {
 			return ProductFormConfig{}, fmt.Errorf("unmarshal categories for %s: %w", spec.Code, err)
 		}
+
+		// make reduced preselected category if exists:
+		hasReduced := false
+		for _, category := range categories {
+			if category.Name == "reduced" {
+				hasReduced = true
+				break
+			}
+		}
+		if hasReduced {
+			for i := range categories {
+				categories[i].Checked = false
+			}
+			for i := range categories {
+				if categories[i].Name == "reduced" {
+					categories[i].Checked = true
+				}
+			}
+		}
+
 		spec.PriceCategories = categories
+
 		pfc.Specs = append(pfc.Specs, spec)
 		for _, category := range categories {
 			pfc.Prices[spec.Code+"/"+category.Name] = category.Price
